@@ -11,6 +11,8 @@ public class MouseLook : MonoBehaviour
 
     float rotationY = 0f;
 
+    private GameObject curr;
+
 
     void Update()
     {
@@ -23,5 +25,21 @@ public class MouseLook : MonoBehaviour
 
             transform.localEulerAngles = new Vector3(-rotationY, rotationX, 0f);
         }
+
+        RaycastHit hit;
+        var cameratrans = GameObject.Find("Main Camera").transform;
+        if (Physics.Raycast(cameratrans.position, cameratrans.forward, out hit)) {
+            curr = hit.transform.gameObject;
+            curr.GetComponent<Renderer>().material.color = Color.red;
+        } else {
+            if (curr) {
+                curr.GetComponent<Renderer>().material.color = Color.white;
+                curr = null;
+            }
+        }
+    }
+
+    void OnGUI(){
+        GUI.Box(new Rect(Screen.width/2,Screen.height/2, 2, 2), "");
     }
 }

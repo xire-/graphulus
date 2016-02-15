@@ -25,7 +25,6 @@ public class World : MonoBehaviour
                 brick.transform.localScale = new Vector3(0.02f, 0.02f, 0.02f);
                 brick.transform.position = new Vector3(-1f, y, z);
                 brick.transform.parent = gameObject.transform;
-                brick.GetComponent<Renderer>().material.color = Color.red;
                 brick.AddComponent(System.Type.GetType("Brick"));
             }
         }
