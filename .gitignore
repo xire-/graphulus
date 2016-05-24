@@ -2,5 +2,5 @@
 obj/
 Library/
 Temp/
-OculusDataVision.CSharp.csproj
-OculusDataVision.sln
+*.csproj
+*.sln
