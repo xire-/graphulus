@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class Link : MonoBehaviour
+public class Edge : MonoBehaviour
 {
     private LineRenderer lineRenderer;
     public GameObject node1, node2;

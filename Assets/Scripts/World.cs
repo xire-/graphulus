@@ -24,7 +24,7 @@ public class World : MonoBehaviour
 
         var links = new List<Node>();
         var lconf = System.IO.File.ReadAllText("Examples/links.txt");
-        var lprefab = Resources.Load("Link");
+        var lprefab = Resources.Load("Edge");
         foreach (var line in lconf.Split(new string[] { Environment.NewLine }, StringSplitOptions.None))
         {
             var start = line.Split(' ')[0];
@@ -34,8 +34,8 @@ public class World : MonoBehaviour
 
             var link = (GameObject)Instantiate(lprefab);
             link.transform.parent = gameObject.transform;
-            link.GetComponent<Link>().node1 = startnode;
-            link.GetComponent<Link>().node2 = endnode;
+            link.GetComponent<Edge>().node1 = startnode;
+            link.GetComponent<Edge>().node2 = endnode;
         }
     }
 
