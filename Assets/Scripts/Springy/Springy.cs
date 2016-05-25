@@ -18,7 +18,7 @@ namespace Springy
         // public eventListeners = [];
 
         public Graph() {
-            // nodeSet = HashSet<>();
+            nodeSet = HashSet<>();
         }
 
         public Node addNode(Node node) {
