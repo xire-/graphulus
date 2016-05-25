@@ -1,5 +1,5 @@
 ﻿using UnityEngine;
-using System.Collections;
+
 
 public class Edge : MonoBehaviour
 {
@@ -9,7 +9,6 @@ public class Edge : MonoBehaviour
     public void Start()
     {
         lineRenderer = GetComponent<LineRenderer>();
-        lineRenderer.SetWidth(0.003f, 0.003f);
     }
 
     public void LateUpdate()

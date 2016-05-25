@@ -1,59 +1,32 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
+
 
 public class World : MonoBehaviour
 {
-    private Dictionary<string, GameObject> nodes = new Dictionary<string, GameObject>();
-    Dictionary<GameObject, Vector3> moveto = new Dictionary<GameObject, Vector3>();
-
     void Start()
     {
-        var nconf = System.IO.File.ReadAllText("Examples/nodes.txt");
-        var nprefab = Resources.Load("Node");
-        foreach (var line in nconf.Split(new string[] { Environment.NewLine }, StringSplitOptions.None))
+        var jsonWorld = JsonLoader.Load("Examples/miserables.min.json");
+
+        var nodes = new List<GameObject>();
+        var nodePrefab = Resources.Load("Node");
+        foreach (var jsonNode in jsonWorld.nodes)
         {
-            var node = (GameObject)Instantiate(nprefab);
-            node.transform.position = new Vector3(UnityEngine.Random.Range(-0.5f, 0.5f), UnityEngine.Random.Range(-0.5f, 0.5f), UnityEngine.Random.Range(-1f, 0f));
-            node.transform.localScale = new Vector3(0.02f, 0.02f, 0.02f);
+            var node = (GameObject)Instantiate(nodePrefab);
             node.transform.parent = gameObject.transform;
-            node.GetComponent<Node>().Value = line;
-            nodes.Add(line, node);
-            moveto.Add(node, node.transform.position);
+            node.transform.position = new Vector3(Random.Range(-6f, 6f), Random.Range(-6f, 6f), 5f);
+            node.GetComponent<Node>().Value = jsonNode.name;
+            node.GetComponent<Node>().Group = jsonNode.group;
+            nodes.Add(node);
         }
 
-        var links = new List<Node>();
-        var lconf = System.IO.File.ReadAllText("Examples/links.txt");
-        var lprefab = Resources.Load("Edge");
-        foreach (var line in lconf.Split(new string[] { Environment.NewLine }, StringSplitOptions.None))
+        var edgePrefab = Resources.Load("Edge");
+        foreach (var jsonEdge in jsonWorld.links)
         {
-            var start = line.Split(' ')[0];
-            var end = line.Split(' ')[1];
-            var startnode = nodes[start];
-            var endnode = nodes[end];
-
-            var link = (GameObject)Instantiate(lprefab);
-            link.transform.parent = gameObject.transform;
-            link.GetComponent<Edge>().node1 = startnode;
-            link.GetComponent<Edge>().node2 = endnode;
-        }
-    }
-
-    void Update()
-    {
-        // randomly move nodes
-        var keys = new List<GameObject>(moveto.Keys);
-        foreach (var node in keys)
-        {
-            var to = moveto[node];
-            if (node.transform.position == to)
-            {
-                moveto[node] = new Vector3(UnityEngine.Random.Range(-0.5f, 0.5f), UnityEngine.Random.Range(-0.5f, 0.5f), UnityEngine.Random.Range(-1f, 0f));
-            }
-            else
-            {
-                node.transform.position = Vector3.MoveTowards(node.transform.position, to, 0.2f * Time.deltaTime);
-            }
+            var edge = (GameObject)Instantiate(edgePrefab);
+            edge.transform.parent = gameObject.transform;
+            edge.GetComponent<Edge>().node1 = nodes[jsonEdge.source];
+            edge.GetComponent<Edge>().node2 = nodes[jsonEdge.target];
         }
     }
 }
