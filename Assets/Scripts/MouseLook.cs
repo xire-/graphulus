@@ -13,13 +13,14 @@ public class MouseLook : MonoBehaviour
 
     private GameObject curr;
     private Vector3? moveTo;
+    private float distTot;
 
 
     void Update()
     {
         if (moveTo.HasValue)
         {
-            GameObject.Find("Main Camera").transform.position = Vector3.MoveTowards(GameObject.Find("Main Camera").transform.position, moveTo.Value, 0.5f * Time.deltaTime);
+            GameObject.Find("Main Camera").transform.position = Vector3.MoveTowards(GameObject.Find("Main Camera").transform.position, moveTo.Value, distTot * Time.deltaTime);
         }
 
         if (!Input.GetKey(KeyCode.Space))
@@ -40,6 +41,7 @@ public class MouseLook : MonoBehaviour
             if (Input.GetMouseButtonDown(0))
             {
                 moveTo = curr.transform.position;
+                distTot = Vector3.Distance((Vector3)moveTo, GameObject.Find("Main Camera").transform.position);
             }
             else
             {
