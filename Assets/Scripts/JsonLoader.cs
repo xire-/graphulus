@@ -30,8 +30,8 @@ public class JsonLoader
             var sourceNode = nodes[jsonEdge.source];
             var targetNode = nodes[jsonEdge.target];
             edge.name = String.Format("Edge-{0}-{1}", sourceNode.name, targetNode.name);
-            edge.GetComponent<Edge>().node1 = sourceNode;
-            edge.GetComponent<Edge>().node2 = targetNode;
+            edge.GetComponent<Edge>().source = sourceNode;
+            edge.GetComponent<Edge>().target = targetNode;
             edges.Add(edge);
         }
     }

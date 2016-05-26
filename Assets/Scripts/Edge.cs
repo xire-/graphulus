@@ -3,17 +3,11 @@
 
 public class Edge : MonoBehaviour
 {
-    private LineRenderer lineRenderer;
-    public GameObject node1, node2;
-
-    public void Start()
-    {
-        lineRenderer = GetComponent<LineRenderer>();
-    }
+    public GameObject source, target;
 
     public void LateUpdate()
     {
-        lineRenderer.SetPosition(0, node1.transform.position);
-        lineRenderer.SetPosition(1, node2.transform.position);
+        GetComponent<LineRenderer>().SetPosition(0, source.transform.position);
+        GetComponent<LineRenderer>().SetPosition(1, target.transform.position);
     }
 }
