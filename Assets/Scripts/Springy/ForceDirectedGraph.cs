@@ -14,10 +14,10 @@ namespace Springy
         public Vector3 vel { get; set; }
         public Vector3 acc { get; set; }
 
-        double mass { get; set; }
+        public float mass { get; set; }
         public Vector3 forcesAccumulator { get; set; }
 
-        public Node(int id, string label, double mass = 1)
+        public Node(int id, string label, float mass = 1)
         {
             this.id = id;
             this.label = label;
@@ -34,6 +34,12 @@ namespace Springy
         internal void addForce(Vector3 f)
         {
             forcesAccumulator += f;
+        }
+
+        internal void computeAcceleration()
+        {
+            acc = forcesAccumulator / mass;
+            forcesAccumulator = Vector3.zero;
         }
     }
 
@@ -65,8 +71,9 @@ namespace Springy
 
         public float stiffness { get; private set; }
         public float repulsion { get; private set; }
-        public double damping { get; private set; }
-        public double minEnergyThreshold { get; private set; }
+        public float damping { get; private set; }
+        public float minEnergyThreshold { get; private set; }
+        public bool running { get; set; }
 
         public ForceDirectedGraph()
         {
@@ -76,7 +83,7 @@ namespace Springy
             nextNodeId = 0;
             nextEdgeId = 0;
         }
-        public Node newNode(string label, double mass = 1)
+        public Node newNode(string label, float mass = 1)
         {
             Node node = new Node(nextNodeId, label, mass);
             nextNodeId += 1;
@@ -107,13 +114,20 @@ namespace Springy
         // TODO detachNode removes edges associated with a given node
         // TODO removeEdge remove an edge from the graph
 
-        public void tick(double timestep)
+        public void tick(float timestep)
         {
-            applyCoulombsLaw();
-            applyHookesLaw();
-            attractToCenter();
-            updateVelocity(timestep);
-            updatePosition(timestep);
+            if (running)
+            {
+                applyCoulombsLaw();
+                applyHookesLaw();
+                attractToCenter();
+                physicStep(timestep);
+
+                if (totalEnergy() < minEnergyThreshold)
+                {
+                    running = false;
+                }
+            }
         }
 
         private void applyCoulombsLaw()
@@ -151,19 +165,36 @@ namespace Springy
 
         private void attractToCenter()
         {
-            throw new NotImplementedException();
+            foreach (Node n in nodeMap.Values)
+            {
+                Vector3 direction = n.pos * -1;
+                n.addForce(direction * (repulsion / 50f));
+            }
         }
 
-        private void updateVelocity(double timestep)
+        private void physicStep(float timestep)
         {
-            throw new NotImplementedException();
+            foreach (Node n in nodeMap.Values)
+            {
+                // calculate acceleration from forces
+                n.computeAcceleration();
+
+                // TODO integratore scrauso, rifare
+                n.vel = (n.vel + n.acc * timestep) * damping;
+                n.pos += n.vel * timestep;
+            }
         }
 
-        private void updatePosition(double timestep)
+        private float totalEnergy()
         {
-            throw new NotImplementedException();
+            float energy = 0.0f;
+            foreach (Node n in nodeMap.Values)
+            {
+                float speed = n.vel.magnitude;
+                energy += 0.5f * n.mass * speed * speed;
+            }
+            return energy;
         }
-
 
     }
 }
