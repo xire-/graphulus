@@ -16,6 +16,7 @@ public class World : MonoBehaviour
             node.transform.parent = gameObject.transform;
             node.transform.position = new Vector3(Random.Range(-6f, 6f), Random.Range(-6f, 6f), 5f);
             node.GetComponent<Node>().Value = jsonNode.name;
+            node.GetComponent<Node>().Text = jsonNode.name;
             node.GetComponent<Node>().Group = jsonNode.group;
             nodes.Add(node);
         }
