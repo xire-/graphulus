@@ -7,28 +7,18 @@ public class World : MonoBehaviour
 {
     void Start()
     {
-        var jsonWorld = JsonLoader.Load("Examples/miserables.min.json");
-
         var nodes = new List<GameObject>();
-        var nodePrefab = Resources.Load("Node");
-        foreach (var jsonNode in jsonWorld.nodes)
-        {
-            var node = (GameObject)Instantiate(nodePrefab);
-            node.transform.parent = gameObject.transform;
-            node.transform.position = new Vector3(Random.Range(-6f, 6f), Random.Range(-6f, 6f), 5f);
-            node.GetComponent<Node>().Value = jsonNode.name;
-            node.GetComponent<Node>().Text = jsonNode.name;
-            node.GetComponent<Node>().Group = jsonNode.group;
-            nodes.Add(node);
-        }
+        var edges = new List<GameObject>();
+        JsonLoader.Deserialize("Examples/miserables.json", nodes, edges);
 
-        var edgePrefab = Resources.Load("Edge");
-        foreach (var jsonEdge in jsonWorld.links)
+        foreach (var node in nodes)
         {
-            var edge = (GameObject)Instantiate(edgePrefab);
+            node.transform.parent = gameObject.transform;
+            node.transform.position = new Vector3(Random.Range(-50f, 50f), Random.Range(-50f, 50f), 20f);
+        }
+        foreach (var edge in edges)
+        {
             edge.transform.parent = gameObject.transform;
-            edge.GetComponent<Edge>().node1 = nodes[jsonEdge.source];
-            edge.GetComponent<Edge>().node2 = nodes[jsonEdge.target];
         }
     }
 }
