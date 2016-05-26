@@ -5,8 +5,14 @@ using UnityEngine;
 
 public class Node : MonoBehaviour
 {
+    public int Id { get; set; }
+
     public string Text
     {
+        get
+        { 
+            return transform.Find("Text").GetComponent<TextMesh>().text; 
+        }
         set
         {
             transform.Find("Text").GetComponent<TextMesh>().text = value;
@@ -19,8 +25,17 @@ public class Node : MonoBehaviour
         { 
             var index = value % colors.Count;
             transform.Find("Sphere").GetComponent<Renderer>().material.color = colors[index];
+            transform.Find("Text").GetComponent<Renderer>().material.color = colors[index];
         } 
     }
 
-    private static readonly List<Color> colors = new List<Color>() { Color.black, Color.blue, Color.cyan, Color.gray, Color.green, Color.magenta, Color.red, Color.white, Color.yellow };
+    public Springy.Node SpringyNode { get; set; }
+
+    static readonly List<Color> colors = new List<Color>() { Color.black, Color.blue, Color.cyan, Color.gray, Color.green, Color.magenta, Color.red, Color.white, Color.yellow };
+
+
+    void LateUpdate()
+    {
+        transform.position = SpringyNode.pos;
+    }
 }

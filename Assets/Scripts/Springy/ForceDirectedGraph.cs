@@ -23,7 +23,7 @@ namespace Springy
             this.label = label;
 
             // TODO random position???
-            this.pos = new Vector3();
+            this.pos = new Vector3(UnityEngine.Random.Range(-70f, 70f), UnityEngine.Random.Range(-70f, 70f), UnityEngine.Random.Range(-40f, 40f));
             this.vel = new Vector3();
             this.acc = new Vector3();
 
@@ -69,10 +69,10 @@ namespace Springy
         public int nextNodeId;
         public int nextEdgeId;
 
-        public float stiffness { get; private set; }
-        public float repulsion { get; private set; }
-        public float damping { get; private set; }
-        public float minEnergyThreshold { get; private set; }
+        public float stiffness { get; set; }
+        public float repulsion { get; set; }
+        public float damping { get; set; }
+        public float minEnergyThreshold { get; set; }
         public bool running { get; set; }
 
         public ForceDirectedGraph()
@@ -102,6 +102,7 @@ namespace Springy
             }
             Edge edge = new Edge(nextEdgeId, nodeMap[source], nodeMap[target], length);
             nextEdgeId += 1;
+            edges.Add(edge);
             return edge;
         }
 
@@ -157,7 +158,6 @@ namespace Springy
                 Vector3 delta = edge.target.pos - edge.source.pos;
                 float displacement = edge.length - delta.magnitude;
                 Vector3 direction = delta.normalized;
-
                 edge.source.addForce(direction * (stiffness * displacement * -0.5f));
                 edge.target.addForce(direction * (stiffness * displacement * 0.5f));
             }
