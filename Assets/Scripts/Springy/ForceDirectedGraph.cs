@@ -8,7 +8,6 @@ namespace Springy
     public class Node
     {
         public int id { get; private set; }
-        public string label { get; private set; }
 
         public Vector3 pos { get; set; }
         public Vector3 vel { get; set; }
@@ -17,10 +16,9 @@ namespace Springy
         public float mass { get; set; }
         public Vector3 forcesAccumulator { get; set; }
 
-        public Node(int id, string label, float mass = 1)
+        public Node(int id, float mass = 1)
         {
             this.id = id;
-            this.label = label;
 
             // TODO random position???
             this.pos = new Vector3(UnityEngine.Random.Range(-70f, 70f), UnityEngine.Random.Range(-70f, 70f), UnityEngine.Random.Range(-40f, 40f));
@@ -62,80 +60,85 @@ namespace Springy
 
     public class ForceDirectedGraph
     {
-        public Dictionary<int, Node> nodeMap;
-        public List<Edge> edges;
-        // TODO implementare
-        // public adjacency = {};
-        public int nextNodeId;
-        public int nextEdgeId;
+        private Dictionary<int, Node> nodes;
+        private Dictionary<int, Edge> edges;
+
+        // TODO struttura per ottenere adiacenza
+
+        // edge and node id counter
+        public int nextNodeId { get; private set; }
+        public int nextEdgeId { get; private set; }
 
         public float stiffness { get; set; }
         public float repulsion { get; set; }
         public float damping { get; set; }
         public float minEnergyThreshold { get; set; }
+
         public bool running { get; set; }
+        public bool inEquilibrium { get; set; }
 
         public ForceDirectedGraph()
         {
-            nodeMap = new Dictionary<int, Node>();
-            edges = new List<Edge>();
+            nodes = new Dictionary<int, Node>();
+            edges = new Dictionary<int, Edge>();
 
+            // ids starts from 0
             nextNodeId = 0;
             nextEdgeId = 0;
+
+            // set some default values
+            stiffness = 300f;
+            repulsion = 400f;
+            damping = 0.5f;
+            minEnergyThreshold = 0.01f;
         }
-        public Node newNode(string label, float mass = 1)
+
+        public Node newNode(float mass = 1)
         {
-            Node node = new Node(nextNodeId, label, mass);
+            Node node = new Node(nextNodeId);
             nextNodeId += 1;
-            nodeMap[node.id] = node;
+            nodes[node.id] = node;
             return node;
         }
+
         public Edge newEdge(int source, int target, float length)
         {
             if (source == target)
-            {
                 throw new ArgumentException("Cannot link a node with itself");
-            }
-            if (!nodeMap.ContainsKey(source) || !nodeMap.ContainsKey(target))
-            {
+            if (!nodes.ContainsKey(source) || !nodes.ContainsKey(target))
                 throw new ArgumentException("Source or destination non existant");
-            }
-            Edge edge = new Edge(nextEdgeId, nodeMap[source], nodeMap[target], length);
+
+            Edge edge = new Edge(nextEdgeId, nodes[source], nodes[target], length);
             nextEdgeId += 1;
-            edges.Add(edge);
+            edges[edge.id] = edge;
             return edge;
         }
-
-        public Edge getEdge(Node n1, Node n2)
-        {
-            throw new NotImplementedException();
-        }
-
+        
         // TODO removeNode remove a node and it's associated edges from the graph
         // TODO detachNode removes edges associated with a given node
         // TODO removeEdge remove an edge from the graph
 
         public void tick(float timestep)
         {
-            if (running)
+            if (running && !inEquilibrium)
             {
                 applyCoulombsLaw();
                 applyHookesLaw();
                 attractToCenter();
                 physicStep(timestep);
 
-                if (totalEnergy() < minEnergyThreshold)
+                if (totalKineticEnergy() < minEnergyThreshold)
                 {
-                    running = false;
+                    inEquilibrium = true;
                 }
             }
         }
 
         private void applyCoulombsLaw()
         {
-            foreach (Node n1 in nodeMap.Values)
+            foreach (Node n1 in nodes.Values)
             {
-                foreach (Node n2 in nodeMap.Values)
+                foreach (Node n2 in nodes.Values)
                 {
                     // TODO fix: viene applicata due volte per coppia
                     if (n1.id != n2.id)
@@ -153,7 +156,7 @@ namespace Springy
 
         private void applyHookesLaw()
         {
-            foreach (Edge edge in edges)
+            foreach (Edge edge in edges.Values)
             {
                 Vector3 delta = edge.target.pos - edge.source.pos;
                 float displacement = edge.length - delta.magnitude;
@@ -165,7 +168,7 @@ namespace Springy
 
         private void attractToCenter()
         {
-            foreach (Node n in nodeMap.Values)
+            foreach (Node n in nodes.Values)
             {
                 Vector3 direction = n.pos * -1;
                 n.addForce(direction * (repulsion / 50f));
@@ -174,7 +177,7 @@ namespace Springy
 
         private void physicStep(float timestep)
         {
-            foreach (Node n in nodeMap.Values)
+            foreach (Node n in nodes.Values)
             {
                 // calculate acceleration from forces
                 n.computeAcceleration();
@@ -185,10 +188,10 @@ namespace Springy
             }
         }
 
-        private float totalEnergy()
+        private float totalKineticEnergy()
         {
             float energy = 0.0f;
-            foreach (Node n in nodeMap.Values)
+            foreach (Node n in nodes.Values)
             {
                 float speed = n.vel.magnitude;
                 energy += 0.5f * n.mass * speed * speed;
