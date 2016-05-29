@@ -6,13 +6,16 @@ using UnityEngine;
 
 public class World : MonoBehaviour
 {
-    private Springy.ForceDirectedGraph forceDirectedGraph { get; set; }
+    public bool debugModeEnabled { get; set; }
 
-    private bool debugModeEnabled, textRenderingEnabled = true;
+    private Springy.ForceDirectedGraph forceDirectedGraph { get; set; }
+    private bool textRenderingEnabled;
 
 
     void Start()
     {
+        debugModeEnabled = true;
+
         forceDirectedGraph = new Springy.ForceDirectedGraph();
         forceDirectedGraph.stiffness = 300f;
         forceDirectedGraph.repulsion = 400f;
@@ -45,7 +48,7 @@ public class World : MonoBehaviour
         forceDirectedGraph.tick(Time.deltaTime);
 
         // enable/disable debug menu
-        if (Input.GetKeyDown(KeyCode.D))
+        if (Input.GetKeyDown(KeyCode.Space))
         {
             debugModeEnabled = !debugModeEnabled;
         }
