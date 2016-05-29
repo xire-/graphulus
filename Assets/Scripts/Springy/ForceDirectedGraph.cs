@@ -14,14 +14,17 @@ namespace Springy
         public Vector3 acc { get; set; }
 
         public float mass { get; set; }
-        public Vector3 forcesAccumulator { get; set; }
+        public Vector3 forcesAccumulator { get; private set; }
 
-        public Node(int id, float mass = 1)
+        public Node(int id, float mass, float randRange = 100f)
         {
             this.id = id;
 
-            // TODO random position???
-            this.pos = new Vector3(UnityEngine.Random.Range(-70f, 70f), UnityEngine.Random.Range(-70f, 70f), UnityEngine.Random.Range(-40f, 40f));
+            this.pos = new Vector3(
+                UnityEngine.Random.Range(-randRange, randRange),
+                UnityEngine.Random.Range(-randRange, randRange),
+                UnityEngine.Random.Range(-randRange, randRange)
+                );
             this.vel = new Vector3();
             this.acc = new Vector3();
 
@@ -29,12 +32,12 @@ namespace Springy
             this.forcesAccumulator = new Vector3();
         }
 
-        internal void addForce(Vector3 f)
+        public void addForce(Vector3 f)
         {
             forcesAccumulator += f;
         }
 
-        internal void computeAcceleration()
+        public void computeAcceleration()
         {
             acc = forcesAccumulator / mass;
             forcesAccumulator = Vector3.zero;
@@ -90,12 +93,15 @@ namespace Springy
             stiffness = 300f;
             repulsion = 400f;
             damping = 0.5f;
-            minEnergyThreshold = 0.01f;
+            minEnergyThreshold = 0.05f;
         }
 
         public Node newNode(float mass = 1)
         {
-            Node node = new Node(nextNodeId);
+            if (mass < 0)
+                throw new ArgumentException("Cannot have negative mass");
+
+            Node node = new Node(nextNodeId, mass);
             nextNodeId += 1;
             nodes[node.id] = node;
             return node;
@@ -107,13 +113,15 @@ namespace Springy
                 throw new ArgumentException("Cannot link a node with itself");
             if (!nodes.ContainsKey(source) || !nodes.ContainsKey(target))
                 throw new ArgumentException("Source or destination non existant");
+            if (length < 0)
+                throw new ArgumentException("Cannot have negative length");
 
             Edge edge = new Edge(nextEdgeId, nodes[source], nodes[target], length);
             nextEdgeId += 1;
             edges[edge.id] = edge;
             return edge;
         }
-        
+
         // TODO removeNode remove a node and it's associated edges from the graph
         // TODO detachNode removes edges associated with a given node
         // TODO removeEdge remove an edge from the graph
