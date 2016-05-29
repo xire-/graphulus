@@ -9,7 +9,11 @@ public class World : MonoBehaviour
     public bool debugModeEnabled { get; set; }
 
     private Springy.ForceDirectedGraph forceDirectedGraph { get; set; }
+
     private bool textRenderingEnabled;
+
+    private int frameCount;
+    private float fps, timeElapsed;
 
 
     void Start()
@@ -54,16 +58,17 @@ public class World : MonoBehaviour
         }
         if (debugModeEnabled)
         {
-            if (Input.GetKeyDown(KeyCode.R))
-            {
-                // enable/disable text rendering of nodes
-                var nodes = GameObject.FindGameObjectsWithTag("Node");
-                foreach (var node in nodes)
-                {
-                    node.transform.Find("Text").GetComponent<Renderer>().enabled = !node.transform.Find("Text").GetComponent<Renderer>().enabled;
-                }
-                textRenderingEnabled = !textRenderingEnabled;
-            }
+            updateDebug();
+        }
+
+        // keep track of stats
+        frameCount++;
+        timeElapsed += Time.deltaTime;
+        if (timeElapsed >= 1f)
+        {
+            fps = frameCount;
+            frameCount = 0;
+            timeElapsed = 0f;
         }
     }
 
@@ -72,10 +77,26 @@ public class World : MonoBehaviour
         if (debugModeEnabled)
         {
             var debug =
-                String.Format("Text rendering: {0}\n", textRenderingEnabled ? "ON" : "OFF") +
-                String.Format("Test string: {0:f}\n", 0.3f);
+                String.Format("FPS: {0:f} [{1:f} ms]\n", fps, Time.deltaTime * 1000f) +
+                "\n" +
+                String.Format("Text rendering: {0}\n", textRenderingEnabled ? "ON" : "OFF");
 
             GUI.TextArea(new Rect(Screen.width - 250 - 10, 10, 250, Screen.height - 20), debug);
+        }
+    }
+
+
+    void updateDebug()
+    {
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            // enable/disable text rendering of nodes
+            var nodes = GameObject.FindGameObjectsWithTag("Node");
+            foreach (var node in nodes)
+            {
+                node.transform.Find("Text").GetComponent<Renderer>().enabled = !node.transform.Find("Text").GetComponent<Renderer>().enabled;
+            }
+            textRenderingEnabled = !textRenderingEnabled;
         }
     }
 }
