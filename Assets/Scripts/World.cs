@@ -1,11 +1,14 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 using UnityEngine;
 
 
 public class World : MonoBehaviour
 {
-    Springy.ForceDirectedGraph forceDirectedGraph { get; set; }
+    private Springy.ForceDirectedGraph forceDirectedGraph { get; set; }
+
+    private bool debugModeEnabled, textRenderingEnabled = true;
 
 
     void Start()
@@ -36,20 +39,40 @@ public class World : MonoBehaviour
         }
     }
 
-
     void Update()
     {
         // update simulation
         forceDirectedGraph.tick(Time.deltaTime);
 
-        // enable/disable text rendering of nodes
-        if (Input.GetKeyDown(KeyCode.R))
+        // enable/disable debug menu
+        if (Input.GetKeyDown(KeyCode.D))
         {
-            var nodes = GameObject.FindGameObjectsWithTag("Node");
-            foreach (var node in nodes)
+            debugModeEnabled = !debugModeEnabled;
+        }
+        if (debugModeEnabled)
+        {
+            if (Input.GetKeyDown(KeyCode.R))
             {
-                node.transform.Find("Text").GetComponent<Renderer>().enabled = !node.transform.Find("Text").GetComponent<Renderer>().enabled;
+                // enable/disable text rendering of nodes
+                var nodes = GameObject.FindGameObjectsWithTag("Node");
+                foreach (var node in nodes)
+                {
+                    node.transform.Find("Text").GetComponent<Renderer>().enabled = !node.transform.Find("Text").GetComponent<Renderer>().enabled;
+                }
+                textRenderingEnabled = !textRenderingEnabled;
             }
+        }
+    }
+
+    void OnGUI()
+    {
+        if (debugModeEnabled)
+        {
+            var debug =
+                String.Format("Text rendering: {0}\n", textRenderingEnabled ? "ON" : "OFF") +
+                String.Format("Test string: {0:f}\n", 0.3f);
+
+            GUI.TextArea(new Rect(Screen.width - 250 - 10, 10, 250, Screen.height - 20), debug);
         }
     }
 }
