@@ -63,14 +63,10 @@ namespace Springy
 
     public class ForceDirectedGraph
     {
-        private Dictionary<int, Node> nodes;
-        private Dictionary<int, Edge> edges;
+        private List<Node> nodes;
+        private List<Edge> edges;
 
         // TODO struttura per ottenere adiacenza
-
-        // edge and node id counter
-        public int nextNodeId { get; private set; }
-        public int nextEdgeId { get; private set; }
 
         public float stiffness { get; set; }
         public float repulsion { get; set; }
@@ -82,12 +78,8 @@ namespace Springy
 
         public ForceDirectedGraph()
         {
-            nodes = new Dictionary<int, Node>();
-            edges = new Dictionary<int, Edge>();
-
-            // ids starts from 0
-            nextNodeId = 0;
-            nextEdgeId = 0;
+            nodes = new List<Node>();
+            edges = new List<Edge>();
 
             // set some default values
             stiffness = 300f;
@@ -101,9 +93,8 @@ namespace Springy
             if (mass < 0)
                 throw new ArgumentException("Cannot have negative mass");
 
-            Node node = new Node(nextNodeId, mass);
-            nextNodeId += 1;
-            nodes[node.id] = node;
+            Node node = new Node(nodes.Count, mass);
+            nodes.Add(node);
             return node;
         }
 
@@ -111,14 +102,13 @@ namespace Springy
         {
             if (source == target)
                 throw new ArgumentException("Cannot link a node with itself");
-            if (!nodes.ContainsKey(source) || !nodes.ContainsKey(target))
+            if (source >= nodes.Count || target >= nodes.Count)
                 throw new ArgumentException("Source or destination non existant");
             if (length < 0)
                 throw new ArgumentException("Cannot have negative length");
 
-            Edge edge = new Edge(nextEdgeId, nodes[source], nodes[target], length);
-            nextEdgeId += 1;
-            edges[edge.id] = edge;
+            Edge edge = new Edge(edges.Count, nodes[source], nodes[target], length);
+            edges.Add(edge);
             return edge;
         }
 
@@ -144,27 +134,27 @@ namespace Springy
 
         private void applyCoulombsLaw()
         {
-            foreach (Node n1 in nodes.Values)
+            for (int i = 0; i < nodes.Count; i++)
             {
-                foreach (Node n2 in nodes.Values)
+                Node n1 = nodes[i];
+                for (int j = i + 1; j < nodes.Count; j++)
                 {
-                    // TODO fix: viene applicata due volte per coppia
-                    if (n1.id != n2.id)
-                    {
-                        Vector3 delta = n1.pos - n2.pos;
-                        float sqrDistance = Math.Max(0.1f, delta.sqrMagnitude);
-                        Vector3 direction = delta.normalized;
+                    Node n2 = nodes[j];
 
-                        n1.addForce((direction * repulsion) / (sqrDistance * 0.5f));
-                        n2.addForce((direction * repulsion) / (sqrDistance * -0.5f));
-                    }
+                    Vector3 delta = n1.pos - n2.pos;
+                    float sqrDistance = Math.Max(0.1f, delta.sqrMagnitude);
+                    Vector3 direction = delta.normalized;
+
+                    n1.addForce((direction * repulsion) / (sqrDistance * 0.5f));
+                    n2.addForce((direction * repulsion) / (sqrDistance * -0.5f));
                 }
             }
+
         }
 
         private void applyHookesLaw()
         {
-            foreach (Edge edge in edges.Values)
+            foreach (Edge edge in edges)
             {
                 Vector3 delta = edge.target.pos - edge.source.pos;
                 float displacement = edge.length - delta.magnitude;
@@ -176,7 +166,7 @@ namespace Springy
 
         private void attractToCenter()
         {
-            foreach (Node n in nodes.Values)
+            foreach (Node n in nodes)
             {
                 Vector3 direction = n.pos * -1;
                 n.addForce(direction * (repulsion / 50f));
@@ -185,7 +175,7 @@ namespace Springy
 
         private void physicStep(float timestep)
         {
-            foreach (Node n in nodes.Values)
+            foreach (Node n in nodes)
             {
                 // calculate acceleration from forces
                 n.computeAcceleration();
@@ -199,7 +189,7 @@ namespace Springy
         private float totalKineticEnergy()
         {
             float energy = 0.0f;
-            foreach (Node n in nodes.Values)
+            foreach (Node n in nodes)
             {
                 float speed = n.vel.magnitude;
                 energy += 0.5f * n.mass * speed * speed;
