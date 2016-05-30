@@ -18,6 +18,8 @@ public class World : MonoBehaviour
 
     void Start()
     {
+        UnityEngine.Random.seed = 1337;
+
         debugModeEnabled = true;
 
         forceDirectedGraph = new Springy.ForceDirectedGraph();
