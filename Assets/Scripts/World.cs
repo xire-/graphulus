@@ -13,7 +13,7 @@ public class World : MonoBehaviour
     private bool textRenderingEnabled;
 
     private int frameCount;
-    private float fps, timeElapsed;
+    private float fps, avgDeltaTime, timeElapsed;
 
 
     void Start()
@@ -67,6 +67,7 @@ public class World : MonoBehaviour
         if (timeElapsed >= 1f)
         {
             fps = frameCount;
+            avgDeltaTime = timeElapsed / frameCount;
             frameCount = 0;
             timeElapsed = 0f;
         }
@@ -77,7 +78,7 @@ public class World : MonoBehaviour
         if (debugModeEnabled)
         {
             var debug =
-                String.Format("FPS: {0:f} [{1:f} ms]\n", fps, Time.deltaTime * 1000f) +
+                String.Format("FPS: {0:f} [{1:f} ms]\n", fps, avgDeltaTime * 1000f) +
                 "\n" +
                 String.Format("Text rendering: {0}\n", textRenderingEnabled ? "ON" : "OFF");
 
