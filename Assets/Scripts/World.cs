@@ -10,7 +10,7 @@ public class World : MonoBehaviour
 
     private Springy.ForceDirectedGraph forceDirectedGraph { get; set; }
 
-    private bool textRenderingEnabled;
+    private bool textRenderingEnabled, edgeRenderingEnabled;
 
     private int frameCount;
     private float fps, avgDeltaTime, timeElapsed;
@@ -44,6 +44,9 @@ public class World : MonoBehaviour
                 edge.GetComponent<Edge>().Length
             );
         }
+
+        textRenderingEnabled = true;
+        edgeRenderingEnabled = true;
     }
 
     void Update()
@@ -80,7 +83,8 @@ public class World : MonoBehaviour
             var debug =
                 String.Format("FPS: {0:f} [{1:f} ms]\n", fps, avgDeltaTime * 1000f) +
                 "\n" +
-                String.Format("Text rendering: {0}\n", textRenderingEnabled ? "ON" : "OFF");
+                String.Format("Text rendering: {0}\n", textRenderingEnabled ? "ON" : "OFF") +
+                String.Format("Edge rendering: {0}\n", edgeRenderingEnabled ? "ON" : "OFF");
 
             GUI.TextArea(new Rect(Screen.width - 250 - 10, 10, 250, Screen.height - 20), debug);
         }
@@ -98,6 +102,17 @@ public class World : MonoBehaviour
                 node.transform.Find("Text").GetComponent<Renderer>().enabled = !node.transform.Find("Text").GetComponent<Renderer>().enabled;
             }
             textRenderingEnabled = !textRenderingEnabled;
+        }
+
+        if (Input.GetKeyDown(KeyCode.M))
+        {
+            // enable/disable edge rendering
+            var edges = GameObject.FindGameObjectsWithTag("Edge");
+            foreach (var edge in edges)
+            {
+                edge.GetComponent<Renderer>().enabled = !edge.GetComponent<Renderer>().enabled;
+            }
+            edgeRenderingEnabled = !edgeRenderingEnabled;
         }
     }
 }
