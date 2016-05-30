@@ -93,7 +93,7 @@ public class World : MonoBehaviour
 
     void updateDebug()
     {
-        if (Input.GetKeyDown(KeyCode.R))
+        if (Input.GetKeyDown(KeyCode.N))
         {
             // enable/disable text rendering of nodes
             var nodes = GameObject.FindGameObjectsWithTag("Node");
