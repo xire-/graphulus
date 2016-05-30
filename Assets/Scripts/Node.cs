@@ -31,8 +31,15 @@ public class Node : MonoBehaviour
 
     public Springy.Node SpringyNode { get; set; }
 
-    static readonly List<Color> colors = new List<Color>() { Color.black, Color.blue, Color.cyan, Color.gray, Color.green, Color.magenta, Color.red, Color.white, Color.yellow };
+    public List<GameObject> ConnectedTo { get; set; }
 
+    private static readonly List<Color> colors = new List<Color>() { Color.black, Color.blue, Color.cyan, Color.gray, Color.green, Color.magenta, Color.red, Color.white, Color.yellow };
+
+
+    public Node()
+    {
+        ConnectedTo = new List<GameObject>();
+    }
 
     void LateUpdate()
     {

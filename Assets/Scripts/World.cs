@@ -45,6 +45,24 @@ public class World : MonoBehaviour
                 edge.GetComponent<Edge>().Target.GetComponent<Node>().Id,
                 edge.GetComponent<Edge>().Length
             );
+
+            edge.GetComponent<Edge>().Source.GetComponent<Node>().ConnectedTo.Add(edge.GetComponent<Edge>().Target);
+            edge.GetComponent<Edge>().Target.GetComponent<Node>().ConnectedTo.Add(edge.GetComponent<Edge>().Source);
+        }
+
+        // set node size based on the number of connections
+        int min = 1, max = 1;
+        foreach (var node in nodes)
+        {
+            int curr = node.GetComponent<Node>().ConnectedTo.Count;
+            if (curr < min)
+                min = curr;
+            if (curr > max)
+                max = curr;
+        }
+        foreach (var node in nodes)
+        {
+            node.transform.localScale += node.transform.localScale * (node.GetComponent<Node>().ConnectedTo.Count - min) / (max - min);
         }
 
         textRenderingEnabled = true;
