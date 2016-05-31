@@ -10,6 +10,9 @@ public class World : MonoBehaviour
 
     private Springy.ForceDirectedGraph forceDirectedGraph { get; set; }
 
+    private Texture2D crosshairTexture;
+    private Rect crosshairPosition;
+
     private bool textRenderingEnabled, edgeRenderingEnabled;
 
     private int frameCount;
@@ -67,6 +70,9 @@ public class World : MonoBehaviour
 
         textRenderingEnabled = true;
         edgeRenderingEnabled = true;
+
+        crosshairTexture = (Texture2D)Resources.Load("Crosshair");
+        crosshairPosition = new Rect((Screen.width - crosshairTexture.width) / 2, (Screen.height - crosshairTexture.height) / 2, crosshairTexture.width, crosshairTexture.height);
     }
 
     void Update()
@@ -107,6 +113,8 @@ public class World : MonoBehaviour
                 String.Format("Edge rendering: {0}\n", edgeRenderingEnabled ? "ON" : "OFF");
 
             GUI.TextArea(new Rect(Screen.width - 250 - 10, 10, 250, Screen.height - 20), debug);
+
+            GUI.DrawTexture(crosshairPosition, crosshairTexture);
         }
     }
 
