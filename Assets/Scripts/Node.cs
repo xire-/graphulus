@@ -35,14 +35,51 @@ public class Node : MonoBehaviour
 
     private static readonly List<Color> colors = new List<Color>() { Color.black, Color.blue, Color.cyan, Color.gray, Color.green, Color.magenta, Color.red, Color.white, Color.yellow };
 
+    private bool renderEnabled;
+    private float renderTimeLeft;
+    private const float fadeTime = 1f;
+
 
     public Node()
     {
         ConnectedTo = new List<GameObject>();
     }
 
+    void Start()
+    {
+        transform.Find("Text").GetComponent<Renderer>().enabled = false;
+    }
+
+    void Update()
+    {
+
+        if (renderEnabled)
+        {
+            renderTimeLeft -= Time.deltaTime;
+            if (renderTimeLeft <= 0)
+            {
+                renderEnabled = false;
+                renderTimeLeft = 0;
+                transform.Find("Text").GetComponent<Renderer>().enabled = false;
+            }
+            else if (renderTimeLeft <= fadeTime)
+            {
+                Color color = transform.Find("Text").GetComponent<Renderer>().material.color;
+                color.a = Mathf.Lerp(0, fadeTime, renderTimeLeft);
+                transform.Find("Text").GetComponent<Renderer>().material.color = color;
+            }
+        }
+    }
+
     void LateUpdate()
     {
         transform.position = SpringyNode.pos;
+    }
+
+    public void Render(float howMuchTime)
+    {
+        renderEnabled = true;
+        renderTimeLeft = howMuchTime;
+        transform.Find("Text").GetComponent<Renderer>().enabled = true;
     }
 }

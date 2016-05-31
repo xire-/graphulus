@@ -74,9 +74,20 @@ public class World : MonoBehaviour
 
     void Update()
     {
-        // update simulation
-        forceDirectedGraph.tick(Time.deltaTime);
-
+        // find objects pointed by the camera
+        var camera = GameObject.Find("Main Camera");
+        var radius = 1f;
+        RaycastHit hit;
+        if (Physics.SphereCast(camera.transform.position, radius, camera.transform.forward, out hit))
+        {
+            var o = hit.transform.gameObject;
+            var parent = o.transform.parent.gameObject;
+            if (parent && parent.tag == "Node")
+            {
+                parent.GetComponent<Node>().Render(3f);
+            }
+        }
+            
         // enable/disable debug menu
         if (Input.GetKeyDown(KeyCode.Space))
         {
@@ -97,6 +108,12 @@ public class World : MonoBehaviour
             frameCount = 0;
             timeElapsed = 0f;
         }
+    }
+
+    void FixedUpdate()
+    {
+        // update simulation
+        forceDirectedGraph.tick(Time.fixedDeltaTime);
     }
 
     void OnGUI()
