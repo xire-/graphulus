@@ -24,7 +24,8 @@ public class Node : MonoBehaviour
         set
         { 
             var index = value % colors.Count;
-            transform.Find("Sphere").GetComponent<Renderer>().material.color = colors[index];
+            var alphaColor = new Color(colors[index].r, colors[index].g, colors[index].b, .8f);
+            transform.Find("Circle").GetComponent<Renderer>().material.color = alphaColor;
             transform.Find("Text").GetComponent<Renderer>().material.color = colors[index];
         } 
     }
