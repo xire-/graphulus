@@ -3,23 +3,42 @@ using System.Collections.Generic;
 
 using UnityEngine;
 
-
 public class World : MonoBehaviour
 {
+    private Rect crosshairPosition;
+    private Texture2D crosshairTexture;
+    private float fps, avgDeltaTime, timeElapsed;
+    private int frameCount;
+    private bool textRenderingEnabled, edgeRenderingEnabled;
     public bool debugModeEnabled { get; set; }
 
     private Springy.ForceDirectedGraph forceDirectedGraph { get; set; }
 
-    private Texture2D crosshairTexture;
-    private Rect crosshairPosition;
+    private void FixedUpdate()
+    {
+        // update simulation
+        forceDirectedGraph.tick(Time.fixedDeltaTime);
+    }
 
-    private bool textRenderingEnabled, edgeRenderingEnabled;
+    private void OnGUI()
+    {
+        if (debugModeEnabled)
+        {
+            var debug =
+                String.Format("FPS: {0:f} [{1:f} ms]\n", fps, avgDeltaTime * 1000f) +
+                "\n" +
+                String.Format("Total energy: {0:f} [{1:f}]\n", forceDirectedGraph.totalKineticEnergy(), forceDirectedGraph.minEnergyThreshold) +
+                "\n" +
+                String.Format("Text rendering: {0}\n", textRenderingEnabled ? "ON" : "OFF") +
+                String.Format("Edge rendering: {0}\n", edgeRenderingEnabled ? "ON" : "OFF");
 
-    private int frameCount;
-    private float fps, avgDeltaTime, timeElapsed;
+            GUI.TextArea(new Rect(Screen.width - 250 - 10, 10, 250, Screen.height - 20), debug);
 
+            GUI.DrawTexture(crosshairPosition, crosshairTexture);
+        }
+    }
 
-    void Start()
+    private void Start()
     {
         UnityEngine.Random.seed = 1337;
 
@@ -72,7 +91,7 @@ public class World : MonoBehaviour
         crosshairPosition = new Rect((Screen.width - crosshairTexture.width) / 2, (Screen.height - crosshairTexture.height) / 2, crosshairTexture.width, crosshairTexture.height);
     }
 
-    void Update()
+    private void Update()
     {
         // find objects pointed by the camera
         var camera = GameObject.Find("Main Camera");
@@ -87,7 +106,7 @@ public class World : MonoBehaviour
                 parent.GetComponent<Node>().Render(3f);
             }
         }
-            
+
         // enable/disable debug menu
         if (Input.GetKeyDown(KeyCode.Space))
         {
@@ -110,32 +129,7 @@ public class World : MonoBehaviour
         }
     }
 
-    void FixedUpdate()
-    {
-        // update simulation
-        forceDirectedGraph.tick(Time.fixedDeltaTime);
-    }
-
-    void OnGUI()
-    {
-        if (debugModeEnabled)
-        {
-            var debug =
-                String.Format("FPS: {0:f} [{1:f} ms]\n", fps, avgDeltaTime * 1000f) +
-                "\n" +
-                String.Format("Total energy: {0:f} [{1:f}]\n", forceDirectedGraph.totalKineticEnergy(), forceDirectedGraph.minEnergyThreshold) +
-                "\n" +
-                String.Format("Text rendering: {0}\n", textRenderingEnabled ? "ON" : "OFF") +
-                String.Format("Edge rendering: {0}\n", edgeRenderingEnabled ? "ON" : "OFF");
-
-            GUI.TextArea(new Rect(Screen.width - 250 - 10, 10, 250, Screen.height - 20), debug);
-
-            GUI.DrawTexture(crosshairPosition, crosshairTexture);
-        }
-    }
-
-
-    void updateDebug()
+    private void updateDebug()
     {
         if (Input.GetKeyDown(KeyCode.N))
         {

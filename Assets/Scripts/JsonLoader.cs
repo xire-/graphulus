@@ -1,10 +1,7 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
-
 using UnityEngine;
-
-using Newtonsoft.Json;
-
 
 public class JsonLoader
 {
@@ -42,21 +39,21 @@ public class JsonLoader
         }
     }
 
-    struct RootObject
+    private struct RootObject
     {
         public List<JsonNode> Nodes { get; set; }
 
         public List<JsonEdge> Links { get; set; }
     }
 
-    struct JsonNode
+    private struct JsonNode
     {
         public string Name { get; set; }
 
         public int Group { get; set; }
     }
 
-    struct JsonEdge
+    private struct JsonEdge
     {
         public int Source { get; set; }
 

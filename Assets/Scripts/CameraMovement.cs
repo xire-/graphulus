@@ -1,19 +1,16 @@
 ﻿using UnityEngine;
-using System.Collections;
-
 
 public class CameraMovement : MonoBehaviour
 {
     private GameObject world;
 
-
-    void Start()
+    private void Start()
     {
         world = transform.parent.gameObject;
         Cursor.lockState = CursorLockMode.Locked;
     }
 
-    void Update()
+    private void Update()
     {
         UpdateLook();
 
