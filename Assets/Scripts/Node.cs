@@ -80,6 +80,12 @@ public class Node : MonoBehaviour
     {
         renderEnabled = true;
         renderTimeLeft = howMuchTime;
+
+        // reset alpha
+        Color color = transform.Find("Text").GetComponent<Renderer>().material.color;
+        color.a = 1f;
+        transform.Find("Text").GetComponent<Renderer>().material.color = color;
+
         transform.Find("Text").GetComponent<Renderer>().enabled = true;
     }
 }
