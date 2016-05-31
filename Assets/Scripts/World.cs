@@ -123,6 +123,8 @@ public class World : MonoBehaviour
             var debug =
                 String.Format("FPS: {0:f} [{1:f} ms]\n", fps, avgDeltaTime * 1000f) +
                 "\n" +
+                String.Format("Total energy: {0:f} [{1:f}]\n", forceDirectedGraph.totalKineticEnergy(), forceDirectedGraph.minEnergyThreshold) +
+                "\n" +
                 String.Format("Text rendering: {0}\n", textRenderingEnabled ? "ON" : "OFF") +
                 String.Format("Edge rendering: {0}\n", edgeRenderingEnabled ? "ON" : "OFF");
 
