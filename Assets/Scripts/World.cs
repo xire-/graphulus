@@ -26,9 +26,6 @@ public class World : MonoBehaviour
         debugModeEnabled = true;
 
         forceDirectedGraph = new Springy.ForceDirectedGraph();
-        forceDirectedGraph.stiffness = 300f;
-        forceDirectedGraph.repulsion = 400f;
-        forceDirectedGraph.damping = 0.5f;
         forceDirectedGraph.running = true;
 
         var nodes = new List<GameObject>();
@@ -38,7 +35,7 @@ public class World : MonoBehaviour
         foreach (var node in nodes)
         {
             node.transform.parent = gameObject.transform;
-            node.GetComponent<Node>().SpringyNode = forceDirectedGraph.newNode(node.GetComponent<Node>().Text);
+            node.GetComponent<Node>().SpringyNode = forceDirectedGraph.newNode();
         }
         foreach (var edge in edges)
         {
