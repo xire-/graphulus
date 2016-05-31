@@ -2,22 +2,15 @@
 
 public class CameraMovement : MonoBehaviour
 {
-    private GameObject world;
-
-    private void Start()
+    private void Awake()
     {
-        world = transform.parent.gameObject;
         Cursor.lockState = CursorLockMode.Locked;
     }
 
     private void Update()
     {
         UpdateLook();
-
-        if (world.GetComponent<World>().debugModeEnabled)
-        {
-            UpdateMovement();
-        }
+        UpdateMovement();
     }
 
     private void UpdateLook()

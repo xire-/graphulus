@@ -1,14 +1,20 @@
 ﻿using UnityEngine;
+using UnityEngine.Assertions;
 
 public class Edge : MonoBehaviour
 {
-    public int Length { get; set; }
-    public GameObject Source { get; set; }
+    public int length;
+    public GameObject source, target;
 
-    public GameObject Target { get; set; }
-    public void LateUpdate()
+    private void Awake()
     {
-        GetComponent<LineRenderer>().SetPosition(0, Source.transform.position);
-        GetComponent<LineRenderer>().SetPosition(1, Target.transform.position);
+    }
+
+    private void LateUpdate()
+    {
+        Assert.IsNotNull(source);
+        GetComponent<LineRenderer>().SetPosition(0, source.transform.position);
+        Assert.IsNotNull(target);
+        GetComponent<LineRenderer>().SetPosition(1, target.transform.position);
     }
 }
