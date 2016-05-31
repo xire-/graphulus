@@ -186,7 +186,7 @@ namespace Springy
             }
         }
 
-        private float totalKineticEnergy()
+        public float totalKineticEnergy()
         {
             float energy = 0.0f;
             foreach (Node n in nodes)
@@ -196,6 +196,5 @@ namespace Springy
             }
             return energy;
         }
-
     }
 }
