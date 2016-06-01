@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 using UnityEngine;
 
@@ -56,89 +57,71 @@ public class World : MonoBehaviour
 
     private void Start()
     {
-        StartNodesAndEdges();
-        StartForceDirectedGraph();
+        CreateNodesAndEdges();
+        CreateSpringyNodesAndEdges();
 
-        // temp - disable text rendering on start
-        foreach (var text in GameObject.FindGameObjectsWithTag("Text"))
-        {
-            text.GetComponent<Renderer>().enabled = !text.GetComponent<Renderer>().enabled;
-        }
-    }
-
-    private void StartForceDirectedGraph()
-    {
+        // count the number of connections
+        var connectionsCount = new Dictionary<GameObject, int>();
         foreach (var node in nodes)
-        {
-            node.transform.parent = gameObject.transform;
-            node.GetComponent<Node>().springyNode = forceDirectedGraph.newNode();
-        }
-
+            connectionsCount[node] = 0;
         foreach (var edge in edges)
         {
-            edge.transform.parent = gameObject.transform;
-            forceDirectedGraph.newEdge(
-                edge.GetComponent<Edge>().source.GetComponent<Node>().id,
-                edge.GetComponent<Edge>().target.GetComponent<Node>().id,
-                edge.GetComponent<Edge>().length
-            );
-
-            edge.GetComponent<Edge>().source.GetComponent<Node>().connectedTo.Add(edge.GetComponent<Edge>().target);
-            edge.GetComponent<Edge>().target.GetComponent<Node>().connectedTo.Add(edge.GetComponent<Edge>().source);
+            connectionsCount[edge.GetComponent<Edge>().source]++;
+            connectionsCount[edge.GetComponent<Edge>().target]++;
         }
 
-        // set node size based on the number of connections
-        int min = 1, max = 1;
-        foreach (var node in nodes)
-        {
-            int curr = node.GetComponent<Node>().connectedTo.Count;
-            if (curr < min)
-                min = curr;
-            if (curr > max)
-                max = curr;
-        }
-        foreach (var node in nodes)
-        {
-            node.transform.localScale += node.transform.localScale * (node.GetComponent<Node>().connectedTo.Count - min) / (max - min);
-        }
-
-        forceDirectedGraph.running = true;
+        AdjustNodes(connectionsCount);
     }
 
-    private void StartNodesAndEdges()
+    private void AdjustNodes(Dictionary<GameObject, int> connectionsCount) 
     {
-        // parse JSON graph
+        foreach (var node in nodes)
+            node.transform.localScale *= 1.5f-Mathf.Pow(1.2f, -connectionsCount[node]);
+    }
+
+    private void CreateNodesAndEdges() {
+        // create nodes and edges from JSON graph
         var jsonRoot = JsonLoader.Deserialize("Examples/miserables.json");
+        nodes = (from jsonNode in jsonRoot.nodes select CreateNode(jsonNode.name)).ToList();
+        edges = (from jsonEdge in jsonRoot.links select CreateEdge(jsonEdge.source, jsonEdge.target, jsonEdge.value)).ToList();
+    }
 
-        // create nodes
-        var nodePrefab = Resources.Load("Node");
-        foreach (var jsonNode in jsonRoot.nodes)
+    private void CreateSpringyNodesAndEdges()
+    {
+        // create springy nodes
+        foreach (var node in nodes)
+            node.GetComponent<Node>().springyNode = forceDirectedGraph.newNode();
+
+        // create springy edges
+        foreach (var edge in edges)
         {
-            var node = (GameObject)Instantiate(nodePrefab);
-            node.name = String.Format("Node-{0}", jsonNode.name);
-            node.GetComponent<Node>().Text = jsonNode.name;
-            node.GetComponent<Node>().Group = jsonNode.group;
-            nodes.Add(node);
-        }
-        for (int i = 0; i < nodes.Count; ++i)
-        {
-            var node = nodes[i];
-            node.GetComponent<Node>().id = i;
+            var sourceNode = edge.GetComponent<Edge>().source;
+            var targetNode = edge.GetComponent<Edge>().target;
+            forceDirectedGraph.newEdge(sourceNode.GetComponent<Node>().springyNode, targetNode.GetComponent<Node>().springyNode, edge.GetComponent<Edge>().length);
         }
 
-        // create edges
-        var edgePrefab = Resources.Load("Edge");
-        foreach (var jsonEdge in jsonRoot.links)
-        {
-            var edge = (GameObject)UnityEngine.Object.Instantiate(edgePrefab);
-            var sourceNode = nodes[jsonEdge.source];
-            var targetNode = nodes[jsonEdge.target];
-            edge.name = String.Format("Edge-{0}-{1}", sourceNode.name, targetNode.name);
-            edge.GetComponent<Edge>().source = sourceNode;
-            edge.GetComponent<Edge>().target = targetNode;
-            edge.GetComponent<Edge>().length = jsonEdge.value;
-            edges.Add(edge);
-        }
+        forceDirectedGraph.enabled = true;
+    }
+
+    private GameObject CreateNode(string text) {
+        var node = (GameObject)Instantiate(Resources.Load("Node"));
+        node.transform.parent = transform;
+        node.name = String.Format("Node-{0}", text);
+        node.GetComponent<Node>().Text = text;
+        node.transform.Find("Text").GetComponent<Renderer>().enabled = false;
+        return node;
+    }
+
+    private GameObject CreateEdge(int source, int target, int length) {
+        var edge = (GameObject)Instantiate(Resources.Load("Edge"));
+        var sourceNode = nodes[source];
+        var targetNode = nodes[target];
+        edge.transform.parent = transform;
+        edge.name = String.Format("Edge-{0}-{1}", sourceNode.name, targetNode.name);
+        edge.GetComponent<Edge>().source = sourceNode;
+        edge.GetComponent<Edge>().target = targetNode;
+        edge.GetComponent<Edge>().length = length;
+        return edge;
     }
 
     private void Update()
