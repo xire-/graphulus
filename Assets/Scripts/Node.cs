@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 using UnityEngine;
 
@@ -6,8 +7,9 @@ public class Node : MonoBehaviour
 {
     public Springy.Node springyNode;
     private const float fadeTime = 1f;
-    private bool renderEnabled;
-    private float renderTimeLeft;
+    private bool renderEnabled, selected;
+    private float renderTimeLeft, selectionTimeLeft;
+    const float totaltimeselection = 0.3f;
 
     public string Text
     {
@@ -41,6 +43,19 @@ public class Node : MonoBehaviour
 
     private void Update()
     {
+        if (selected)
+        {
+            selectionTimeLeft -= Time.deltaTime;
+            if (selectionTimeLeft >= 0)
+            {
+                Color color = GetComponent<Renderer>().material.color;
+                float f = (totaltimeselection - selectionTimeLeft) / totaltimeselection;
+                Color newcolor = Color.Lerp(color, Color.white, f);
+                newcolor.a = color.a;
+                GetComponent<Renderer>().material.color = newcolor;
+            }
+        }
+
         if (renderEnabled)
         {
             renderTimeLeft -= Time.deltaTime;
@@ -57,5 +72,11 @@ public class Node : MonoBehaviour
                 transform.Find("Text").GetComponent<Renderer>().material.color = color;
             }
         }
+    }
+
+    public void Select()
+    {
+        selected = true;
+        selectionTimeLeft = totaltimeselection;
     }
 }

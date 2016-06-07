@@ -143,7 +143,14 @@ public class World : MonoBehaviour
         {
             var gameObject = hit.transform.gameObject;
             if (gameObject.tag == "Node")
+            {
                 gameObject.GetComponent<Node>().Render();
+
+                if (Input.GetKeyUp(KeyCode.X))
+                {
+                    gameObject.GetComponent<Node>().Select();
+                }
+            }
         }
 
         // enable/disable debug menu
