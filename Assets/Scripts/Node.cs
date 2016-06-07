@@ -6,7 +6,6 @@ public class Node : MonoBehaviour
 {
     public Springy.Node springyNode;
     private const float fadeTime = 1f;
-    private static readonly List<Color> colors = new List<Color>() { Color.blue, Color.cyan, Color.gray, Color.green, Color.magenta, Color.red, Color.white, Color.yellow };
     private bool renderEnabled;
     private float renderTimeLeft;
 
