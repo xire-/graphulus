@@ -1,17 +1,31 @@
-﻿using UnityEngine;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 public class AnimationManager
 {
-    public delegate void AnimationDelegate(float t);
-
-    public delegate float EasingDelegate(float t);
-
     private List<Animation> animations;
 
     public AnimationManager()
     {
         animations = new List<Animation>();
+    }
+
+    public delegate void AnimationDelegate(float t);
+
+    public delegate float EasingDelegate(float t);
+
+    public void StartAnimation(AnimationDelegate animationDelegate, float duration, EasingDelegate easingDelegate = null)
+    {
+        var startTime = Time.realtimeSinceStartup;
+        var animation = new Animation
+        {
+            startTime = startTime,
+            duration = duration,
+            endTime = startTime + duration,
+            animationDelegate = animationDelegate,
+            easingDelegate = easingDelegate
+        };
+        animations.Add(animation);
     }
 
     public void Update()
@@ -32,26 +46,12 @@ public class AnimationManager
         }
     }
 
-    public void StartAnimation(AnimationDelegate animationDelegate, float duration, EasingDelegate easingDelegate = null)
-    {
-        var startTime = Time.realtimeSinceStartup;
-        var animation = new Animation
-        {
-            startTime = startTime,
-            duration = duration,
-            endTime = startTime + duration,
-            animationDelegate = animationDelegate,
-            easingDelegate = easingDelegate
-        };
-        animations.Add(animation);
-    }
-
     private struct Animation
     {
-        public float startTime;
-        public float duration;
-        public float endTime;
         public AnimationDelegate animationDelegate;
+        public float duration;
         public EasingDelegate easingDelegate;
+        public float endTime;
+        public float startTime;
     }
 }

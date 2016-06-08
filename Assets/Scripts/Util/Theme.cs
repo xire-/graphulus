@@ -2,8 +2,8 @@
 
 public struct Theme
 {
-    public Color skyboxColor;
-    public Color nodeColor;
-    public Color textColor;
     public Color edgeColor;
+    public Color nodeColor;
+    public Color skyboxColor;
+    public Color textColor;
 }

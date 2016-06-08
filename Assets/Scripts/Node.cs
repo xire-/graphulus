@@ -1,15 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-
-using UnityEngine;
+﻿using UnityEngine;
 
 public class Node : MonoBehaviour
 {
     public Springy.Node springyNode;
     private const float fadeTime = 1f;
+    private const float totaltimeselection = 0.3f;
     private bool renderEnabled, selected;
     private float renderTimeLeft, selectionTimeLeft;
-    const float totaltimeselection = 0.3f;
 
     public string Text
     {
@@ -34,6 +31,12 @@ public class Node : MonoBehaviour
         transform.Find("Text").GetComponent<Renderer>().material.color = color;
 
         transform.Find("Text").GetComponent<Renderer>().enabled = true;
+    }
+
+    public void Select()
+    {
+        selected = true;
+        selectionTimeLeft = totaltimeselection;
     }
 
     private void LateUpdate()
@@ -72,11 +75,5 @@ public class Node : MonoBehaviour
                 transform.Find("Text").GetComponent<Renderer>().material.color = color;
             }
         }
-    }
-
-    public void Select()
-    {
-        selected = true;
-        selectionTimeLeft = totaltimeselection;
     }
 }

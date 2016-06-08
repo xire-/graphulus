@@ -6,12 +6,34 @@ using UnityEngine;
 
 public class World : MonoBehaviour
 {
+    private readonly Theme darkTheme = new Theme()
+    {
+        skyboxColor = new Color32(0x10, 0x0F, 0x0F, 0xFF),
+        nodeColor = new Color32(0x17, 0xE2, 0xDA, 0xA1),
+        textColor = new Color32(0xE3, 0xE3, 0xE3, 0xFF),
+        edgeColor = new Color32(0xF3, 0xF3, 0xF3, 0x64)
+    };
+
+    private readonly Theme lightTheme = new Theme()
+    {
+        skyboxColor = new Color32(0xF3, 0xF3, 0xF3, 0xFF),
+        nodeColor = new Color32(0xEA, 0x24, 0x7A, 0xA1),
+        textColor = new Color32(0x51, 0x4B, 0x4B, 0xFF),
+        edgeColor = new Color32(0x9F, 0x9D, 0x9D, 0x64)
+    };
+
+    private AnimationManager animationManager;
     private Springy.ForceDirectedGraph forceDirectedGraph;
     private float fps, avgDeltaTime, timeElapsed;
     private int frameCount;
     private List<GameObject> nodes, edges;
     private bool textRenderingEnabled, edgeRenderingEnabled;
-    private AnimationManager animationManager;
+
+    private void AdjustNodes(Dictionary<GameObject, int> connectionsCount)
+    {
+        foreach (var node in nodes)
+            node.transform.localScale *= 1.5f - Mathf.Pow(1.2f, -connectionsCount[node]);
+    }
 
     private void Awake()
     {
@@ -27,9 +49,88 @@ public class World : MonoBehaviour
         animationManager = new AnimationManager();
     }
 
+    private void ChangeTheme(Theme startTheme, Theme endTheme, float t)
+    {
+        // set skybox color
+        Camera.main.backgroundColor = Color.Lerp(startTheme.skyboxColor, endTheme.skyboxColor, t);
+
+        // set nodes color
+        foreach (var node in GameObject.FindGameObjectsWithTag("Node"))
+            node.GetComponent<Renderer>().material.color = Color.Lerp(startTheme.nodeColor, endTheme.nodeColor, t);
+
+        // set text color
+        foreach (var text in GameObject.FindGameObjectsWithTag("Text"))
+            text.GetComponent<TextMesh>().color = Color.Lerp(startTheme.textColor, endTheme.textColor, t);
+
+        // set edges color
+        foreach (var edge in GameObject.FindGameObjectsWithTag("Edge"))
+            edge.GetComponent<Renderer>().material.color = Color.Lerp(startTheme.edgeColor, endTheme.edgeColor, t);
+    }
+
+    private GameObject CreateEdge(int source, int target, int length)
+    {
+        var edge = (GameObject)Instantiate(Resources.Load("Edge"));
+        var sourceNode = nodes[source];
+        var targetNode = nodes[target];
+        edge.transform.parent = transform;
+        edge.name = String.Format("Edge-{0}-{1}", sourceNode.name, targetNode.name);
+        edge.GetComponent<Edge>().source = sourceNode;
+        edge.GetComponent<Edge>().target = targetNode;
+        edge.GetComponent<Edge>().length = length;
+        return edge;
+    }
+
+    private GameObject CreateNode(string text)
+    {
+        var node = (GameObject)Instantiate(Resources.Load("Node"));
+        node.transform.parent = transform;
+        node.name = String.Format("Node-{0}", text);
+        node.GetComponent<Node>().Text = text;
+        node.transform.Find("Text").GetComponent<Renderer>().enabled = false;
+        return node;
+    }
+
+    private void CreateNodesAndEdges()
+    {
+        // create nodes and edges from JSON graph
+        var jsonRoot = JsonLoader.Deserialize("Examples/miserables.json");
+        nodes = (from jsonNode in jsonRoot.nodes
+                 select CreateNode(jsonNode.name)).ToList();
+        edges = (from jsonEdge in jsonRoot.links
+                 select CreateEdge(jsonEdge.source, jsonEdge.target, jsonEdge.value)).ToList();
+    }
+
+    private void CreateSpringyNodesAndEdges()
+    {
+        // create springy nodes
+        foreach (var node in nodes)
+            node.GetComponent<Node>().springyNode = forceDirectedGraph.newNode();
+
+        // create springy edges
+        foreach (var edge in edges)
+        {
+            var sourceNode = edge.GetComponent<Edge>().source;
+            var targetNode = edge.GetComponent<Edge>().target;
+            forceDirectedGraph.newEdge(sourceNode.GetComponent<Node>().springyNode, targetNode.GetComponent<Node>().springyNode, edge.GetComponent<Edge>().length);
+        }
+
+        forceDirectedGraph.enabled = true;
+    }
+
     private void FixedUpdate()
     {
         forceDirectedGraph.tick(Time.fixedDeltaTime);
+    }
+
+    private Theme GetCurrentTheme()
+    {
+        return new Theme()
+        {
+            skyboxColor = Camera.main.backgroundColor,
+            nodeColor = nodes[0].GetComponent<Renderer>().material.color,
+            textColor = GameObject.FindGameObjectsWithTag("Text")[0].GetComponent<Renderer>().material.color,
+            edgeColor = edges[0].GetComponent<Renderer>().material.color
+        };
     }
 
     private void OnGUI()
@@ -65,62 +166,6 @@ public class World : MonoBehaviour
         // turn on the light theme
         var startTheme = GetCurrentTheme();
         animationManager.StartAnimation(t => ChangeTheme(startTheme, lightTheme, t), 2f, Easing.EaseOutCubic);
-    }
-
-    private void AdjustNodes(Dictionary<GameObject, int> connectionsCount)
-    {
-        foreach (var node in nodes)
-            node.transform.localScale *= 1.5f - Mathf.Pow(1.2f, -connectionsCount[node]);
-    }
-
-    private void CreateNodesAndEdges()
-    {
-        // create nodes and edges from JSON graph
-        var jsonRoot = JsonLoader.Deserialize("Examples/miserables.json");
-        nodes = (from jsonNode in jsonRoot.nodes
-                       select CreateNode(jsonNode.name)).ToList();
-        edges = (from jsonEdge in jsonRoot.links
-                       select CreateEdge(jsonEdge.source, jsonEdge.target, jsonEdge.value)).ToList();
-    }
-
-    private void CreateSpringyNodesAndEdges()
-    {
-        // create springy nodes
-        foreach (var node in nodes)
-            node.GetComponent<Node>().springyNode = forceDirectedGraph.newNode();
-
-        // create springy edges
-        foreach (var edge in edges)
-        {
-            var sourceNode = edge.GetComponent<Edge>().source;
-            var targetNode = edge.GetComponent<Edge>().target;
-            forceDirectedGraph.newEdge(sourceNode.GetComponent<Node>().springyNode, targetNode.GetComponent<Node>().springyNode, edge.GetComponent<Edge>().length);
-        }
-
-        forceDirectedGraph.enabled = true;
-    }
-
-    private GameObject CreateNode(string text)
-    {
-        var node = (GameObject)Instantiate(Resources.Load("Node"));
-        node.transform.parent = transform;
-        node.name = String.Format("Node-{0}", text);
-        node.GetComponent<Node>().Text = text;
-        node.transform.Find("Text").GetComponent<Renderer>().enabled = false;
-        return node;
-    }
-
-    private GameObject CreateEdge(int source, int target, int length)
-    {
-        var edge = (GameObject)Instantiate(Resources.Load("Edge"));
-        var sourceNode = nodes[source];
-        var targetNode = nodes[target];
-        edge.transform.parent = transform;
-        edge.name = String.Format("Edge-{0}-{1}", sourceNode.name, targetNode.name);
-        edge.GetComponent<Edge>().source = sourceNode;
-        edge.GetComponent<Edge>().target = targetNode;
-        edge.GetComponent<Edge>().length = length;
-        return edge;
     }
 
     private void Update()
@@ -184,48 +229,4 @@ public class World : MonoBehaviour
             edgeRenderingEnabled = !edgeRenderingEnabled;
         }
     }
-
-    private void ChangeTheme(Theme startTheme, Theme endTheme, float t)
-    {
-        // set skybox color
-        Camera.main.backgroundColor = Color.Lerp(startTheme.skyboxColor, endTheme.skyboxColor, t);
-
-        // set nodes color
-        foreach (var node in GameObject.FindGameObjectsWithTag("Node"))
-            node.GetComponent<Renderer>().material.color = Color.Lerp(startTheme.nodeColor, endTheme.nodeColor, t);
-
-        // set text color
-        foreach (var text in GameObject.FindGameObjectsWithTag("Text"))
-            text.GetComponent<TextMesh>().color = Color.Lerp(startTheme.textColor, endTheme.textColor, t);
-        
-        // set edges color
-        foreach (var edge in GameObject.FindGameObjectsWithTag("Edge"))
-            edge.GetComponent<Renderer>().material.color = Color.Lerp(startTheme.edgeColor, endTheme.edgeColor, t);
-    }
-
-    private readonly Theme lightTheme = new Theme()
-    { 
-        skyboxColor = new Color32(0xF3, 0xF3, 0xF3, 0xFF),
-        nodeColor = new Color32(0xEA, 0x24, 0x7A, 0xA1),
-        textColor = new Color32(0x51, 0x4B, 0x4B, 0xFF),
-        edgeColor = new Color32(0x9F, 0x9D, 0x9D, 0x64)
-    };
-    private readonly Theme darkTheme = new Theme()
-    { 
-        skyboxColor = new Color32(0x10, 0x0F, 0x0F, 0xFF),
-        nodeColor = new Color32(0x17, 0xE2, 0xDA, 0xA1),
-        textColor = new Color32(0xE3, 0xE3, 0xE3, 0xFF),
-        edgeColor = new Color32(0xF3, 0xF3, 0xF3, 0x64)
-    };
-
-    private Theme GetCurrentTheme() {
-        return new Theme()
-        { 
-            skyboxColor = Camera.main.backgroundColor,
-            nodeColor = nodes[0].GetComponent<Renderer>().material.color,
-            textColor = GameObject.FindGameObjectsWithTag("Text")[0].GetComponent<Renderer>().material.color,
-            edgeColor = edges[0].GetComponent<Renderer>().material.color
-        };
-    }
-
 }
