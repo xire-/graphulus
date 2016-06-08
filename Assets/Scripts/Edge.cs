@@ -8,6 +8,8 @@ public class Edge : MonoBehaviour
 
     private void Awake()
     {
+        // draw edges before nodes
+        GetComponent<Renderer>().material.renderQueue = 0;
     }
 
     private void LateUpdate()
