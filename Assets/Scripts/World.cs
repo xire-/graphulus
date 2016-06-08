@@ -218,21 +218,6 @@ public class World : MonoBehaviour
         foreach (var edge in GameObject.FindGameObjectsWithTag("Edge"))
             edge.GetComponent<Renderer>().material.color = Color.Lerp(startTheme.edgeColor, endTheme.edgeColor, t);
     }
-
-
-    private struct Theme {
-        public Color skyboxColor;
-        public Color nodeColor;
-        public Color textColor;
-        public Color edgeColor;
-    }
-
-    private Theme customTheme = new Theme() {
-        skyboxColor = Color.white,
-        nodeColor = Color.white,
-        textColor = Color.white,
-        edgeColor = Color.white
-    };
             
     private readonly Theme lightTheme = new Theme() { 
         skyboxColor = new Color32(0xF3, 0xF3, 0xF3, 0xFF),
