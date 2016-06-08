@@ -20,7 +20,7 @@ public class Node : MonoBehaviour
         }
     }
 
-    public void Render(float howMuchTime = 3)
+    public void RenderText(float howMuchTime = 3)
     {
         renderEnabled = true;
         renderTimeLeft = howMuchTime;

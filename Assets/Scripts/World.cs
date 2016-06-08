@@ -18,13 +18,13 @@ public class World : MonoBehaviour
     {
         skyboxColor = new Color32(0xF3, 0xF3, 0xF3, 0xFF),
         nodeColor = new Color32(0xEA, 0x24, 0x7A, 0xA1),
-        textColor = new Color32(0x51, 0x4B, 0x4B, 0xFF),
+        textColor = new Color32(0x85, 0x0F, 0x26, 0xFF),
         edgeColor = new Color32(0x9F, 0x9D, 0x9D, 0x64)
     };
 
     private AnimationManager animationManager;
     private Springy.ForceDirectedGraph forceDirectedGraph;
-    private List<GameObject> nodes, edges;
+    private List<GameObject> nodes, texts, edges;
     private bool textRenderingEnabled, edgeRenderingEnabled;
 
     private void AdjustNodes(Dictionary<GameObject, int> connectionsCount)
@@ -38,13 +38,14 @@ public class World : MonoBehaviour
         UnityEngine.Random.seed = 1337;
 
         nodes = new List<GameObject>();
+        texts = new List<GameObject>();
         edges = new List<GameObject>();
         forceDirectedGraph = new Springy.ForceDirectedGraph();
 
+        animationManager = new AnimationManager();
+
         textRenderingEnabled = true;
         edgeRenderingEnabled = true;
-
-        animationManager = new AnimationManager();
     }
 
     private void ChangeTheme(Theme startTheme, Theme endTheme, float t)
@@ -53,15 +54,15 @@ public class World : MonoBehaviour
         Camera.main.backgroundColor = Color.Lerp(startTheme.skyboxColor, endTheme.skyboxColor, t);
 
         // set nodes color
-        foreach (var node in GameObject.FindGameObjectsWithTag("Node"))
+        foreach (var node in nodes)
             node.GetComponent<Renderer>().material.color = Color.Lerp(startTheme.nodeColor, endTheme.nodeColor, t);
 
-        // set text color
-        foreach (var text in GameObject.FindGameObjectsWithTag("Text"))
+        // set texts color
+        foreach (var text in texts)
             text.GetComponent<TextMesh>().color = Color.Lerp(startTheme.textColor, endTheme.textColor, t);
 
         // set edges color
-        foreach (var edge in GameObject.FindGameObjectsWithTag("Edge"))
+        foreach (var edge in edges)
             edge.GetComponent<Renderer>().material.color = Color.Lerp(startTheme.edgeColor, endTheme.edgeColor, t);
     }
 
@@ -92,8 +93,13 @@ public class World : MonoBehaviour
     {
         // create nodes and edges from JSON graph
         var jsonRoot = JsonLoader.Deserialize("Examples/miserables.json");
+
         nodes = (from jsonNode in jsonRoot.nodes
                  select CreateNode(jsonNode.name)).ToList();
+
+        foreach (var node in nodes)
+            texts.Add(node.transform.Find("Text").gameObject);
+
         edges = (from jsonEdge in jsonRoot.links
                  select CreateEdge(jsonEdge.source, jsonEdge.target, jsonEdge.value)).ToList();
     }
@@ -111,8 +117,6 @@ public class World : MonoBehaviour
             var targetNode = edge.GetComponent<Edge>().target;
             forceDirectedGraph.newEdge(sourceNode.GetComponent<Node>().springyNode, targetNode.GetComponent<Node>().springyNode, edge.GetComponent<Edge>().length);
         }
-
-        forceDirectedGraph.enabled = true;
     }
 
     private void FixedUpdate()
@@ -122,11 +126,11 @@ public class World : MonoBehaviour
 
     private Theme GetCurrentTheme()
     {
-        return new Theme()
+        return new Theme
         {
             skyboxColor = Camera.main.backgroundColor,
             nodeColor = nodes[0].GetComponent<Renderer>().material.color,
-            textColor = GameObject.FindGameObjectsWithTag("Text")[0].GetComponent<Renderer>().material.color,
+            textColor = texts[0].GetComponent<Renderer>().material.color,
             edgeColor = edges[0].GetComponent<Renderer>().material.color
         };
     }
@@ -161,7 +165,10 @@ public class World : MonoBehaviour
 
         AdjustNodes(connectionsCount);
 
-        // turn on the light theme
+        // enable the simulation
+        forceDirectedGraph.enabled = true;
+
+        // switch on the light theme
         var startTheme = GetCurrentTheme();
         animationManager.StartAnimation(t => ChangeTheme(startTheme, lightTheme, t), 2f, Easing.EaseOutCubic);
     }
@@ -170,49 +177,55 @@ public class World : MonoBehaviour
     {
         animationManager.Update();
 
-        // show text of nodes pointed by the camera
+        // check if a node is pointed by the camera
+        GameObject lookedNode = null;
         RaycastHit hit;
         if (Physics.SphereCast(Camera.main.transform.position, 0.4f, Camera.main.transform.forward, out hit))
         {
             var gameObject = hit.transform.gameObject;
             if (gameObject.tag == "Node")
-            {
-                gameObject.GetComponent<Node>().Render();
+                lookedNode = gameObject;
+        }
 
-                if (Input.GetKeyUp(KeyCode.X))
-                {
-                    gameObject.GetComponent<Node>().Select();
-                }
-            }
+        if (lookedNode != null)
+        {
+            // render the text of the looked at node
+            if (textRenderingEnabled)
+                lookedNode.GetComponent<Node>().RenderText();
+        }
+
+        // parse input from keyboard
+        UpdateInput(lookedNode);
+    }
+
+    private void UpdateInput(GameObject lookedNode)
+    {
+        if (lookedNode != null)
+        {
+            // selection
+            if (Input.GetKeyUp(KeyCode.X))
+                lookedNode.GetComponent<Node>().Select();
         }
 
         // set themes
         if (Input.GetKeyUp(KeyCode.L))
-        {
             animationManager.StartAnimation(t => ChangeTheme(darkTheme, lightTheme, t), 1f, Easing.EaseOutQuart);
-        }
         if (Input.GetKeyUp(KeyCode.K))
-        {
             animationManager.StartAnimation(t => ChangeTheme(lightTheme, darkTheme, t), 1f, Easing.EaseOutQuart);
-        }
 
+        // enable/disable text rendering
         if (Input.GetKeyDown(KeyCode.N))
         {
-            // enable/disable text rendering of nodes
-            foreach (var text in GameObject.FindGameObjectsWithTag("Text"))
-            {
+            foreach (var text in texts)
                 text.GetComponent<Renderer>().enabled = !text.GetComponent<Renderer>().enabled;
-            }
             textRenderingEnabled = !textRenderingEnabled;
         }
 
+        // enable/disable edge rendering
         if (Input.GetKeyDown(KeyCode.M))
         {
-            // enable/disable edge rendering
-            foreach (var edge in GameObject.FindGameObjectsWithTag("Edge"))
-            {
+            foreach (var edge in edges)
                 edge.GetComponent<Renderer>().enabled = !edge.GetComponent<Renderer>().enabled;
-            }
             edgeRenderingEnabled = !edgeRenderingEnabled;
         }
     }
