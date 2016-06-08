@@ -71,6 +71,8 @@ public class World : MonoBehaviour
         }
 
         AdjustNodes(connectionsCount);
+
+        SetTheme(lightTheme);
     }
 
     private void AdjustNodes(Dictionary<GameObject, int> connectionsCount) 
@@ -153,6 +155,16 @@ public class World : MonoBehaviour
             }
         }
 
+        // set themes
+        if (Input.GetKeyUp(KeyCode.L))
+        {
+            SetTheme(lightTheme);
+        }
+        if (Input.GetKeyUp(KeyCode.K))
+        {
+            SetTheme(darkTheme);
+        }
+
         // enable/disable debug menu
         if (Input.GetKeyDown(KeyCode.Space))
             debugModeEnabled = !debugModeEnabled;
@@ -182,4 +194,50 @@ public class World : MonoBehaviour
             edgeRenderingEnabled = !edgeRenderingEnabled;
         }
     }
+
+    private void SetTheme(Theme theme) 
+    {
+        // set skybox color
+        Camera.main.backgroundColor = theme.skyboxColor;
+
+        // set nodes color
+        foreach (var node in GameObject.FindGameObjectsWithTag("Node"))
+            node.GetComponent<Renderer>().material.color = theme.nodeColor;
+
+        // set text color
+        foreach (var text in GameObject.FindGameObjectsWithTag("Text"))
+            text.GetComponent<TextMesh>().color = theme.textColor;
+        
+        // set edges color
+        foreach (var edge in GameObject.FindGameObjectsWithTag("Edge"))
+            edge.GetComponent<Renderer>().material.color = theme.edgeColor;
+    }
+
+
+    private struct Theme {
+        public Color skyboxColor;
+        public Color nodeColor;
+        public Color textColor;
+        public Color edgeColor;
+    }
+
+    private Theme customTheme = new Theme() {
+        skyboxColor = Color.white,
+        nodeColor = Color.white,
+        textColor = Color.white,
+        edgeColor = Color.white
+    };
+            
+    private readonly Theme lightTheme = new Theme() { 
+        skyboxColor = new Color32(0xF3, 0xF3, 0xF3, 0xFF),
+        nodeColor = new Color32(0xEA, 0x24, 0x7A, 0xA1),
+        textColor = new Color32(0x51, 0x4B, 0x4B, 0xFF),
+        edgeColor = new Color32(0x9F, 0x9D, 0x9D, 0x64)
+    };
+    private readonly Theme darkTheme = new Theme() { 
+        skyboxColor = new Color32(0x10, 0x0F, 0x0F, 0xFF),
+        nodeColor = new Color32(0x17, 0xE2, 0xDA, 0xA1),
+        textColor = new Color32(0xE3, 0xE3, 0xE3, 0xFF),
+        edgeColor = new Color32(0xF3, 0xF3, 0xF3, 0x64)
+    };
 }
