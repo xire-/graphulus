@@ -62,7 +62,9 @@ public class World : MonoBehaviour
 
         AdjustNodes(connectionsCount);
 
-//        SetTheme(lightTheme);
+        // turn on the light theme
+        var startTheme = GetCurrentTheme();
+        animationManager.StartAnimation(t => ChangeTheme(startTheme, lightTheme, t), 2f, Easing.EaseOutCubic);
     }
 
     private void AdjustNodes(Dictionary<GameObject, int> connectionsCount)
@@ -215,4 +217,15 @@ public class World : MonoBehaviour
         textColor = new Color32(0xE3, 0xE3, 0xE3, 0xFF),
         edgeColor = new Color32(0xF3, 0xF3, 0xF3, 0x64)
     };
+
+    private Theme GetCurrentTheme() {
+        return new Theme()
+        { 
+            skyboxColor = Camera.main.backgroundColor,
+            nodeColor = nodes[0].GetComponent<Renderer>().material.color,
+            textColor = GameObject.FindGameObjectsWithTag("Text")[0].GetComponent<Renderer>().material.color,
+            edgeColor = edges[0].GetComponent<Renderer>().material.color
+        };
+    }
+
 }
