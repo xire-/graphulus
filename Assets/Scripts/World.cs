@@ -8,7 +8,6 @@ public class World : MonoBehaviour
 {
     private Rect crosshairPosition;
     private Texture2D crosshairTexture;
-    private bool debugModeEnabled;
     private Springy.ForceDirectedGraph forceDirectedGraph;
     private float fps, avgDeltaTime, timeElapsed;
     private int frameCount;
@@ -24,7 +23,6 @@ public class World : MonoBehaviour
         edges = new List<GameObject>();
         forceDirectedGraph = new Springy.ForceDirectedGraph();
 
-        debugModeEnabled = true;
         textRenderingEnabled = true;
         edgeRenderingEnabled = true;
 
@@ -41,21 +39,18 @@ public class World : MonoBehaviour
 
     private void OnGUI()
     {
-        if (debugModeEnabled)
-        {
-            // draw debug menu
-            var text =
-                String.Format("FPS: {0:f} [{1:f} ms]\n", fps, avgDeltaTime * 1000f) +
-                "\n" +
-                String.Format("Total energy: {0:f} [{1:f}]\n", forceDirectedGraph.totalKineticEnergy(), forceDirectedGraph.minEnergyThreshold) +
-                "\n" +
-                String.Format("Text rendering: {0}\n", textRenderingEnabled ? "ON" : "OFF") +
-                String.Format("Edge rendering: {0}\n", edgeRenderingEnabled ? "ON" : "OFF");
-            GUI.TextArea(new Rect(Screen.width - 250 - 10, 10, 250, Screen.height - 20), text);
+        // draw debug menu
+        var text =
+            String.Format("FPS: {0:f} [{1:f} ms]\n", fps, avgDeltaTime * 1000f) +
+            "\n" +
+            String.Format("Total energy: {0:f} [{1:f}]\n", forceDirectedGraph.totalKineticEnergy(), forceDirectedGraph.minEnergyThreshold) +
+            "\n" +
+            String.Format("Text rendering: {0}\n", textRenderingEnabled ? "ON" : "OFF") +
+            String.Format("Edge rendering: {0}\n", edgeRenderingEnabled ? "ON" : "OFF");
+        GUI.TextArea(new Rect(Screen.width - 250 - 10, 10, 250, Screen.height - 20), text);
 
-            // draw crosshair
-            GUI.DrawTexture(crosshairPosition, crosshairTexture);
-        }
+        // draw crosshair
+        GUI.DrawTexture(crosshairPosition, crosshairTexture);
     }
 
     private void Start()
@@ -78,17 +73,20 @@ public class World : MonoBehaviour
 //        SetTheme(lightTheme);
     }
 
-    private void AdjustNodes(Dictionary<GameObject, int> connectionsCount) 
+    private void AdjustNodes(Dictionary<GameObject, int> connectionsCount)
     {
         foreach (var node in nodes)
-            node.transform.localScale *= 1.5f-Mathf.Pow(1.2f, -connectionsCount[node]);
+            node.transform.localScale *= 1.5f - Mathf.Pow(1.2f, -connectionsCount[node]);
     }
 
-    private void CreateNodesAndEdges() {
+    private void CreateNodesAndEdges()
+    {
         // create nodes and edges from JSON graph
         var jsonRoot = JsonLoader.Deserialize("Examples/miserables.json");
-        nodes = (from jsonNode in jsonRoot.nodes select CreateNode(jsonNode.name)).ToList();
-        edges = (from jsonEdge in jsonRoot.links select CreateEdge(jsonEdge.source, jsonEdge.target, jsonEdge.value)).ToList();
+        nodes = (from jsonNode in jsonRoot.nodes
+                       select CreateNode(jsonNode.name)).ToList();
+        edges = (from jsonEdge in jsonRoot.links
+                       select CreateEdge(jsonEdge.source, jsonEdge.target, jsonEdge.value)).ToList();
     }
 
     private void CreateSpringyNodesAndEdges()
@@ -108,7 +106,8 @@ public class World : MonoBehaviour
         forceDirectedGraph.enabled = true;
     }
 
-    private GameObject CreateNode(string text) {
+    private GameObject CreateNode(string text)
+    {
         var node = (GameObject)Instantiate(Resources.Load("Node"));
         node.transform.parent = transform;
         node.name = String.Format("Node-{0}", text);
@@ -117,7 +116,8 @@ public class World : MonoBehaviour
         return node;
     }
 
-    private GameObject CreateEdge(int source, int target, int length) {
+    private GameObject CreateEdge(int source, int target, int length)
+    {
         var edge = (GameObject)Instantiate(Resources.Load("Edge"));
         var sourceNode = nodes[source];
         var targetNode = nodes[target];
@@ -170,15 +170,6 @@ public class World : MonoBehaviour
             animationManager.StartAnimation(t => ChangeTheme(lightTheme, darkTheme, t), 0.7f);
         }
 
-        // enable/disable debug menu
-        if (Input.GetKeyDown(KeyCode.Space))
-            debugModeEnabled = !debugModeEnabled;
-        if (debugModeEnabled)
-            UpdateDebug();
-    }
-
-    private void UpdateDebug()
-    {
         if (Input.GetKeyDown(KeyCode.N))
         {
             // enable/disable text rendering of nodes
@@ -200,8 +191,7 @@ public class World : MonoBehaviour
         }
     }
 
-
-    private void ChangeTheme(Theme startTheme, Theme endTheme, float t) 
+    private void ChangeTheme(Theme startTheme, Theme endTheme, float t)
     {
         // set skybox color
         Camera.main.backgroundColor = Color.Lerp(startTheme.skyboxColor, endTheme.skyboxColor, t);
@@ -218,14 +208,16 @@ public class World : MonoBehaviour
         foreach (var edge in GameObject.FindGameObjectsWithTag("Edge"))
             edge.GetComponent<Renderer>().material.color = Color.Lerp(startTheme.edgeColor, endTheme.edgeColor, t);
     }
-            
-    private readonly Theme lightTheme = new Theme() { 
+
+    private readonly Theme lightTheme = new Theme()
+    { 
         skyboxColor = new Color32(0xF3, 0xF3, 0xF3, 0xFF),
         nodeColor = new Color32(0xEA, 0x24, 0x7A, 0xA1),
         textColor = new Color32(0x51, 0x4B, 0x4B, 0xFF),
         edgeColor = new Color32(0x9F, 0x9D, 0x9D, 0x64)
     };
-    private readonly Theme darkTheme = new Theme() { 
+    private readonly Theme darkTheme = new Theme()
+    { 
         skyboxColor = new Color32(0x10, 0x0F, 0x0F, 0xFF),
         nodeColor = new Color32(0x17, 0xE2, 0xDA, 0xA1),
         textColor = new Color32(0xE3, 0xE3, 0xE3, 0xFF),
