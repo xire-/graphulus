@@ -14,6 +14,7 @@ public class World : MonoBehaviour
     private int frameCount;
     private List<GameObject> nodes, edges;
     private bool textRenderingEnabled, edgeRenderingEnabled;
+    private AnimationManager animationManager;
 
     private void Awake()
     {
@@ -29,6 +30,8 @@ public class World : MonoBehaviour
 
         crosshairTexture = (Texture2D)Resources.Load("Crosshair");
         crosshairPosition = new Rect((Screen.width - crosshairTexture.width) / 2, (Screen.height - crosshairTexture.height) / 2, crosshairTexture.width, crosshairTexture.height);
+
+        animationManager = new AnimationManager();
     }
 
     private void FixedUpdate()
@@ -72,7 +75,7 @@ public class World : MonoBehaviour
 
         AdjustNodes(connectionsCount);
 
-        SetTheme(lightTheme);
+//        SetTheme(lightTheme);
     }
 
     private void AdjustNodes(Dictionary<GameObject, int> connectionsCount) 
@@ -139,6 +142,8 @@ public class World : MonoBehaviour
             timeElapsed = 0f;
         }
 
+        animationManager.Update();
+
         // show text of nodes pointed by the camera
         RaycastHit hit;
         if (Physics.SphereCast(Camera.main.transform.position, 0.4f, Camera.main.transform.forward, out hit))
@@ -158,11 +163,11 @@ public class World : MonoBehaviour
         // set themes
         if (Input.GetKeyUp(KeyCode.L))
         {
-            SetTheme(lightTheme);
+            animationManager.StartAnimation(t => ChangeTheme(darkTheme, lightTheme, t), 0.7f);
         }
         if (Input.GetKeyUp(KeyCode.K))
         {
-            SetTheme(darkTheme);
+            animationManager.StartAnimation(t => ChangeTheme(lightTheme, darkTheme, t), 0.7f);
         }
 
         // enable/disable debug menu
@@ -195,22 +200,23 @@ public class World : MonoBehaviour
         }
     }
 
-    private void SetTheme(Theme theme) 
+
+    private void ChangeTheme(Theme startTheme, Theme endTheme, float t) 
     {
         // set skybox color
-        Camera.main.backgroundColor = theme.skyboxColor;
+        Camera.main.backgroundColor = Color.Lerp(startTheme.skyboxColor, endTheme.skyboxColor, t);
 
         // set nodes color
         foreach (var node in GameObject.FindGameObjectsWithTag("Node"))
-            node.GetComponent<Renderer>().material.color = theme.nodeColor;
+            node.GetComponent<Renderer>().material.color = Color.Lerp(startTheme.nodeColor, endTheme.nodeColor, t);
 
         // set text color
         foreach (var text in GameObject.FindGameObjectsWithTag("Text"))
-            text.GetComponent<TextMesh>().color = theme.textColor;
+            text.GetComponent<TextMesh>().color = Color.Lerp(startTheme.textColor, endTheme.textColor, t);
         
         // set edges color
         foreach (var edge in GameObject.FindGameObjectsWithTag("Edge"))
-            edge.GetComponent<Renderer>().material.color = theme.edgeColor;
+            edge.GetComponent<Renderer>().material.color = Color.Lerp(startTheme.edgeColor, endTheme.edgeColor, t);
     }
 
 
