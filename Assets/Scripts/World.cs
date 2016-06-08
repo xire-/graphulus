@@ -6,8 +6,6 @@ using UnityEngine;
 
 public class World : MonoBehaviour
 {
-    private Rect crosshairPosition;
-    private Texture2D crosshairTexture;
     private Springy.ForceDirectedGraph forceDirectedGraph;
     private float fps, avgDeltaTime, timeElapsed;
     private int frameCount;
@@ -25,9 +23,6 @@ public class World : MonoBehaviour
 
         textRenderingEnabled = true;
         edgeRenderingEnabled = true;
-
-        crosshairTexture = (Texture2D)Resources.Load("Crosshair");
-        crosshairPosition = new Rect((Screen.width - crosshairTexture.width) / 2, (Screen.height - crosshairTexture.height) / 2, crosshairTexture.width, crosshairTexture.height);
 
         animationManager = new AnimationManager();
     }
@@ -48,9 +43,6 @@ public class World : MonoBehaviour
             String.Format("Text rendering: {0}\n", textRenderingEnabled ? "ON" : "OFF") +
             String.Format("Edge rendering: {0}\n", edgeRenderingEnabled ? "ON" : "OFF");
         GUI.TextArea(new Rect(Screen.width - 250 - 10, 10, 250, Screen.height - 20), text);
-
-        // draw crosshair
-        GUI.DrawTexture(crosshairPosition, crosshairTexture);
     }
 
     private void Start()
