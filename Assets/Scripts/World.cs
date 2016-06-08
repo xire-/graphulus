@@ -24,8 +24,6 @@ public class World : MonoBehaviour
 
     private AnimationManager animationManager;
     private Springy.ForceDirectedGraph forceDirectedGraph;
-    private float fps, avgDeltaTime, timeElapsed;
-    private int frameCount;
     private List<GameObject> nodes, edges;
     private bool textRenderingEnabled, edgeRenderingEnabled;
 
@@ -137,7 +135,7 @@ public class World : MonoBehaviour
     {
         // draw debug menu
         var text =
-            String.Format("FPS: {0:f} [{1:f} ms]\n", fps, avgDeltaTime * 1000f) +
+            String.Format("FPS: {0:f} [{1:f}ms]\n", (int)(1.0f / Time.smoothDeltaTime), Time.smoothDeltaTime * 1000f) +
             "\n" +
             String.Format("Total energy: {0:f} [{1:f}]\n", forceDirectedGraph.totalKineticEnergy(), forceDirectedGraph.minEnergyThreshold) +
             "\n" +
@@ -170,17 +168,6 @@ public class World : MonoBehaviour
 
     private void Update()
     {
-        // keep track of stats
-        frameCount++;
-        timeElapsed += Time.deltaTime;
-        if (timeElapsed >= 1f)
-        {
-            fps = frameCount;
-            avgDeltaTime = timeElapsed / frameCount;
-            frameCount = 0;
-            timeElapsed = 0f;
-        }
-
         animationManager.Update();
 
         // show text of nodes pointed by the camera
