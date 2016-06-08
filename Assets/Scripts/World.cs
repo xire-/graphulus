@@ -155,11 +155,11 @@ public class World : MonoBehaviour
         // set themes
         if (Input.GetKeyUp(KeyCode.L))
         {
-            animationManager.StartAnimation(t => ChangeTheme(darkTheme, lightTheme, t), 0.7f);
+            animationManager.StartAnimation(t => ChangeTheme(darkTheme, lightTheme, t), 1f, Easing.EaseOutQuart);
         }
         if (Input.GetKeyUp(KeyCode.K))
         {
-            animationManager.StartAnimation(t => ChangeTheme(lightTheme, darkTheme, t), 0.7f);
+            animationManager.StartAnimation(t => ChangeTheme(lightTheme, darkTheme, t), 1f, Easing.EaseOutQuart);
         }
 
         if (Input.GetKeyDown(KeyCode.N))

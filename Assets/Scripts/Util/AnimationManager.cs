@@ -5,6 +5,8 @@ public class AnimationManager
 {
     public delegate void AnimationDelegate(float t);
 
+    public delegate float EasingDelegate(float t);
+
     private List<Animation> animations;
 
     public AnimationManager()
@@ -23,12 +25,14 @@ public class AnimationManager
             else
             {
                 float t = (Time.realtimeSinceStartup - animation.startTime) / animation.duration;
+                if (animation.easingDelegate != null)
+                    t = animation.easingDelegate(t);
                 animation.animationDelegate(t);
             }
         }
     }
 
-    public void StartAnimation(AnimationDelegate animationDelegate, float duration)
+    public void StartAnimation(AnimationDelegate animationDelegate, float duration, EasingDelegate easingDelegate = null)
     {
         var startTime = Time.realtimeSinceStartup;
         var animation = new Animation
@@ -36,7 +40,8 @@ public class AnimationManager
             startTime = startTime,
             duration = duration,
             endTime = startTime + duration,
-            animationDelegate = animationDelegate
+            animationDelegate = animationDelegate,
+            easingDelegate = easingDelegate
         };
         animations.Add(animation);
     }
@@ -47,5 +52,6 @@ public class AnimationManager
         public float duration;
         public float endTime;
         public AnimationDelegate animationDelegate;
+        public EasingDelegate easingDelegate;
     }
 }
