@@ -66,7 +66,7 @@ public class World : MonoBehaviour
             edge.GetComponent<Renderer>().material.color = Color.Lerp(startTheme.edgeColor, endTheme.edgeColor, t);
     }
 
-    private GameObject CreateEdge(int source, int target, int length)
+    private GameObject CreateEdge(int source, int target, float length)
     {
         var edge = (GameObject)Instantiate(Resources.Load("Edge"));
         var sourceNode = nodes[source];
