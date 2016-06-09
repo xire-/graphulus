@@ -22,7 +22,7 @@ public class World : MonoBehaviour
         edgeColor = new Color32(0x9F, 0x9D, 0x9D, 0x64)
     };
 
-    private AnimationManager animationManager;
+    public AnimationManager animationManager;
     private Springy.ForceDirectedGraph forceDirectedGraph;
     private List<GameObject> nodes, texts, edges;
     private bool textRenderingEnabled, edgeRenderingEnabled;
@@ -170,7 +170,7 @@ public class World : MonoBehaviour
 
         // switch on the light theme
         var startTheme = GetCurrentTheme();
-        animationManager.StartAnimation(t => ChangeTheme(startTheme, lightTheme, t), 2f, Easing.EaseOutCubic);
+        animationManager.Add(new Animation {Update = t => ChangeTheme(startTheme, lightTheme, t), duration=2f, Ease=Easing.EaseOutCubic});
     }
 
     private void Update()
@@ -209,9 +209,9 @@ public class World : MonoBehaviour
 
         // set themes
         if (Input.GetKeyUp(KeyCode.L))
-            animationManager.StartAnimation(t => ChangeTheme(darkTheme, lightTheme, t), 1f, Easing.EaseOutQuart);
+            animationManager.Add(new Animation {Update = t => ChangeTheme(darkTheme, lightTheme, t), duration=1f, Ease=Easing.EaseOutQuart});
         if (Input.GetKeyUp(KeyCode.K))
-            animationManager.StartAnimation(t => ChangeTheme(lightTheme, darkTheme, t), 1f, Easing.EaseOutQuart);
+            animationManager.Add(new Animation {Update = t => ChangeTheme(lightTheme, darkTheme, t), duration=1f, Ease=Easing.EaseOutQuart});
 
         // enable/disable text rendering
         if (Input.GetKeyDown(KeyCode.N))
