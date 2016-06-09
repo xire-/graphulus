@@ -6,6 +6,8 @@ using UnityEngine;
 
 public class World : MonoBehaviour
 {
+    public AnimationManager animationManager;
+
     private readonly Theme darkTheme = new Theme()
     {
         skyboxColor = new Color32(0x10, 0x0F, 0x0F, 0xFF),
@@ -22,7 +24,6 @@ public class World : MonoBehaviour
         edgeColor = new Color32(0x9F, 0x9D, 0x9D, 0x64)
     };
 
-    public AnimationManager animationManager;
     private Springy.ForceDirectedGraph forceDirectedGraph;
     private List<GameObject> nodes, texts, edges;
     private bool textRenderingEnabled, edgeRenderingEnabled;
@@ -170,7 +171,7 @@ public class World : MonoBehaviour
 
         // switch on the light theme
         var startTheme = GetCurrentTheme();
-        animationManager.Add(new Animation {Update = t => ChangeTheme(startTheme, lightTheme, t), duration=2f, Ease=Easing.EaseOutCubic});
+        animationManager.Add(new Animation { Update = t => ChangeTheme(startTheme, darkTheme, t), duration = 2f, Ease = Easing.EaseOutCubic });
     }
 
     private void Update()
@@ -209,9 +210,9 @@ public class World : MonoBehaviour
 
         // set themes
         if (Input.GetKeyUp(KeyCode.L))
-            animationManager.Add(new Animation {Update = t => ChangeTheme(darkTheme, lightTheme, t), duration=1f, Ease=Easing.EaseOutQuart});
+            animationManager.Add(new Animation { Update = t => ChangeTheme(darkTheme, lightTheme, t), duration = 1f, Ease = Easing.EaseOutQuart });
         if (Input.GetKeyUp(KeyCode.K))
-            animationManager.Add(new Animation {Update = t => ChangeTheme(lightTheme, darkTheme, t), duration=1f, Ease=Easing.EaseOutQuart});
+            animationManager.Add(new Animation { Update = t => ChangeTheme(lightTheme, darkTheme, t), duration = 1f, Ease = Easing.EaseOutQuart });
 
         // enable/disable text rendering
         if (Input.GetKeyDown(KeyCode.N))

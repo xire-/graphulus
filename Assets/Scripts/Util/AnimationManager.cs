@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 public class AnimationManager
@@ -13,20 +12,9 @@ public class AnimationManager
     }
 
     public void Add(Animation animation)
-//    public void Add(Action<float> update, float duration, Func<float, float> ease = null)
     {
-//        var animation = new Animation
-//        {
-//            startTime = Time.realtimeSinceStartup,
-//            duration = duration,
-//            endTime = Time.realtimeSinceStartup + duration,
-//            Update = update,
-//            Ease = ease
-//        };
-//        animationsToStart.Add(animation);
-//        return animation;
-
-        var animationInfo = new AnimationInfo {
+        var animationInfo = new AnimationInfo
+        {
             animation = animation,
             startTime = Time.realtimeSinceStartup,
             endTime = Time.realtimeSinceStartup + animation.duration
@@ -69,8 +57,8 @@ public class AnimationManager
         }
     }
 
-
-    private struct AnimationInfo {
+    private struct AnimationInfo
+    {
         public Animation animation;
         public float endTime;
         public float startTime;
