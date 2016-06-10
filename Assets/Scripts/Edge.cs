@@ -3,8 +3,8 @@ using UnityEngine.Assertions;
 
 public class Edge : MonoBehaviour
 {
-    public float length;
     public GameObject source, target;
+    public Springy.Edge springyEdge;
 
     private void Awake()
     {

@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-
 using UnityEngine;
 
 public class World : MonoBehaviour
@@ -25,11 +23,23 @@ public class World : MonoBehaviour
     };
 
     private Springy.ForceDirectedGraph forceDirectedGraph;
+    private GameObject graph;
     private List<GameObject> nodes, texts, edges;
     private bool textRenderingEnabled, edgeRenderingEnabled;
 
-    private GameObject graph;
-
+    private Theme CurrentTheme
+    {
+        get
+        {
+            return new Theme
+            {
+                skyboxColor = Camera.main.backgroundColor,
+                nodeColor = nodes[0].GetComponent<Renderer>().material.color,
+                textColor = texts[0].GetComponent<Renderer>().material.color,
+                edgeColor = edges[0].GetComponent<Renderer>().material.color
+            };
+        }
+    }
 
     private void AdjustNodes(Dictionary<GameObject, int> connectionsCount)
     {
@@ -40,13 +50,6 @@ public class World : MonoBehaviour
     private void Awake()
     {
         UnityEngine.Random.seed = 1337;
-
-        graph = new GameObject("Graph");
-        graph.transform.parent = transform;
-
-        nodes = new List<GameObject>();
-        texts = new List<GameObject>();
-        edges = new List<GameObject>();
 
         forceDirectedGraph = new Springy.ForceDirectedGraph();
 
@@ -74,73 +77,71 @@ public class World : MonoBehaviour
             edge.GetComponent<Renderer>().material.color = Color.Lerp(startTheme.edgeColor, endTheme.edgeColor, t);
     }
 
-    private GameObject CreateEdge(int source, int target, float length)
+    private GameObject CreateEdge(Springy.Edge springyEdge, GameObject sourceNode, GameObject targetNode)
     {
         var edge = (GameObject)Instantiate(Resources.Load("Edge"));
-        var sourceNode = nodes[source];
-        var targetNode = nodes[target];
         edge.transform.parent = graph.transform;
-        edge.name = String.Format("Edge-{0}-{1}", sourceNode.name, targetNode.name);
+        edge.name = String.Format("E.{0}.{1}", sourceNode.name, targetNode.name);
+        edge.GetComponent<Edge>().springyEdge = springyEdge;
         edge.GetComponent<Edge>().source = sourceNode;
         edge.GetComponent<Edge>().target = targetNode;
-        edge.GetComponent<Edge>().length = length;
         return edge;
     }
 
-    private GameObject CreateNode(string text)
+    private void CreateEdges(JsonLoader.JsonRoot jsonRoot)
+    {
+        foreach (var jsonEdge in jsonRoot.links)
+        {
+            var sourceNode = nodes[jsonEdge.source];
+            var targetNode = nodes[jsonEdge.target];
+            var springyEdge = forceDirectedGraph.newEdge(sourceNode.GetComponent<Node>().springyNode, targetNode.GetComponent<Node>().springyNode, jsonEdge.value);
+
+            var edge = CreateEdge(springyEdge, sourceNode, targetNode);
+            edges.Add(edge);
+        }
+    }
+
+    private void CreateGraph(string path)
+    {
+        graph = new GameObject("Graph");
+        graph.transform.parent = transform;
+
+        nodes = new List<GameObject>();
+        texts = new List<GameObject>();
+        edges = new List<GameObject>();
+
+        var jsonRoot = JsonLoader.Deserialize(path);
+        CreateNodes(jsonRoot);
+        CreateEdges(jsonRoot);
+    }
+
+    private GameObject CreateNode(Springy.Node springyNode, string text)
     {
         var node = (GameObject)Instantiate(Resources.Load("Node"));
         node.transform.parent = graph.transform;
-        node.name = String.Format("Node-{0}", text);
+        node.name = String.Format("N.{0}", text);
+        node.GetComponent<Node>().springyNode = springyNode;
         node.GetComponent<Node>().Text = text;
-        node.transform.Find("Text").GetComponent<Renderer>().enabled = false;
         return node;
     }
 
-    private void CreateNodesAndEdges()
+    private void CreateNodes(JsonLoader.JsonRoot jsonRoot)
     {
-        // create nodes and edges from JSON graph
-        var jsonRoot = JsonLoader.Deserialize("Examples/miserables.json");
-
-        nodes = (from jsonNode in jsonRoot.nodes
-                 select CreateNode(jsonNode.name)).ToList();
-
-        foreach (var node in nodes)
-            texts.Add(node.transform.Find("Text").gameObject);
-
-        edges = (from jsonEdge in jsonRoot.links
-                 select CreateEdge(jsonEdge.source, jsonEdge.target, jsonEdge.value)).ToList();
-    }
-
-    private void CreateSpringyNodesAndEdges()
-    {
-        // create springy nodes
-        foreach (var node in nodes)
-            node.GetComponent<Node>().springyNode = forceDirectedGraph.newNode();
-
-        // create springy edges
-        foreach (var edge in edges)
+        foreach (var jsonNode in jsonRoot.nodes)
         {
-            var sourceNode = edge.GetComponent<Edge>().source;
-            var targetNode = edge.GetComponent<Edge>().target;
-            forceDirectedGraph.newEdge(sourceNode.GetComponent<Node>().springyNode, targetNode.GetComponent<Node>().springyNode, edge.GetComponent<Edge>().length);
+            var springyNode = forceDirectedGraph.newNode();
+
+            var node = CreateNode(springyNode, jsonNode.name);
+            nodes.Add(node);
+
+            var text = node.transform.Find("Text").gameObject;
+            texts.Add(text);
         }
     }
 
     private void FixedUpdate()
     {
         forceDirectedGraph.tick(Time.fixedDeltaTime);
-    }
-
-    private Theme GetCurrentTheme()
-    {
-        return new Theme
-        {
-            skyboxColor = Camera.main.backgroundColor,
-            nodeColor = nodes[0].GetComponent<Renderer>().material.color,
-            textColor = texts[0].GetComponent<Renderer>().material.color,
-            edgeColor = edges[0].GetComponent<Renderer>().material.color
-        };
     }
 
     private void OnGUI()
@@ -158,8 +159,7 @@ public class World : MonoBehaviour
 
     private void Start()
     {
-        CreateNodesAndEdges();
-        CreateSpringyNodesAndEdges();
+        CreateGraph("Examples/miserables.json");
 
         // count the number of connections
         var connectionsCount = new Dictionary<GameObject, int>();
@@ -177,7 +177,7 @@ public class World : MonoBehaviour
         forceDirectedGraph.enabled = true;
 
         // switch on the light theme
-        var startTheme = GetCurrentTheme();
+        var startTheme = CurrentTheme;
         animationManager.Add(new Animation { Update = t => ChangeTheme(startTheme, darkTheme, t), duration = 2f, Ease = Easing.EaseOutCubic });
     }
 
