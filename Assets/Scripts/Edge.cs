@@ -29,6 +29,7 @@ public class Edge : MonoBehaviour
     private void SpawnLight()
     {
         var light = (GameObject)Instantiate(Resources.Load("Light"));
+        light.transform.parent = transform;
 
         // random duration and easing
         var duration = Random.Range(0.5f, 4f);
