@@ -28,6 +28,9 @@ public class World : MonoBehaviour
     private List<GameObject> nodes, texts, edges;
     private bool textRenderingEnabled, edgeRenderingEnabled;
 
+    private GameObject graph;
+
+
     private void AdjustNodes(Dictionary<GameObject, int> connectionsCount)
     {
         foreach (var node in nodes)
@@ -38,9 +41,13 @@ public class World : MonoBehaviour
     {
         UnityEngine.Random.seed = 1337;
 
+        graph = new GameObject("Graph");
+        graph.transform.parent = transform;
+
         nodes = new List<GameObject>();
         texts = new List<GameObject>();
         edges = new List<GameObject>();
+
         forceDirectedGraph = new Springy.ForceDirectedGraph();
 
         animationManager = new AnimationManager();
@@ -72,7 +79,7 @@ public class World : MonoBehaviour
         var edge = (GameObject)Instantiate(Resources.Load("Edge"));
         var sourceNode = nodes[source];
         var targetNode = nodes[target];
-        edge.transform.parent = transform;
+        edge.transform.parent = graph.transform;
         edge.name = String.Format("Edge-{0}-{1}", sourceNode.name, targetNode.name);
         edge.GetComponent<Edge>().source = sourceNode;
         edge.GetComponent<Edge>().target = targetNode;
@@ -83,7 +90,7 @@ public class World : MonoBehaviour
     private GameObject CreateNode(string text)
     {
         var node = (GameObject)Instantiate(Resources.Load("Node"));
-        node.transform.parent = transform;
+        node.transform.parent = graph.transform;
         node.name = String.Format("Node-{0}", text);
         node.GetComponent<Node>().Text = text;
         node.transform.Find("Text").GetComponent<Renderer>().enabled = false;

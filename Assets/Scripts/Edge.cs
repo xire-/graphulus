@@ -35,7 +35,7 @@ public class Edge : MonoBehaviour
         System.Func<float, float>[] easings = { Easing.EaseOutCubic, Easing.EaseOutQuad, Easing.EaseOutQuart, Easing.EaseOutQuint };
 
         // add animation
-        transform.parent.GetComponent<World>().animationManager.Add(new Animation
+        transform.parent.transform.parent.GetComponent<World>().animationManager.Add(new Animation
         {
             OnStart = () =>
             {
