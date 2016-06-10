@@ -159,6 +159,20 @@ public class World : MonoBehaviour
         GUI.TextArea(new Rect(Screen.width - 250 - 10, 10, 250, Screen.height - 20), text);
     }
 
+    private void SetEdgesActive(bool active)
+    {
+        foreach (var edge in edges)
+            edge.SetActive(active);
+        edgeRenderingEnabled = active;
+    }
+
+    private void SetTextsActive(bool active)
+    {
+        foreach (var text in texts)
+            text.SetActive(active);
+        textRenderingEnabled = active;
+    }
+
     private void Start()
     {
         CreateGraph("Examples/miserables.json");
@@ -226,17 +240,13 @@ public class World : MonoBehaviour
         // enable/disable text rendering
         if (Input.GetKeyDown(KeyCode.N))
         {
-            foreach (var text in texts)
-                text.GetComponent<Renderer>().enabled = !text.GetComponent<Renderer>().enabled;
-            textRenderingEnabled = !textRenderingEnabled;
+            SetTextsActive(!textRenderingEnabled);
         }
 
         // enable/disable edge rendering
         if (Input.GetKeyDown(KeyCode.M))
         {
-            foreach (var edge in edges)
-                edge.GetComponent<Renderer>().enabled = !edge.GetComponent<Renderer>().enabled;
-            edgeRenderingEnabled = !edgeRenderingEnabled;
+            SetEdgesActive(!edgeRenderingEnabled);
         }
     }
 }
