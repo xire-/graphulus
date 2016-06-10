@@ -59,22 +59,24 @@ public class World : MonoBehaviour
         edgeRenderingEnabled = true;
     }
 
-    private void ChangeTheme(Theme startTheme, Theme endTheme, float t)
+    private void ChangeTheme(Theme newTheme)
     {
-        // set skybox color
-        Camera.main.backgroundColor = Color.Lerp(startTheme.skyboxColor, endTheme.skyboxColor, t);
-
-        // set nodes color
-        foreach (var node in nodes)
-            node.GetComponent<Renderer>().material.color = Color.Lerp(startTheme.nodeColor, endTheme.nodeColor, t);
-
-        // set texts color
-        foreach (var text in texts)
-            text.GetComponent<TextMesh>().color = Color.Lerp(startTheme.textColor, endTheme.textColor, t);
-
-        // set edges color
-        foreach (var edge in edges)
-            edge.GetComponent<Renderer>().material.color = Color.Lerp(startTheme.edgeColor, endTheme.edgeColor, t);
+        var startTheme = CurrentTheme;
+        animationManager.Add(new Animation
+        {
+            Update = t =>
+            {
+                Camera.main.backgroundColor = Color.Lerp(startTheme.skyboxColor, newTheme.skyboxColor, t);
+                foreach (var node in nodes)
+                    node.GetComponent<Renderer>().material.color = Color.Lerp(startTheme.nodeColor, newTheme.nodeColor, t);
+                foreach (var text in texts)
+                    text.GetComponent<TextMesh>().color = Color.Lerp(startTheme.textColor, newTheme.textColor, t);
+                foreach (var edge in edges)
+                    edge.GetComponent<Renderer>().material.color = Color.Lerp(startTheme.edgeColor, newTheme.edgeColor, t);
+            },
+            duration = 1.5f,
+            Ease = Easing.EaseOutCubic
+        });
     }
 
     private GameObject CreateEdge(Springy.Edge springyEdge, GameObject sourceNode, GameObject targetNode)
@@ -176,9 +178,7 @@ public class World : MonoBehaviour
         // enable the simulation
         forceDirectedGraph.enabled = true;
 
-        // switch on the light theme
-        var startTheme = CurrentTheme;
-        animationManager.Add(new Animation { Update = t => ChangeTheme(startTheme, darkTheme, t), duration = 2f, Ease = Easing.EaseOutCubic });
+        ChangeTheme(darkTheme);
     }
 
     private void Update()
@@ -219,9 +219,9 @@ public class World : MonoBehaviour
 
         // set themes
         if (Input.GetKeyUp(KeyCode.L))
-            animationManager.Add(new Animation { Update = t => ChangeTheme(darkTheme, lightTheme, t), duration = 1f, Ease = Easing.EaseOutQuart });
+            ChangeTheme(lightTheme);
         if (Input.GetKeyUp(KeyCode.K))
-            animationManager.Add(new Animation { Update = t => ChangeTheme(lightTheme, darkTheme, t), duration = 1f, Ease = Easing.EaseOutQuart });
+            ChangeTheme(darkTheme);
 
         // enable/disable text rendering
         if (Input.GetKeyDown(KeyCode.N))
