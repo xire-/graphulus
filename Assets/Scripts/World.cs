@@ -185,6 +185,8 @@ public class World : MonoBehaviour
     {
         animationManager.Update();
 
+        graph.transform.Rotate(Vector3.up, -Time.deltaTime * 5);
+
         // check if a node is pointed by the camera
         GameObject lookedNode = null;
         RaycastHit hit;
