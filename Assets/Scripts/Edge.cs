@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using UnityEngine.Assertions;
 
 public class Edge : MonoBehaviour
 {
@@ -14,9 +13,6 @@ public class Edge : MonoBehaviour
 
     private void LateUpdate()
     {
-        Assert.IsNotNull(source);
-        Assert.IsNotNull(target);
-
         // update edge position
         GetComponent<LineRenderer>().SetPosition(0, source.transform.position);
         GetComponent<LineRenderer>().SetPosition(1, target.transform.position);
@@ -34,6 +30,7 @@ public class Edge : MonoBehaviour
         // random duration and easing
         var duration = Random.Range(0.5f, 4f);
         System.Func<float, float>[] easings = { Easing.EaseOutCubic, Easing.EaseOutQuad, Easing.EaseOutQuart, Easing.EaseOutQuint };
+        var easing = easings[Random.Range(0, easings.Length)];
 
         // add animation
         transform.parent.transform.parent.GetComponent<World>().animationManager.Add(new Animation
@@ -52,7 +49,7 @@ public class Edge : MonoBehaviour
                 Destroy(light);
             },
             duration = duration,
-            Ease = easings[Random.Range(0, easings.Length)],
+            Ease = easing,
         });
     }
 }

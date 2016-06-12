@@ -22,9 +22,7 @@ public class World : MonoBehaviour
         edgeColor = new Color32(0x9F, 0x9D, 0x9D, 0x64)
     };
 
-    private Springy.ForceDirectedGraph forceDirectedGraph;
     private GameObject graph;
-    private List<GameObject> nodes, texts, edges;
     private bool textRenderingEnabled, edgeRenderingEnabled;
 
     private Theme CurrentTheme
@@ -34,24 +32,22 @@ public class World : MonoBehaviour
             return new Theme
             {
                 skyboxColor = Camera.main.backgroundColor,
-                nodeColor = nodes[0].GetComponent<Renderer>().material.color,
-                textColor = texts[0].GetComponent<Renderer>().material.color,
-                edgeColor = edges[0].GetComponent<Renderer>().material.color
+                nodeColor = graph.GetComponent<Graph>().nodes[0].GetComponent<Renderer>().material.color,
+                textColor = graph.GetComponent<Graph>().texts[0].GetComponent<Renderer>().material.color,
+                edgeColor = graph.GetComponent<Graph>().edges[0].GetComponent<Renderer>().material.color
             };
         }
     }
 
     private void AdjustNodes(Dictionary<GameObject, int> connectionsCount)
     {
-        foreach (var node in nodes)
+        foreach (var node in graph.GetComponent<Graph>().nodes)
             node.transform.localScale *= 1.5f - Mathf.Pow(1.2f, -connectionsCount[node]);
     }
 
     private void Awake()
     {
         UnityEngine.Random.seed = 1337;
-
-        forceDirectedGraph = new Springy.ForceDirectedGraph();
 
         animationManager = new AnimationManager();
 
@@ -67,11 +63,11 @@ public class World : MonoBehaviour
             Update = t =>
             {
                 Camera.main.backgroundColor = Color.Lerp(startTheme.skyboxColor, newTheme.skyboxColor, t);
-                foreach (var node in nodes)
+                foreach (var node in graph.GetComponent<Graph>().nodes)
                     node.GetComponent<Renderer>().material.color = Color.Lerp(startTheme.nodeColor, newTheme.nodeColor, t);
-                foreach (var text in texts)
+                foreach (var text in graph.GetComponent<Graph>().texts)
                     text.GetComponent<TextMesh>().color = Color.Lerp(startTheme.textColor, newTheme.textColor, t);
-                foreach (var edge in edges)
+                foreach (var edge in graph.GetComponent<Graph>().edges)
                     edge.GetComponent<Renderer>().material.color = Color.Lerp(startTheme.edgeColor, newTheme.edgeColor, t);
             },
             duration = 1.5f,
@@ -79,71 +75,13 @@ public class World : MonoBehaviour
         });
     }
 
-    private GameObject CreateEdge(Springy.Edge springyEdge, GameObject sourceNode, GameObject targetNode)
+    private GameObject CreateGraphFrom(string path)
     {
-        var edge = (GameObject)Instantiate(Resources.Load("Edge"));
-        edge.transform.parent = graph.transform;
-        edge.name = String.Format("E.{0}.{1}", sourceNode.name, targetNode.name);
-        edge.GetComponent<Edge>().springyEdge = springyEdge;
-        edge.GetComponent<Edge>().source = sourceNode;
-        edge.GetComponent<Edge>().target = targetNode;
-        return edge;
-    }
-
-    private void CreateEdges(JsonLoader.JsonRoot jsonRoot)
-    {
-        foreach (var jsonEdge in jsonRoot.links)
-        {
-            var sourceNode = nodes[jsonEdge.source];
-            var targetNode = nodes[jsonEdge.target];
-            var springyEdge = forceDirectedGraph.newEdge(sourceNode.GetComponent<Node>().springyNode, targetNode.GetComponent<Node>().springyNode, jsonEdge.value);
-
-            var edge = CreateEdge(springyEdge, sourceNode, targetNode);
-            edges.Add(edge);
-        }
-    }
-
-    private void CreateGraph(string path)
-    {
-        graph = new GameObject("Graph");
+        GameObject graph = (GameObject)Instantiate(Resources.Load("Graph"));
+        graph.name = "Graph";
         graph.transform.parent = transform;
-
-        nodes = new List<GameObject>();
-        texts = new List<GameObject>();
-        edges = new List<GameObject>();
-
-        var jsonRoot = JsonLoader.Deserialize(path);
-        CreateNodes(jsonRoot);
-        CreateEdges(jsonRoot);
-    }
-
-    private GameObject CreateNode(Springy.Node springyNode, string text)
-    {
-        var node = (GameObject)Instantiate(Resources.Load("Node"));
-        node.transform.parent = graph.transform;
-        node.name = String.Format("N.{0}", text);
-        node.GetComponent<Node>().springyNode = springyNode;
-        node.GetComponent<Node>().Text = text;
-        return node;
-    }
-
-    private void CreateNodes(JsonLoader.JsonRoot jsonRoot)
-    {
-        foreach (var jsonNode in jsonRoot.nodes)
-        {
-            var springyNode = forceDirectedGraph.newNode();
-
-            var node = CreateNode(springyNode, jsonNode.name);
-            nodes.Add(node);
-
-            var text = node.transform.Find("Text").gameObject;
-            texts.Add(text);
-        }
-    }
-
-    private void FixedUpdate()
-    {
-        forceDirectedGraph.tick(Time.fixedDeltaTime);
+        graph.GetComponent<Graph>().PopulateFrom(path);
+        return graph;
     }
 
     private void OnGUI()
@@ -152,7 +90,7 @@ public class World : MonoBehaviour
         var text =
             String.Format("FPS: {0:f} [{1:f}ms]\n", (int)(1.0f / Time.smoothDeltaTime), Time.smoothDeltaTime * 1000f) +
             "\n" +
-            String.Format("Total energy: {0:f} [{1:f}]\n", forceDirectedGraph.totalKineticEnergy(), forceDirectedGraph.minEnergyThreshold) +
+            String.Format("Total energy: {0:f} [{1:f}]\n", graph.GetComponent<Graph>().forceDirectedGraph.totalKineticEnergy(), graph.GetComponent<Graph>().forceDirectedGraph.minEnergyThreshold) +
             "\n" +
             String.Format("Text rendering: {0}\n", textRenderingEnabled ? "ON" : "OFF") +
             String.Format("Edge rendering: {0}\n", edgeRenderingEnabled ? "ON" : "OFF");
@@ -161,36 +99,33 @@ public class World : MonoBehaviour
 
     private void SetEdgesActive(bool active)
     {
-        foreach (var edge in edges)
+        foreach (var edge in graph.GetComponent<Graph>().edges)
             edge.SetActive(active);
         edgeRenderingEnabled = active;
     }
 
     private void SetTextsActive(bool active)
     {
-        foreach (var text in texts)
+        foreach (var text in graph.GetComponent<Graph>().texts)
             text.SetActive(active);
         textRenderingEnabled = active;
     }
 
     private void Start()
     {
-        CreateGraph("Examples/miserables.json");
+        graph = CreateGraphFrom("Examples/miserables.json");
 
         // count the number of connections
         var connectionsCount = new Dictionary<GameObject, int>();
-        foreach (var node in nodes)
+        foreach (var node in graph.GetComponent<Graph>().nodes)
             connectionsCount[node] = 0;
-        foreach (var edge in edges)
+        foreach (var edge in graph.GetComponent<Graph>().edges)
         {
             connectionsCount[edge.GetComponent<Edge>().source]++;
             connectionsCount[edge.GetComponent<Edge>().target]++;
         }
 
         AdjustNodes(connectionsCount);
-
-        // enable the simulation
-        forceDirectedGraph.enabled = true;
 
         ChangeTheme(darkTheme);
     }
