@@ -41,7 +41,7 @@ public class Node : MonoBehaviour
 
     private void LateUpdate()
     {
-        transform.localPosition = springyNode.pos;
+        transform.localPosition = springyNode.pos / 20f;
     }
 
     private void Update()

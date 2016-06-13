@@ -75,15 +75,6 @@ public class World : MonoBehaviour
         });
     }
 
-    private GameObject CreateGraphFrom(string path)
-    {
-        GameObject graph = (GameObject)Instantiate(Resources.Load("Graph"));
-        graph.name = "Graph";
-        graph.transform.parent = transform;
-        graph.GetComponent<Graph>().PopulateFrom(path);
-        return graph;
-    }
-
     private void OnGUI()
     {
         // draw debug menu
@@ -113,7 +104,8 @@ public class World : MonoBehaviour
 
     private void Start()
     {
-        graph = CreateGraphFrom("Examples/miserables.json");
+        graph = GameObject.Find("Graph");
+        graph.GetComponent<Graph>().PopulateFrom("Examples/miserables.json");
 
         // count the number of connections
         var connectionsCount = new Dictionary<GameObject, int>();
