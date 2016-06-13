@@ -33,7 +33,7 @@ public class Edge : MonoBehaviour
         var easing = easings[Random.Range(0, easings.Length)];
 
         // add animation
-        transform.parent.transform.parent.GetComponent<World>().animationManager.Add(new Animation
+        GameObject.Find("World").GetComponent<World>().animationManager.Add(new Animation
         {
             OnStart = () =>
             {
