@@ -5,7 +5,7 @@ using UnityEngine;
 namespace Springy
 {
 
-    public class Node
+    public class Node : IMassPoint
     {
         public int id { get; private set; }
 
@@ -15,6 +15,32 @@ namespace Springy
 
         public float mass { get; set; }
         public Vector3 forcesAccumulator { get; private set; }
+
+        float IMassPoint.Mass
+        {
+            get
+            {
+                return mass;
+            }
+
+            set
+            {
+                mass = value;
+            }
+        }
+
+        Vector3 IMassPoint.Position
+        {
+            get
+            {
+                return pos;
+            }
+
+            set
+            {
+                pos = value;
+            }
+        }
 
         public Node(int id, float mass, float randRange = 100f)
         {
@@ -122,6 +148,7 @@ namespace Springy
             if (enabled && !inEquilibrium)
             {
                 applyCoulombsLaw();
+                //applyCoulombsLaw2();
                 applyHookesLaw();
                 attractToCenter();
                 physicStep(timestep);
@@ -152,6 +179,46 @@ namespace Springy
             }
 
         }
+
+        private void applyCoulombsLaw2()
+        {
+            // first find the bounds of the nodes
+            Vector3 minVector = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
+            Vector3 maxVector = new Vector3(float.MinValue, float.MinValue, float.MinValue);
+            
+            foreach (var node in nodes)
+            {
+                minVector.x = Mathf.Min(minVector.x, node.pos.x);
+                minVector.y = Mathf.Min(minVector.y, node.pos.y);
+                minVector.z = Mathf.Min(minVector.z, node.pos.z);
+
+                maxVector.x = Mathf.Max(maxVector.x, node.pos.x);
+                maxVector.y = Mathf.Max(maxVector.y, node.pos.y);
+                maxVector.z = Mathf.Max(maxVector.z, node.pos.z);
+            }
+            float total_width = Mathf.Max(maxVector.x - minVector.x, maxVector.y - minVector.y, maxVector.z - minVector.z);
+
+            BarnesHutOctree<Node> bh_tree = new BarnesHutOctree<Node>((maxVector + minVector) / 2, total_width / 2);
+            foreach (var node in nodes)
+            {
+                bh_tree.AddObject(node);
+            }
+
+            // start iteration over nodes to apply forces
+            foreach (var node in nodes)
+            {
+                foreach (var body in bh_tree.GetNearBodies(node.pos))
+                {
+                    Vector3 delta = node.pos - body.Position;
+                    float sqrDistance = Math.Max(0.1f, delta.sqrMagnitude);
+                    Vector3 direction = delta.normalized;
+
+                    node.addForce((direction * repulsion) / (sqrDistance * 0.5f));
+                }
+            }
+
+        }
+
 
         private void applyHookesLaw()
         {
