@@ -101,7 +101,7 @@ namespace Springy
             repulsion = 400f;
             enableRepulsion = true;
 
-            convergence = 8f;
+            convergence = 0.7f;
             damping = 0.5f;
             minEnergyThreshold = 0.05f;
         }
