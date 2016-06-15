@@ -12,7 +12,7 @@ public class JsonLoader
     public struct JsonEdge
     {
         public int source, target;
-        public int value;
+        public float value;
     }
 
     public struct JsonNode

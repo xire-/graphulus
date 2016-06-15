@@ -66,7 +66,7 @@ public class World : MonoBehaviour
             edge.GetComponent<Renderer>().material.color = Color.Lerp(startTheme.edgeColor, endTheme.edgeColor, t);
     }
 
-    private GameObject CreateEdge(int source, int target, int length)
+    private GameObject CreateEdge(int source, int target, float length)
     {
         var edge = (GameObject)Instantiate(Resources.Load("Edge"));
         var sourceNode = nodes[source];
@@ -92,7 +92,8 @@ public class World : MonoBehaviour
     private void CreateNodesAndEdges()
     {
         // create nodes and edges from JSON graph
-        var jsonRoot = JsonLoader.Deserialize("Examples/miserables.json");
+        //var jsonRoot = JsonLoader.Deserialize("Examples/miserables.json");
+        var jsonRoot = JsonLoader.Deserialize("Examples/torus_graph.json");
 
         nodes = (from jsonNode in jsonRoot.nodes
                  select CreateNode(jsonNode.name)).ToList();

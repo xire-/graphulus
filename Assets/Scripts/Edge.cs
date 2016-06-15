@@ -3,7 +3,7 @@ using UnityEngine.Assertions;
 
 public class Edge : MonoBehaviour
 {
-    public int length;
+    public float length;
     public GameObject source, target;
 
     private void Awake()
