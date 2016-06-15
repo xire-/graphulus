@@ -7,7 +7,7 @@ namespace Springy
 
     public class Node : IMassPoint
     {
-        public int id { get; private set; }
+        public int Id { get; private set; }
 
         public Vector3 pos { get; set; }
         public Vector3 vel { get; set; }
@@ -18,33 +18,19 @@ namespace Springy
 
         float IMassPoint.Mass
         {
-            get
-            {
-                return mass;
-            }
-
-            set
-            {
-                mass = value;
-            }
+            get { return mass; }
+            set { mass = value; }
         }
 
         Vector3 IMassPoint.Position
         {
-            get
-            {
-                return pos;
-            }
-
-            set
-            {
-                pos = value;
-            }
+            get { return pos; }
+            set { pos = value; }
         }
 
         public Node(int id, float mass, float randRange = 100f)
         {
-            this.id = id;
+            this.Id = id;
 
             this.pos = new Vector3(
                 UnityEngine.Random.Range(-randRange, randRange),
@@ -92,14 +78,15 @@ namespace Springy
         private List<Node> nodes;
         private List<Edge> edges;
 
-        // TODO struttura per ottenere adiacenza
-
         public float stiffness { get; set; }
         public float repulsion { get; set; }
+        public float convergence { get; set; }
         public float damping { get; set; }
         public float minEnergyThreshold { get; set; }
 
         public bool enabled { get; set; }
+        public bool enableStiffness { get; set; }
+        public bool enableRepulsion { get; set; }
         public bool inEquilibrium { get; set; }
 
         public ForceDirectedGraph()
@@ -109,7 +96,12 @@ namespace Springy
 
             // set some default values
             stiffness = 300f;
+            enableStiffness = true;
+
             repulsion = 400f;
+            enableRepulsion = true;
+
+            convergence = 8f;
             damping = 0.5f;
             minEnergyThreshold = 0.05f;
         }
@@ -126,11 +118,8 @@ namespace Springy
 
         public Edge newEdge(Node source, Node target, float length)
         {
-            // TODO
-//            if (source == target)
-//                throw new ArgumentException("Cannot link a node with itself");
-//            if (source >= nodes.Count || target >= nodes.Count)
-//                throw new ArgumentException("Source or destination non existant");
+            if (source.Id == target.Id)
+                throw new ArgumentException("Cannot link a node with itself");
             if (length < 0)
                 throw new ArgumentException("Cannot have negative length");
 
@@ -147,9 +136,15 @@ namespace Springy
         {
             if (enabled && !inEquilibrium)
             {
-                //applyCoulombsLaw();
-                applyCoulombsLaw2();
-                applyHookesLaw();
+                if (enableRepulsion)
+                {
+                    //applyCoulombsLaw();
+                    applyCoulombsLaw_BarnesHut();
+                }
+                if (enableStiffness)
+                {
+                    applyHookesLaw();
+                }
                 attractToCenter();
                 physicStep(timestep);
 
@@ -180,12 +175,12 @@ namespace Springy
 
         }
 
-        private void applyCoulombsLaw2()
+        private void applyCoulombsLaw_BarnesHut()
         {
             // first find the bounds of the nodes
             Vector3 minVector = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
             Vector3 maxVector = new Vector3(float.MinValue, float.MinValue, float.MinValue);
-            
+
             foreach (var node in nodes)
             {
                 minVector.x = Mathf.Min(minVector.x, node.pos.x);
@@ -222,7 +217,6 @@ namespace Springy
             }
         }
 
-
         private void applyHookesLaw()
         {
             foreach (Edge edge in edges)
@@ -240,7 +234,7 @@ namespace Springy
             foreach (Node n in nodes)
             {
                 Vector3 direction = n.pos * -1;
-                n.addForce(direction * (repulsion / 50f));
+                n.addForce(direction * convergence);
             }
         }
 
@@ -251,7 +245,6 @@ namespace Springy
                 // calculate acceleration from forces
                 n.computeAcceleration();
 
-                // TODO integratore scrauso, rifare
                 n.vel = (n.vel + n.acc * timestep) * damping;
                 n.pos += n.vel * timestep;
             }
