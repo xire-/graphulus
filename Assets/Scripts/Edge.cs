@@ -1,18 +1,22 @@
 ﻿using UnityEngine;
-
+using UnityEngine.Assertions;
 
 public class Edge : MonoBehaviour
 {
-    public GameObject Source { get; set; }
+    public int length;
+    public GameObject source, target;
 
-    public GameObject Target { get; set; }
-
-    public int Length { get; set; }
-
-
-    public void LateUpdate()
+    private void Awake()
     {
-        GetComponent<LineRenderer>().SetPosition(0, Source.transform.position);
-        GetComponent<LineRenderer>().SetPosition(1, Target.transform.position);
+        // draw edges before nodes
+        GetComponent<Renderer>().material.renderQueue = 0;
+    }
+
+    private void LateUpdate()
+    {
+        Assert.IsNotNull(source);
+        GetComponent<LineRenderer>().SetPosition(0, source.transform.position);
+        Assert.IsNotNull(target);
+        GetComponent<LineRenderer>().SetPosition(1, target.transform.position);
     }
 }

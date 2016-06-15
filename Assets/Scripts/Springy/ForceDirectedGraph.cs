@@ -99,7 +99,7 @@ namespace Springy
         public float damping { get; set; }
         public float minEnergyThreshold { get; set; }
 
-        public bool running { get; set; }
+        public bool enabled { get; set; }
         public bool inEquilibrium { get; set; }
 
         public ForceDirectedGraph()
@@ -124,16 +124,17 @@ namespace Springy
             return node;
         }
 
-        public Edge newEdge(int source, int target, float length)
+        public Edge newEdge(Node source, Node target, float length)
         {
-            if (source == target)
-                throw new ArgumentException("Cannot link a node with itself");
-            if (source >= nodes.Count || target >= nodes.Count)
-                throw new ArgumentException("Source or destination non existant");
+            // TODO
+//            if (source == target)
+//                throw new ArgumentException("Cannot link a node with itself");
+//            if (source >= nodes.Count || target >= nodes.Count)
+//                throw new ArgumentException("Source or destination non existant");
             if (length < 0)
                 throw new ArgumentException("Cannot have negative length");
 
-            Edge edge = new Edge(edges.Count, nodes[source], nodes[target], length);
+            Edge edge = new Edge(edges.Count, source, target, length);
             edges.Add(edge);
             return edge;
         }
@@ -144,7 +145,7 @@ namespace Springy
 
         public void tick(float timestep)
         {
-            if (running && !inEquilibrium)
+            if (enabled && !inEquilibrium)
             {
                 //applyCoulombsLaw();
                 applyCoulombsLaw2();

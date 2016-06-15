@@ -1,17 +1,18 @@
-﻿using System.Collections.Generic;
-
-using UnityEngine;
-
+﻿using UnityEngine;
 
 public class Node : MonoBehaviour
 {
-    public int Id { get; set; }
+    public Springy.Node springyNode;
+    private const float fadeTime = 1f;
+    private const float totaltimeselection = 0.3f;
+    private bool renderEnabled, selected;
+    private float renderTimeLeft, selectionTimeLeft;
 
     public string Text
     {
         get
-        { 
-            return transform.Find("Text").GetComponent<TextMesh>().text; 
+        {
+            return transform.Find("Text").GetComponent<TextMesh>().text;
         }
         set
         {
@@ -19,23 +20,60 @@ public class Node : MonoBehaviour
         }
     }
 
-    public int Group
-    { 
-        set
-        { 
-            var index = value % colors.Count;
-            transform.Find("Sphere").GetComponent<Renderer>().material.color = colors[index];
-            transform.Find("Text").GetComponent<Renderer>().material.color = colors[index];
-        } 
+    public void RenderText(float howMuchTime = 3)
+    {
+        renderEnabled = true;
+        renderTimeLeft = howMuchTime;
+
+        // reset alpha
+        Color color = transform.Find("Text").GetComponent<Renderer>().material.color;
+        color.a = 1f;
+        transform.Find("Text").GetComponent<Renderer>().material.color = color;
+
+        transform.Find("Text").GetComponent<Renderer>().enabled = true;
     }
 
-    public Springy.Node SpringyNode { get; set; }
-
-    static readonly List<Color> colors = new List<Color>() { Color.black, Color.blue, Color.cyan, Color.gray, Color.green, Color.magenta, Color.red, Color.white, Color.yellow };
-
-
-    void LateUpdate()
+    public void Select()
     {
-        transform.position = SpringyNode.pos;
+        selected = true;
+        selectionTimeLeft = totaltimeselection;
+    }
+
+    private void LateUpdate()
+    {
+        transform.position = springyNode.pos;
+    }
+
+    private void Update()
+    {
+        if (selected)
+        {
+            selectionTimeLeft -= Time.deltaTime;
+            if (selectionTimeLeft >= 0)
+            {
+                Color color = GetComponent<Renderer>().material.color;
+                float f = (totaltimeselection - selectionTimeLeft) / totaltimeselection;
+                Color newcolor = Color.Lerp(color, Color.white, f);
+                newcolor.a = color.a;
+                GetComponent<Renderer>().material.color = newcolor;
+            }
+        }
+
+        if (renderEnabled)
+        {
+            renderTimeLeft -= Time.deltaTime;
+            if (renderTimeLeft <= 0)
+            {
+                renderEnabled = false;
+                renderTimeLeft = 0;
+                transform.Find("Text").GetComponent<Renderer>().enabled = false;
+            }
+            else if (renderTimeLeft <= fadeTime)
+            {
+                Color color = transform.Find("Text").GetComponent<Renderer>().material.color;
+                color.a = Mathf.Lerp(0, fadeTime, renderTimeLeft);
+                transform.Find("Text").GetComponent<Renderer>().material.color = color;
+            }
+        }
     }
 }
