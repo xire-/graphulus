@@ -61,7 +61,9 @@ public class OctreeNode<T> where T : IMassPoint
         // whatever the case update this node total mass and barycenter
         UpdateMassCenter(obj);
 
-        if (mass_points.Count == 0 || depth == MAX_DEPTH)
+        // if this node has just been created or the max depth has been reached
+        // just add the node
+        if (childs == null || depth == MAX_DEPTH)
         {
             mass_points.Add(obj);
         }
@@ -97,7 +99,7 @@ public class BarnesHutOctree<T> where T : IMassPoint
 
     private OctreeNode<T> root;
 
-    public BarnesHutOctree(Vector3 center, float half_width, float ratio = 0.3f)
+    public BarnesHutOctree(Vector3 center, float half_width, float ratio = 0.5f)
     {
         this.center = center;
         this.half_width = half_width;
@@ -119,14 +121,21 @@ public class BarnesHutOctree<T> where T : IMassPoint
     public IEnumerable<IMassPoint> GetNearBodies(Vector3 position)
     {
         // get iterator of barnes hut bodies from a given position
-        return IterateBodies(root, position);
+        foreach (var i in IterateBodies(root, position)) yield return i;
     }
 
     private IEnumerable<IMassPoint> IterateBodies(OctreeNode<T> curr_node, Vector3 position)
     {
-        if ((half_width * 2) / (curr_node.center - position).magnitude < ratio || curr_node.childs == null)
+        if ((curr_node.half_width * 2) / (curr_node.barycenter - position).magnitude < ratio)
         {
             yield return new MassPoint() { Mass = curr_node.total_mass, Position = curr_node.barycenter };
+        }
+        else if (curr_node.mass_points.Count > 0)
+        {
+            foreach (var mp in curr_node.mass_points)
+            {
+                yield return mp;
+            }
         }
         else
         {

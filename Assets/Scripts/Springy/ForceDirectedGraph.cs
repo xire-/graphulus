@@ -146,8 +146,8 @@ namespace Springy
         {
             if (running && !inEquilibrium)
             {
-                applyCoulombsLaw();
-                //applyCoulombsLaw2();
+                //applyCoulombsLaw();
+                applyCoulombsLaw2();
                 applyHookesLaw();
                 attractToCenter();
                 physicStep(timestep);
@@ -197,25 +197,28 @@ namespace Springy
             }
             float total_width = Mathf.Max(maxVector.x - minVector.x, maxVector.y - minVector.y, maxVector.z - minVector.z);
 
-            BarnesHutOctree<Node> bh_tree = new BarnesHutOctree<Node>((maxVector + minVector) / 2, total_width / 2);
+            BarnesHutOctree<Node> bh_tree = new BarnesHutOctree<Node>((maxVector + minVector) / 2, total_width / 2, 0.5f);
             foreach (var node in nodes)
             {
                 bh_tree.AddObject(node);
             }
 
+
             // start iteration over nodes to apply forces
             foreach (var node in nodes)
             {
+
                 foreach (var body in bh_tree.GetNearBodies(node.pos))
                 {
+                    if (body == node) continue;
                     Vector3 delta = node.pos - body.Position;
                     float sqrDistance = Math.Max(0.1f, delta.sqrMagnitude);
                     Vector3 direction = delta.normalized;
 
-                    node.addForce((direction * repulsion) / (sqrDistance * 0.5f));
+                    Vector3 force = (direction * repulsion * body.Mass) / (sqrDistance * 0.5f);
+                    node.addForce(force);
                 }
             }
-
         }
 
 
