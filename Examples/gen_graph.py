@@ -63,7 +63,7 @@ def gen_torus_graph(radius_ext, radius_int, n_ext, n_int):
 
 
 
-asd = gen_torus_graph(30, 6, 10, 10)
+asd = gen_torus_graph(30, 6, 12, 12)
 with open('torus_graph.json', 'w') as f:
     f.write(asd)
 
