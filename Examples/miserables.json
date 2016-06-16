@@ -1,4 +1,10 @@
 {
+  "parameters": {
+    "stiffness": 300,
+    "repulsion": 400,
+    "convergence": 0.7,
+    "damping": 0.5,
+  },
   "nodes":[
     {"name":"Myriel","group":1},
     {"name":"Napoleon","group":1},

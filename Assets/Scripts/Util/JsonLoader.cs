@@ -21,9 +21,17 @@ public class JsonLoader
         public string name;
     }
 
+    public struct JsonParams
+    {
+        public float convergence;
+        public float damping;
+        public float repulsion;
+        public float stiffness;
+    }
     public struct JsonRoot
     {
         public List<JsonEdge> links;
         public List<JsonNode> nodes;
+        public JsonParams parameters;
     }
 }

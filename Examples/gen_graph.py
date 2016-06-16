@@ -38,24 +38,31 @@ def gen_torus_graph(radius_ext, radius_int, n_ext, n_int):
 
             # link with next node on same ring
             asd['links'].append({
-                "source":i*n_int+j,
-                "target":i*n_int+(j+1)%n_int,
-                "value":distance(ris[i][j], ris[i][(j+1)%n_int]),
+                'source':i*n_int+j,
+                'target':i*n_int+(j+1)%n_int,
+                'value':distance(ris[i][j], ris[i][(j+1)%n_int]),
                 })
 
             # link with next node on next ring
             asd['links'].append({
-                "source":i*n_int+j,
-                "target":(i+1)%n_ext*n_int+j,
-                "value":distance(ris[i][j], ris[(i+1)%n_ext][j]),
+                'source':i*n_int+j,
+                'target':(i+1)%n_ext*n_int+j,
+                'value':distance(ris[i][j], ris[(i+1)%n_ext][j]),
                 })
 
             # link with next node on next ring and next position
             asd['links'].append({
-                "source":i*n_int+j,
-                "target":(i+1)%n_ext*n_int+(j+1)%n_int,
-                "value":distance(ris[i][j], ris[(i+1)%n_ext][(j+1)%n_int]),
+                'source':i*n_int+j,
+                'target':(i+1)%n_ext*n_int+(j+1)%n_int,
+                'value':distance(ris[i][j], ris[(i+1)%n_ext][(j+1)%n_int]),
                 })
+
+    asd['parameters'] = {
+        'stiffness': 300,
+        'repulsion': 400,
+        'convergence': 0.7,
+        'damping': 0.5,
+    }
 
     from pprint import pprint
     pprint(asd)

@@ -9,7 +9,21 @@ public class Graph : MonoBehaviour
 
     public void PopulateFrom(string jsonPath)
     {
+        nodes = new List<GameObject>();
+        texts = new List<GameObject>();
+        edges = new List<GameObject>();
+
         var jsonRoot = JsonLoader.Deserialize(jsonPath);
+
+        forceDirectedGraph = new Springy.ForceDirectedGraph()
+        {
+            stiffness = jsonRoot.parameters.stiffness,
+            repulsion = jsonRoot.parameters.repulsion,
+            convergence = jsonRoot.parameters.convergence,
+            damping = jsonRoot.parameters.damping,
+        };
+        forceDirectedGraph.enabled = true;
+
         AddNodes(jsonRoot);
         AddEdges(jsonRoot);
     }
@@ -60,16 +74,6 @@ public class Graph : MonoBehaviour
             var text = node.transform.Find("Text").gameObject;
             texts.Add(text);
         }
-    }
-
-    private void Awake()
-    {
-        forceDirectedGraph = new Springy.ForceDirectedGraph();
-        forceDirectedGraph.enabled = true;
-
-        nodes = new List<GameObject>();
-        texts = new List<GameObject>();
-        edges = new List<GameObject>();
     }
 
     private void FixedUpdate()
