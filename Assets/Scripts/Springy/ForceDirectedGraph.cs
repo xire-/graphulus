@@ -9,67 +9,67 @@ namespace Springy
     {
         public int Id { get; private set; }
 
-        public Vector3 pos { get; set; }
-        public Vector3 vel { get; set; }
-        public Vector3 acc { get; set; }
+        public Vector3 Position { get; set; }
+        public Vector3 Velocity { get; set; }
+        public Vector3 Acceleration { get; set; }
 
-        public float mass { get; set; }
-        public Vector3 forcesAccumulator { get; private set; }
+        public float Mass { get; set; }
+        private Vector3 forcesAccumulator { get; set; }
 
         float IMassPoint.Mass
         {
-            get { return mass; }
-            set { mass = value; }
+            get { return Mass; }
+            set { Mass = value; }
         }
 
         Vector3 IMassPoint.Position
         {
-            get { return pos; }
-            set { pos = value; }
+            get { return Position; }
+            set { Position = value; }
         }
 
         public Node(int id, float mass, float randRange = 100f)
         {
             this.Id = id;
 
-            this.pos = new Vector3(
+            this.Position = new Vector3(
                 UnityEngine.Random.Range(-randRange, randRange),
                 UnityEngine.Random.Range(-randRange, randRange),
                 UnityEngine.Random.Range(-randRange, randRange)
                 );
-            this.vel = new Vector3();
-            this.acc = new Vector3();
+            this.Velocity = new Vector3();
+            this.Acceleration = new Vector3();
 
-            this.mass = mass;
+            this.Mass = mass;
             this.forcesAccumulator = new Vector3();
         }
 
-        public void addForce(Vector3 f)
+        public void AddForce(Vector3 f)
         {
             forcesAccumulator += f;
         }
 
-        public void computeAcceleration()
+        public void ComputeAcceleration()
         {
-            acc = forcesAccumulator / mass;
+            Acceleration = forcesAccumulator / Mass;
             forcesAccumulator = Vector3.zero;
         }
     }
 
     public class Edge
     {
-        public int id { get; private set; }
-        public Node source { get; private set; }
-        public Node target { get; private set; }
-        public float length { get; set; }
+        public int Id { get; private set; }
+        public Node Source { get; private set; }
+        public Node Target { get; private set; }
+        public float Length { get; set; }
 
 
         public Edge(int id, Node source, Node target, float length)
         {
-            this.id = id;
-            this.source = source;
-            this.target = target;
-            this.length = length;
+            this.Id = id;
+            this.Source = source;
+            this.Target = target;
+            this.Length = length;
         }
     }
 
@@ -78,16 +78,16 @@ namespace Springy
         private List<Node> nodes;
         private List<Edge> edges;
 
-        public float stiffness { get; set; }
-        public float repulsion { get; set; }
-        public float convergence { get; set; }
-        public float damping { get; set; }
-        public float minEnergyThreshold { get; set; }
+        public float Stiffness { get; set; }
+        public float Repulsion { get; set; }
+        public float Convergence { get; set; }
+        public float Damping { get; set; }
+        public float EnergyThreshold { get; set; }
 
-        public bool enabled { get; set; }
-        public bool enableStiffness { get; set; }
-        public bool enableRepulsion { get; set; }
-        public bool inEquilibrium { get; set; }
+        public bool SimulationEnabled { get; set; }
+        public bool SpringsEnabled { get; set; }
+        public bool RepulsionEnabled { get; set; }
+        public bool InEquilibrium { get; set; }
 
         public ForceDirectedGraph()
         {
@@ -95,18 +95,18 @@ namespace Springy
             edges = new List<Edge>();
 
             // set some default values
-            stiffness = 300f;
-            enableStiffness = true;
+            Stiffness = 300f;
+            SpringsEnabled = true;
 
-            repulsion = 400f;
-            enableRepulsion = true;
+            Repulsion = 400f;
+            RepulsionEnabled = true;
 
-            convergence = 0.7f;
-            damping = 0.5f;
-            minEnergyThreshold = 0.05f;
+            Convergence = 0.7f;
+            Damping = 0.5f;
+            EnergyThreshold = 0.05f;
         }
 
-        public Node newNode(float mass = 1)
+        public Node CreateNewNode(float mass = 1)
         {
             if (mass < 0)
                 throw new ArgumentException("Cannot have negative mass");
@@ -116,7 +116,7 @@ namespace Springy
             return node;
         }
 
-        public Edge newEdge(Node source, Node target, float length)
+        public Edge CreateNewEdge(Node source, Node target, float length)
         {
             if (source.Id == target.Id)
                 throw new ArgumentException("Cannot link a node with itself");
@@ -132,25 +132,25 @@ namespace Springy
         // TODO detachNode removes edges associated with a given node
         // TODO removeEdge remove an edge from the graph
 
-        public void tick(float timestep)
+        public void Tick(float timestep)
         {
-            if (enabled && !inEquilibrium)
+            if (SimulationEnabled && !InEquilibrium)
             {
-                if (enableRepulsion)
+                if (RepulsionEnabled)
                 {
                     //applyCoulombsLaw();
                     applyCoulombsLaw_BarnesHut();
                 }
-                if (enableStiffness)
+                if (SpringsEnabled)
                 {
                     applyHookesLaw();
                 }
                 attractToCenter();
                 physicStep(timestep);
 
-                if (totalKineticEnergy() < minEnergyThreshold)
+                if (TotalKineticEnergy() < EnergyThreshold)
                 {
-                    inEquilibrium = true;
+                    InEquilibrium = true;
                 }
             }
         }
@@ -164,12 +164,12 @@ namespace Springy
                 {
                     Node n2 = nodes[j];
 
-                    Vector3 delta = n1.pos - n2.pos;
+                    Vector3 delta = n1.Position - n2.Position;
                     float sqrDistance = Math.Max(0.1f, delta.sqrMagnitude);
                     Vector3 direction = delta.normalized;
 
-                    n1.addForce((direction * repulsion) / (sqrDistance * 0.5f));
-                    n2.addForce((direction * repulsion) / (sqrDistance * -0.5f));
+                    n1.AddForce((direction * Repulsion) / (sqrDistance * 0.5f));
+                    n2.AddForce((direction * Repulsion) / (sqrDistance * -0.5f));
                 }
             }
 
@@ -183,13 +183,13 @@ namespace Springy
 
             foreach (var node in nodes)
             {
-                minVector.x = Mathf.Min(minVector.x, node.pos.x);
-                minVector.y = Mathf.Min(minVector.y, node.pos.y);
-                minVector.z = Mathf.Min(minVector.z, node.pos.z);
+                minVector.x = Mathf.Min(minVector.x, node.Position.x);
+                minVector.y = Mathf.Min(minVector.y, node.Position.y);
+                minVector.z = Mathf.Min(minVector.z, node.Position.z);
 
-                maxVector.x = Mathf.Max(maxVector.x, node.pos.x);
-                maxVector.y = Mathf.Max(maxVector.y, node.pos.y);
-                maxVector.z = Mathf.Max(maxVector.z, node.pos.z);
+                maxVector.x = Mathf.Max(maxVector.x, node.Position.x);
+                maxVector.y = Mathf.Max(maxVector.y, node.Position.y);
+                maxVector.z = Mathf.Max(maxVector.z, node.Position.z);
             }
             float total_width = Mathf.Max(maxVector.x - minVector.x, maxVector.y - minVector.y, maxVector.z - minVector.z);
 
@@ -204,15 +204,15 @@ namespace Springy
             foreach (var node in nodes)
             {
 
-                foreach (var body in bh_tree.GetNearBodies(node.pos))
+                foreach (var body in bh_tree.GetNearBodies(node.Position))
                 {
                     if (body == node) continue;
-                    Vector3 delta = node.pos - body.Position;
+                    Vector3 delta = node.Position - body.Position;
                     float sqrDistance = Math.Max(0.1f, delta.sqrMagnitude);
                     Vector3 direction = delta.normalized;
 
-                    Vector3 force = (direction * repulsion * body.Mass) / (sqrDistance * 0.5f);
-                    node.addForce(force);
+                    Vector3 force = (direction * Repulsion * body.Mass) / (sqrDistance * 0.5f);
+                    node.AddForce(force);
                 }
             }
         }
@@ -221,11 +221,11 @@ namespace Springy
         {
             foreach (Edge edge in edges)
             {
-                Vector3 delta = edge.target.pos - edge.source.pos;
-                float displacement = edge.length - delta.magnitude;
+                Vector3 delta = edge.Target.Position - edge.Source.Position;
+                float displacement = edge.Length - delta.magnitude;
                 Vector3 direction = delta.normalized;
-                edge.source.addForce(direction * (stiffness * displacement * -0.5f));
-                edge.target.addForce(direction * (stiffness * displacement * 0.5f));
+                edge.Source.AddForce(direction * (Stiffness * displacement * -0.5f));
+                edge.Target.AddForce(direction * (Stiffness * displacement * 0.5f));
             }
         }
 
@@ -233,8 +233,8 @@ namespace Springy
         {
             foreach (Node n in nodes)
             {
-                Vector3 direction = n.pos * -1;
-                n.addForce(direction * convergence);
+                Vector3 direction = n.Position * -1;
+                n.AddForce(direction * Convergence);
             }
         }
 
@@ -243,20 +243,20 @@ namespace Springy
             foreach (Node n in nodes)
             {
                 // calculate acceleration from forces
-                n.computeAcceleration();
+                n.ComputeAcceleration();
 
-                n.vel = (n.vel + n.acc * timestep) * damping;
-                n.pos += n.vel * timestep;
+                n.Velocity = (n.Velocity + n.Acceleration * timestep) * Damping;
+                n.Position += n.Velocity * timestep;
             }
         }
 
-        public float totalKineticEnergy()
+        public float TotalKineticEnergy()
         {
             float energy = 0.0f;
             foreach (Node n in nodes)
             {
-                float speed = n.vel.magnitude;
-                energy += 0.5f * n.mass * speed * speed;
+                float speed = n.Velocity.magnitude;
+                energy += 0.5f * n.Mass * speed * speed;
             }
             return energy;
         }

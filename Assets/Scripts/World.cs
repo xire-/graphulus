@@ -84,7 +84,7 @@ public class World : MonoBehaviour
         var text =
             String.Format("FPS: {0:f} [{1:f}ms]\n", (int)(1.0f / Time.smoothDeltaTime), Time.smoothDeltaTime * 1000f) +
             "\n" +
-            String.Format("Total energy: {0:f} [{1:f}]\n", graph.GetComponent<Graph>().forceDirectedGraph.totalKineticEnergy(), graph.GetComponent<Graph>().forceDirectedGraph.minEnergyThreshold) +
+            String.Format("Total energy: {0:f} [{1:f}]\n", graph.GetComponent<Graph>().forceDirectedGraph.TotalKineticEnergy(), graph.GetComponent<Graph>().forceDirectedGraph.EnergyThreshold) +
             "\n" +
             String.Format("Text rendering: {0}\n", textRenderingEnabled ? "ON" : "OFF") +
             String.Format("Edge rendering: {0}\n", edgeRenderingEnabled ? "ON" : "OFF") +

@@ -46,7 +46,7 @@ public class Node : MonoBehaviour
     private void LateUpdate()
     {
         if (!IsPinched)
-            transform.localPosition = springyNode.pos / 20f;
+            transform.localPosition = springyNode.Position / 20f;
     }
 
     private void Update()

@@ -17,12 +17,12 @@ public class Graph : MonoBehaviour
 
         forceDirectedGraph = new Springy.ForceDirectedGraph()
         {
-            stiffness = jsonRoot.parameters.stiffness,
-            repulsion = jsonRoot.parameters.repulsion,
-            convergence = jsonRoot.parameters.convergence,
-            damping = jsonRoot.parameters.damping,
+            Stiffness = jsonRoot.parameters.stiffness,
+            Repulsion = jsonRoot.parameters.repulsion,
+            Convergence = jsonRoot.parameters.convergence,
+            Damping = jsonRoot.parameters.damping,
         };
-        forceDirectedGraph.enabled = true;
+        forceDirectedGraph.SimulationEnabled = true;
 
         AddNodes(jsonRoot);
         AddEdges(jsonRoot);
@@ -53,7 +53,7 @@ public class Graph : MonoBehaviour
         {
             var sourceNode = nodes[jsonEdge.source];
             var targetNode = nodes[jsonEdge.target];
-            var springyEdge = forceDirectedGraph.newEdge(sourceNode.GetComponent<Node>().springyNode, targetNode.GetComponent<Node>().springyNode, jsonEdge.value);
+            var springyEdge = forceDirectedGraph.CreateNewEdge(sourceNode.GetComponent<Node>().springyNode, targetNode.GetComponent<Node>().springyNode, jsonEdge.value);
 
             var edge = CreateEdge(springyEdge, sourceNode, targetNode);
             edge.transform.parent = transform;
@@ -65,7 +65,7 @@ public class Graph : MonoBehaviour
     {
         foreach (var jsonNode in jsonRoot.nodes)
         {
-            var springyNode = forceDirectedGraph.newNode();
+            var springyNode = forceDirectedGraph.CreateNewNode();
 
             var node = CreateNode(springyNode, jsonNode.name);
             node.transform.parent = transform;
@@ -78,6 +78,6 @@ public class Graph : MonoBehaviour
 
     private void FixedUpdate()
     {
-        forceDirectedGraph.tick(Time.fixedDeltaTime);
+        forceDirectedGraph.Tick(Time.fixedDeltaTime);
     }
 }
