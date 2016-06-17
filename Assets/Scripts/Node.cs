@@ -33,6 +33,10 @@ public class Node : MonoBehaviour
         transform.Find("Text").GetComponent<Renderer>().enabled = true;
     }
 
+    public bool IsPinched {
+        get; set;
+    }
+
     public void Select()
     {
         selected = true;
@@ -41,7 +45,8 @@ public class Node : MonoBehaviour
 
     private void LateUpdate()
     {
-        transform.localPosition = springyNode.pos / 20f;
+        if (!IsPinched)
+            transform.localPosition = springyNode.pos / 20f;
     }
 
     private void Update()
