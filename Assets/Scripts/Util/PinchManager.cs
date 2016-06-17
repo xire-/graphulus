@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public class RTS : MonoBehaviour
+public class PinchManager : MonoBehaviour
 {
     public Leap.Unity.PinchDetector PinchDetectorA;
     public Leap.Unity.PinchDetector PinchDetectorB;
