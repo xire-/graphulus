@@ -2,8 +2,8 @@
 
 public class PinchManager : MonoBehaviour
 {
-    public Leap.Unity.PinchDetector PinchDetectorA;
-    public Leap.Unity.PinchDetector PinchDetectorB;
+    public Leap.Unity.PinchDetector PinchDetectorR;
+    public Leap.Unity.PinchDetector PinchDetectorL;
 
     private bool _allowScale = true;
 
@@ -19,14 +19,14 @@ public class PinchManager : MonoBehaviour
 
     private void transformDoubleAnchor()
     {
-        _anchor.position = (PinchDetectorA.Position + PinchDetectorB.Position) / 2.0f;
+        _anchor.position = (PinchDetectorR.Position + PinchDetectorL.Position) / 2.0f;
 
-        Quaternion pp = Quaternion.Lerp(PinchDetectorA.Rotation, PinchDetectorB.Rotation, 0.5f);
+        Quaternion pp = Quaternion.Lerp(PinchDetectorR.Rotation, PinchDetectorL.Rotation, 0.5f);
         Vector3 u = pp * Vector3.up;
-        _anchor.LookAt(PinchDetectorA.Position, u);
+        _anchor.LookAt(PinchDetectorR.Position, u);
 
         if (_allowScale)
-            _anchor.localScale = Vector3.one * Vector3.Distance(PinchDetectorA.Position, PinchDetectorB.Position);
+            _anchor.localScale = Vector3.one * Vector3.Distance(PinchDetectorR.Position, PinchDetectorL.Position);
     }
 
     private void transformSingleAnchor(Leap.Unity.PinchDetector singlePinch)
@@ -38,20 +38,20 @@ public class PinchManager : MonoBehaviour
     private void Update()
     {
         bool didUpdate = false;
-        if (PinchDetectorA != null)
-            didUpdate |= PinchDetectorA.DidChangeFromLastFrame;
-        if (PinchDetectorB != null)
-            didUpdate |= PinchDetectorB.DidChangeFromLastFrame;
+        if (PinchDetectorR != null)
+            didUpdate |= PinchDetectorR.DidChangeFromLastFrame;
+        if (PinchDetectorL != null)
+            didUpdate |= PinchDetectorL.DidChangeFromLastFrame;
 
         if (didUpdate)
             transform.SetParent(null, true);
 
-        if (PinchDetectorA != null && PinchDetectorA.IsPinching && PinchDetectorB != null && PinchDetectorB.IsPinching)
+        if (PinchDetectorR != null && PinchDetectorR.IsPinching && PinchDetectorL != null && PinchDetectorL.IsPinching)
             transformDoubleAnchor();
-        else if (PinchDetectorA != null && PinchDetectorA.IsPinching)
-            transformSingleAnchor(PinchDetectorA);
-        else if (PinchDetectorB != null && PinchDetectorB.IsPinching)
-            transformSingleAnchor(PinchDetectorB);
+        else if (PinchDetectorR != null && PinchDetectorR.IsPinching)
+            transformSingleAnchor(PinchDetectorR);
+        else if (PinchDetectorL != null && PinchDetectorL.IsPinching)
+            transformSingleAnchor(PinchDetectorL);
 
         if (didUpdate)
             transform.SetParent(_anchor, true);
