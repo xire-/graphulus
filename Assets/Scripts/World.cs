@@ -5,6 +5,7 @@ using UnityEngine;
 public class World : MonoBehaviour
 {
     public AnimationManager animationManager;
+    private const float _rotationSpeedMax = 100f;
 
     private readonly Theme darkTheme = new Theme()
     {
@@ -22,6 +23,8 @@ public class World : MonoBehaviour
         edgeColor = new Color32(0x9F, 0x9D, 0x9D, 0x64)
     };
 
+    private bool _rotationEnabled = true;
+    private float _rotationSpeed = 10f;
     private GameObject graph;
     private bool textRenderingEnabled, edgeRenderingEnabled;
 
@@ -84,7 +87,8 @@ public class World : MonoBehaviour
             String.Format("Total energy: {0:f} [{1:f}]\n", graph.GetComponent<Graph>().forceDirectedGraph.totalKineticEnergy(), graph.GetComponent<Graph>().forceDirectedGraph.minEnergyThreshold) +
             "\n" +
             String.Format("Text rendering: {0}\n", textRenderingEnabled ? "ON" : "OFF") +
-            String.Format("Edge rendering: {0}\n", edgeRenderingEnabled ? "ON" : "OFF");
+            String.Format("Edge rendering: {0}\n", edgeRenderingEnabled ? "ON" : "OFF") +
+            String.Format("_rotationSpeed: {0:f}\n", _rotationSpeed);
         GUI.TextArea(new Rect(Screen.width - 250 - 10, 10, 250, Screen.height - 20), text);
     }
 
@@ -126,7 +130,8 @@ public class World : MonoBehaviour
     {
         animationManager.Update();
 
-        graph.transform.Rotate(Vector3.up, -Time.deltaTime * 5);
+        if (_rotationEnabled)
+            graph.transform.Rotate(Vector3.up, Time.deltaTime * _rotationSpeed);
 
         // check if a node is pointed by the camera
         GameObject lookedNode = null;
@@ -174,6 +179,18 @@ public class World : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.M))
         {
             SetEdgesActive(!edgeRenderingEnabled);
+        }
+
+        // adjust rotation velocity
+        if (Input.GetKeyDown(KeyCode.B))
+        {
+            if (_rotationSpeed < _rotationSpeedMax)
+                _rotationSpeed += 10f;
+        }
+        else if (Input.GetKeyDown(KeyCode.V))
+        {
+            if (_rotationSpeed > -_rotationSpeedMax)
+                _rotationSpeed -= 10f;
         }
     }
 }
