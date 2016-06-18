@@ -5,30 +5,11 @@ using UnityEngine;
 public class World : MonoBehaviour
 {
     public AnimationManager animationManager;
-    private const float _rotationSpeedMax = 100f;
 
-    private readonly Theme darkTheme = new Theme()
-    {
-        skyboxColor = new Color32(0x10, 0x0F, 0x0F, 0xFF),
-        nodeColor = new Color32(0x17, 0xE2, 0xDA, 0xA1),
-        textColor = new Color32(0xE3, 0xE3, 0xE3, 0xFF),
-        edgeColor = new Color32(0xF3, 0xF3, 0xF3, 0x64)
-    };
-
-    private readonly Theme lightTheme = new Theme()
-    {
-        skyboxColor = new Color32(0xF3, 0xF3, 0xF3, 0xFF),
-        nodeColor = new Color32(0xEA, 0x24, 0x7A, 0xA1),
-        textColor = new Color32(0x85, 0x0F, 0x26, 0xFF),
-        edgeColor = new Color32(0x9F, 0x9D, 0x9D, 0x64)
-    };
-
-    private bool _rotationEnabled = true;
-    private float _rotationSpeed = 10f;
-    private bool _textsActive = true, _edgesActive = true;
+    private Settings _settings = new Settings();
     private GameObject graph;
 
-    private Theme CurrentTheme
+    private Theme Theme
     {
         get
         {
@@ -53,14 +34,11 @@ public class World : MonoBehaviour
         UnityEngine.Random.seed = 1337;
 
         animationManager = new AnimationManager();
-
-        _textsActive = true;
-        _edgesActive = true;
     }
 
     private void ChangeTheme(Theme newTheme)
     {
-        var startTheme = CurrentTheme;
+        var startTheme = Theme;
         animationManager.Add(new Animation
         {
             Update = t =>
@@ -86,9 +64,9 @@ public class World : MonoBehaviour
             "\n" +
             String.Format("Total energy: {0:f} [{1:f}]\n", graph.GetComponent<Graph>().forceDirectedGraph.TotalKineticEnergy(), graph.GetComponent<Graph>().forceDirectedGraph.EnergyThreshold) +
             "\n" +
-            String.Format("Text rendering: {0}\n", _textsActive ? "ON" : "OFF") +
-            String.Format("Edge rendering: {0}\n", _edgesActive ? "ON" : "OFF") +
-            String.Format("_rotationSpeed: {0:f}\n", _rotationSpeed);
+            String.Format("Text rendering: {0}\n", _settings.textsActive ? "ON" : "OFF") +
+            String.Format("Edge rendering: {0}\n", _settings.edgesActive ? "ON" : "OFF") +
+            String.Format("_rotationSpeed: {0:f}\n", _settings.rotationSpeed);
         GUI.TextArea(new Rect(Screen.width - 250 - 10, 10, 250, Screen.height - 20), text);
     }
 
@@ -109,15 +87,15 @@ public class World : MonoBehaviour
 
         AdjustNodes(connectionsCount);
 
-        ChangeTheme(darkTheme);
+        ChangeTheme(_settings.darkTheme);
     }
 
     private void Update()
     {
         animationManager.Update();
 
-        if (_rotationEnabled)
-            graph.transform.Rotate(Vector3.up, Time.deltaTime * _rotationSpeed);
+        if (_settings.rotationEnabled)
+            graph.transform.Rotate(Vector3.up, Time.deltaTime * _settings.rotationSpeed);
 
         // check if a node is pointed by the camera
         GameObject lookedNode = null;
@@ -132,7 +110,7 @@ public class World : MonoBehaviour
         if (lookedNode != null)
         {
             // render the text of the looked at node
-            if (_textsActive)
+            if (_settings.textsActive)
                 lookedNode.GetComponent<Node>().RenderText();
         }
 
@@ -151,34 +129,59 @@ public class World : MonoBehaviour
 
         // set themes
         if (Input.GetKeyUp(KeyCode.L))
-            ChangeTheme(lightTheme);
+            ChangeTheme(_settings.lightTheme);
         if (Input.GetKeyUp(KeyCode.K))
-            ChangeTheme(darkTheme);
+            ChangeTheme(_settings.darkTheme);
 
         // toggle edges active
         if (Input.GetKeyDown(KeyCode.E))
         {
-            _edgesActive = !_edgesActive;
-            graph.GetComponent<Graph>().EdgesActive = _edgesActive;
+            _settings.edgesActive = !_settings.edgesActive;
+            graph.GetComponent<Graph>().EdgesActive = _settings.edgesActive;
         }
 
         // toggle texts active
         if (Input.GetKeyDown(KeyCode.T))
         {
-            _textsActive = !_textsActive;
-            graph.GetComponent<Graph>().TextsActive = _textsActive;
+            _settings.textsActive = !_settings.textsActive;
+            graph.GetComponent<Graph>().TextsActive = _settings.textsActive;
         }
 
         // adjust rotation velocity
         if (Input.GetKeyDown(KeyCode.B))
         {
-            if (_rotationSpeed < _rotationSpeedMax)
-                _rotationSpeed += 10f;
+            if (_settings.rotationSpeed < _settings.rotationSpeedMax)
+                _settings.rotationSpeed += 10f;
         }
         else if (Input.GetKeyDown(KeyCode.V))
         {
-            if (_rotationSpeed > -_rotationSpeedMax)
-                _rotationSpeed -= 10f;
+            if (_settings.rotationSpeed > -_settings.rotationSpeedMax)
+                _settings.rotationSpeed -= 10f;
         }
+    }
+
+    private class Settings
+    {
+        public readonly Theme darkTheme = new Theme()
+        {
+            skyboxColor = new Color32(0x10, 0x0F, 0x0F, 0xFF),
+            nodeColor = new Color32(0x17, 0xE2, 0xDA, 0xA1),
+            textColor = new Color32(0xE3, 0xE3, 0xE3, 0xFF),
+            edgeColor = new Color32(0xF3, 0xF3, 0xF3, 0x64)
+        };
+
+        public readonly Theme lightTheme = new Theme()
+        {
+            skyboxColor = new Color32(0xF3, 0xF3, 0xF3, 0xFF),
+            nodeColor = new Color32(0xEA, 0x24, 0x7A, 0xA1),
+            textColor = new Color32(0x85, 0x0F, 0x26, 0xFF),
+            edgeColor = new Color32(0x9F, 0x9D, 0x9D, 0x64)
+        };
+
+        public readonly float rotationSpeedMax = 100f;
+        public bool edgesActive = true;
+        public bool rotationEnabled = true;
+        public float rotationSpeed = 10f;
+        public bool textsActive = true;
     }
 }
