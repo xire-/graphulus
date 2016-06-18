@@ -109,7 +109,7 @@ public class World : MonoBehaviour
     private void Start()
     {
         graph = GameObject.Find("Graph");
-        graph.GetComponent<Graph>().PopulateFrom("Examples/miserables.json");
+        graph.GetComponent<Graph>().PopulateFrom("Assets/Graphs/miserables.json");
 
         // count the number of connections
         var connectionsCount = new Dictionary<GameObject, int>();
