@@ -2,8 +2,12 @@
 
 public class PinchManager : MonoBehaviour
 {
+    // to be set in editor
     public GameObject graphObject;
+
+    // to be set in editor
     public Leap.Unity.PinchDetector PinchDetectorL, PinchDetectorR;
+
     private bool _allowScale = true;
     private GameObject _pinchControlObject;
     private SinglePinchParams _singlePinchParams;
@@ -13,19 +17,6 @@ public class PinchManager : MonoBehaviour
         _pinchControlObject = new GameObject("Pinch Control");
         _pinchControlObject.transform.parent = graphObject.transform.parent;
         graphObject.transform.parent = _pinchControlObject.transform;
-    }
-
-    private GameObject GetClosestNodeObject(Vector3 point)
-    {
-        GameObject closestObject = null;
-        foreach (var nodeObject in graphObject.GetComponent<Graph>().nodes)
-        {
-            if (closestObject == null)
-                closestObject = nodeObject;
-            if (Vector3.Distance(point, nodeObject.transform.position) < Vector3.Distance(point, closestObject.transform.position))
-                closestObject = nodeObject;
-        }
-        return closestObject;
     }
 
     private void transformDoubleAnchor()
@@ -61,7 +52,7 @@ public class PinchManager : MonoBehaviour
         {
             var pinchDetector = PinchDetectorR.DidStartPinch ? PinchDetectorR : PinchDetectorL;
 
-            var closestNodeObject = GetClosestNodeObject(pinchDetector.Position);
+            var closestNodeObject = graphObject.GetComponent<Graph>().FindClosestNodeObject(pinchDetector.Position);
             closestNodeObject.GetComponent<Node>().IsPinched = true;
             closestNodeObject.GetComponent<Node>().Select();
 

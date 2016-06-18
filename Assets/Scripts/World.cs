@@ -1,13 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class World : MonoBehaviour
 {
-    public AnimationManager animationManager;
+    public AnimationManager animationManager = new AnimationManager();
+
+    // to be set in editor
+    public GameObject graphObject;
 
     private Settings _settings = new Settings();
-    private GameObject graph;
 
     private Theme Theme
     {
@@ -16,24 +17,16 @@ public class World : MonoBehaviour
             return new Theme
             {
                 skyboxColor = Camera.main.backgroundColor,
-                nodeColor = graph.GetComponent<Graph>().nodes[0].GetComponent<Renderer>().material.color,
-                textColor = graph.GetComponent<Graph>().texts[0].GetComponent<Renderer>().material.color,
-                edgeColor = graph.GetComponent<Graph>().edges[0].GetComponent<Renderer>().material.color
+                nodeColor = graphObject.GetComponent<Graph>().NodesColor,
+                textColor = graphObject.GetComponent<Graph>().TextsColor,
+                edgeColor = graphObject.GetComponent<Graph>().EdgesColor
             };
         }
-    }
-
-    private void AdjustNodes(Dictionary<GameObject, int> connectionsCount)
-    {
-        foreach (var node in graph.GetComponent<Graph>().nodes)
-            node.transform.localScale *= 1.5f - Mathf.Pow(1.2f, -connectionsCount[node]);
     }
 
     private void Awake()
     {
         UnityEngine.Random.seed = 1337;
-
-        animationManager = new AnimationManager();
     }
 
     private void ChangeTheme(Theme newTheme)
@@ -44,12 +37,9 @@ public class World : MonoBehaviour
             Update = t =>
             {
                 Camera.main.backgroundColor = Color.Lerp(startTheme.skyboxColor, newTheme.skyboxColor, t);
-                foreach (var node in graph.GetComponent<Graph>().nodes)
-                    node.GetComponent<Renderer>().material.color = Color.Lerp(startTheme.nodeColor, newTheme.nodeColor, t);
-                foreach (var text in graph.GetComponent<Graph>().texts)
-                    text.GetComponent<TextMesh>().color = Color.Lerp(startTheme.textColor, newTheme.textColor, t);
-                foreach (var edge in graph.GetComponent<Graph>().edges)
-                    edge.GetComponent<Renderer>().material.color = Color.Lerp(startTheme.edgeColor, newTheme.edgeColor, t);
+                graphObject.GetComponent<Graph>().NodesColor = Color.Lerp(startTheme.nodeColor, newTheme.nodeColor, t);
+                graphObject.GetComponent<Graph>().TextsColor = Color.Lerp(startTheme.textColor, newTheme.textColor, t);
+                graphObject.GetComponent<Graph>().EdgesColor = Color.Lerp(startTheme.edgeColor, newTheme.edgeColor, t);
             },
             duration = 1.5f,
             Ease = Easing.EaseOutCubic
@@ -62,7 +52,7 @@ public class World : MonoBehaviour
         var text =
             String.Format("FPS: {0:f} [{1:f}ms]\n", (int)(1.0f / Time.smoothDeltaTime), Time.smoothDeltaTime * 1000f) +
             "\n" +
-            String.Format("Total energy: {0:f} [{1:f}]\n", graph.GetComponent<Graph>().forceDirectedGraph.TotalKineticEnergy(), graph.GetComponent<Graph>().forceDirectedGraph.EnergyThreshold) +
+            String.Format("Total energy: {0:f} [{1:f}]\n", graphObject.GetComponent<Graph>().TotalKineticEnergy, graphObject.GetComponent<Graph>().EnergyThreshold) +
             "\n" +
             String.Format("Text rendering: {0}\n", _settings.textsActive ? "ON" : "OFF") +
             String.Format("Edge rendering: {0}\n", _settings.edgesActive ? "ON" : "OFF") +
@@ -72,20 +62,7 @@ public class World : MonoBehaviour
 
     private void Start()
     {
-        graph = GameObject.Find("Graph");
-        graph.GetComponent<Graph>().PopulateFrom("Assets/Graphs/miserables.json");
-
-        // count the number of connections
-        var connectionsCount = new Dictionary<GameObject, int>();
-        foreach (var node in graph.GetComponent<Graph>().nodes)
-            connectionsCount[node] = 0;
-        foreach (var edge in graph.GetComponent<Graph>().edges)
-        {
-            connectionsCount[edge.GetComponent<Edge>().source]++;
-            connectionsCount[edge.GetComponent<Edge>().target]++;
-        }
-
-        AdjustNodes(connectionsCount);
+        graphObject.GetComponent<Graph>().PopulateFrom("Assets/Graphs/miserables.json");
 
         ChangeTheme(_settings.darkTheme);
     }
@@ -94,8 +71,9 @@ public class World : MonoBehaviour
     {
         animationManager.Update();
 
+        // continuously rotate graph
         if (_settings.rotationEnabled)
-            graph.transform.Rotate(Vector3.up, Time.deltaTime * _settings.rotationSpeed);
+            graphObject.transform.Rotate(Vector3.up, Time.deltaTime * _settings.rotationSpeed);
 
         // check if a node is pointed by the camera
         GameObject lookedNode = null;
@@ -137,14 +115,14 @@ public class World : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.E))
         {
             _settings.edgesActive = !_settings.edgesActive;
-            graph.GetComponent<Graph>().EdgesActive = _settings.edgesActive;
+            graphObject.GetComponent<Graph>().EdgesActive = _settings.edgesActive;
         }
 
         // toggle texts active
         if (Input.GetKeyDown(KeyCode.T))
         {
             _settings.textsActive = !_settings.textsActive;
-            graph.GetComponent<Graph>().TextsActive = _settings.textsActive;
+            graphObject.GetComponent<Graph>().TextsActive = _settings.textsActive;
         }
 
         // adjust rotation velocity
