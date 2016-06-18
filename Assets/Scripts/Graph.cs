@@ -7,6 +7,24 @@ public class Graph : MonoBehaviour
     public Springy.ForceDirectedGraph forceDirectedGraph;
     public List<GameObject> nodes, texts, edges;
 
+    public bool EdgesActive
+    {
+        set
+        {
+            foreach (var edge in edges)
+                edge.SetActive(value);
+        }
+    }
+
+    public bool TextsActive
+    {
+        set
+        {
+            foreach (var text in texts)
+                text.SetActive(value);
+        }
+    }
+
     public void PopulateFrom(string jsonPath)
     {
         nodes = new List<GameObject>();

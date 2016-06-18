@@ -25,8 +25,8 @@ public class World : MonoBehaviour
 
     private bool _rotationEnabled = true;
     private float _rotationSpeed = 10f;
+    private bool _textsActive = true, _edgesActive = true;
     private GameObject graph;
-    private bool textRenderingEnabled, edgeRenderingEnabled;
 
     private Theme CurrentTheme
     {
@@ -54,8 +54,8 @@ public class World : MonoBehaviour
 
         animationManager = new AnimationManager();
 
-        textRenderingEnabled = true;
-        edgeRenderingEnabled = true;
+        _textsActive = true;
+        _edgesActive = true;
     }
 
     private void ChangeTheme(Theme newTheme)
@@ -86,24 +86,10 @@ public class World : MonoBehaviour
             "\n" +
             String.Format("Total energy: {0:f} [{1:f}]\n", graph.GetComponent<Graph>().forceDirectedGraph.TotalKineticEnergy(), graph.GetComponent<Graph>().forceDirectedGraph.EnergyThreshold) +
             "\n" +
-            String.Format("Text rendering: {0}\n", textRenderingEnabled ? "ON" : "OFF") +
-            String.Format("Edge rendering: {0}\n", edgeRenderingEnabled ? "ON" : "OFF") +
+            String.Format("Text rendering: {0}\n", _textsActive ? "ON" : "OFF") +
+            String.Format("Edge rendering: {0}\n", _edgesActive ? "ON" : "OFF") +
             String.Format("_rotationSpeed: {0:f}\n", _rotationSpeed);
         GUI.TextArea(new Rect(Screen.width - 250 - 10, 10, 250, Screen.height - 20), text);
-    }
-
-    private void SetEdgesActive(bool active)
-    {
-        foreach (var edge in graph.GetComponent<Graph>().edges)
-            edge.SetActive(active);
-        edgeRenderingEnabled = active;
-    }
-
-    private void SetTextsActive(bool active)
-    {
-        foreach (var text in graph.GetComponent<Graph>().texts)
-            text.SetActive(active);
-        textRenderingEnabled = active;
     }
 
     private void Start()
@@ -146,7 +132,7 @@ public class World : MonoBehaviour
         if (lookedNode != null)
         {
             // render the text of the looked at node
-            if (textRenderingEnabled)
+            if (_textsActive)
                 lookedNode.GetComponent<Node>().RenderText();
         }
 
@@ -169,16 +155,18 @@ public class World : MonoBehaviour
         if (Input.GetKeyUp(KeyCode.K))
             ChangeTheme(darkTheme);
 
-        // enable/disable text rendering
-        if (Input.GetKeyDown(KeyCode.N))
+        // toggle edges active
+        if (Input.GetKeyDown(KeyCode.E))
         {
-            SetTextsActive(!textRenderingEnabled);
+            _edgesActive = !_edgesActive;
+            graph.GetComponent<Graph>().EdgesActive = _edgesActive;
         }
 
-        // enable/disable edge rendering
-        if (Input.GetKeyDown(KeyCode.M))
+        // toggle texts active
+        if (Input.GetKeyDown(KeyCode.T))
         {
-            SetEdgesActive(!edgeRenderingEnabled);
+            _textsActive = !_textsActive;
+            graph.GetComponent<Graph>().TextsActive = _textsActive;
         }
 
         // adjust rotation velocity
