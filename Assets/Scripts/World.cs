@@ -1,10 +1,9 @@
 ﻿using System;
+using System.Collections;
 using UnityEngine;
 
 public class World : MonoBehaviour
 {
-    public AnimationManager animationManager = new AnimationManager();
-
     // to be set in editor
     public GameObject graphObject;
 
@@ -24,6 +23,34 @@ public class World : MonoBehaviour
         }
     }
 
+    public void StartAnimation(Animation animation)
+    {
+        StartCoroutine(Animate(animation));
+    }
+
+    private IEnumerator Animate(Animation animation)
+    {
+        if (animation.OnStart != null)
+            animation.OnStart();
+
+        float startTime = Time.realtimeSinceStartup;
+        float endTime = startTime + animation.duration;
+
+        while (Time.realtimeSinceStartup < endTime)
+        {
+            float t = (Time.realtimeSinceStartup - startTime) / animation.duration;
+            if (animation.Ease != null)
+                t = animation.Ease(t);
+            animation.Update(t);
+            yield return null;
+        }
+
+        animation.Update(1f);
+
+        if (animation.OnEnd != null)
+            animation.OnEnd();
+    }
+
     private void Awake()
     {
         UnityEngine.Random.seed = 1337;
@@ -32,7 +59,7 @@ public class World : MonoBehaviour
     private void ChangeTheme(Theme newTheme)
     {
         var startTheme = Theme;
-        animationManager.Add(new Animation
+        StartAnimation(new Animation
         {
             Update = t =>
             {
@@ -69,8 +96,6 @@ public class World : MonoBehaviour
 
     private void Update()
     {
-        animationManager.Update();
-
         // continuously rotate graph
         if (_settings.rotationEnabled)
             graphObject.transform.Rotate(Vector3.up, Time.deltaTime * _settings.rotationSpeed);
