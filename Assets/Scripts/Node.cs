@@ -23,10 +23,10 @@ public class Node : MonoBehaviour
             if (value && !_selected)
             {
                 _color = GetComponent<Renderer>().material.color;
-                GetComponent<Renderer>().material.color = Color.white;
+                Select(Color.white);
             }
             else if (!value && _selected)
-                GetComponent<Renderer>().material.color = _color;
+                Select(_color);
 
             _selected = value;
         }
@@ -56,5 +56,21 @@ public class Node : MonoBehaviour
             springyNode.Position = transform.localPosition * scale;
         else
             transform.localPosition = springyNode.Position / scale;
+    }
+
+    private void Select(Color endColor)
+    {
+        var startColor = GetComponent<Renderer>().material.color;
+        //var startScale = transform.Find("Text").localScale;
+        GameObject.Find("World").GetComponent<World>().StartAnimation(new Animation
+        {
+            Update = t =>
+            {
+                GetComponent<Renderer>().material.color = Color.Lerp(startColor, endColor, t);
+                //transform.Find("Text").localScale = startScale * (1f + t / 1f);
+            },
+            duration = 0.3f,
+            Ease = Easing.EaseOutCubic
+        });
     }
 }
