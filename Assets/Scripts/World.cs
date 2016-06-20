@@ -99,37 +99,11 @@ public class World : MonoBehaviour
         // continuously rotate graph
         if (_settings.rotationEnabled)
             graphObject.transform.Rotate(Vector3.up, Time.deltaTime * _settings.rotationSpeed);
-
-        // check if a node is pointed by the camera
-        GameObject lookedNode = null;
-        RaycastHit hit;
-        if (Physics.SphereCast(Camera.main.transform.position, 0.4f, Camera.main.transform.forward, out hit))
-        {
-            var gameObject = hit.transform.gameObject;
-            if (gameObject.tag == "Node")
-                lookedNode = gameObject;
-        }
-
-        if (lookedNode != null)
-        {
-            // render the text of the looked at node
-            if (_settings.textsActive)
-                lookedNode.GetComponent<Node>().RenderText();
-        }
-
-        // parse input from keyboard
-        UpdateInput(lookedNode);
+        UpdateInput();
     }
 
-    private void UpdateInput(GameObject lookedNode)
+    private void UpdateInput()
     {
-        if (lookedNode != null)
-        {
-            // selection
-            if (Input.GetKeyUp(KeyCode.X))
-                lookedNode.GetComponent<Node>().Selected = true;
-        }
-
         // set themes
         if (Input.GetKeyUp(KeyCode.L))
             ChangeTheme(_settings.lightTheme);
