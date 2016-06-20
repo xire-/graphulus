@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using UnityEngine;
 
-public class CameraMovement : MonoBehaviour
+public class CameraManager : MonoBehaviour
 {
     private readonly Vector2 _sensitivity = new Vector2(3, 3);
     private readonly Vector2 _smoothing = new Vector2(3, 3);
