@@ -23,12 +23,12 @@ public class World : MonoBehaviour
         }
     }
 
-    public void StartAnimation(Animation animation)
+    public void Animate(Animation animation)
     {
-        StartCoroutine(Animate(animation));
+        StartCoroutine("AnimateCoroutine", animation);
     }
 
-    private IEnumerator Animate(Animation animation)
+    private IEnumerator AnimateCoroutine(Animation animation)
     {
         if (animation.OnStart != null)
             animation.OnStart();
@@ -41,11 +41,13 @@ public class World : MonoBehaviour
             float t = (Time.realtimeSinceStartup - startTime) / animation.duration;
             if (animation.Ease != null)
                 t = animation.Ease(t);
-            animation.Update(t);
+            if (animation.Update != null)
+                animation.Update(t);
             yield return null;
         }
 
-        animation.Update(1f);
+        if (animation.Update != null)
+            animation.Update(1f);
 
         if (animation.OnEnd != null)
             animation.OnEnd();
@@ -59,7 +61,7 @@ public class World : MonoBehaviour
     private void ChangeTheme(Theme newTheme)
     {
         var startTheme = Theme;
-        StartAnimation(new Animation
+        Animate(new Animation
         {
             Update = t =>
             {

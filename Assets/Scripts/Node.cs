@@ -62,7 +62,7 @@ public class Node : MonoBehaviour
     {
         var startColor = GetComponent<Renderer>().material.color;
         //var startScale = transform.Find("Text").localScale;
-        GameObject.Find("World").GetComponent<World>().StartAnimation(new Animation
+        GameObject.Find("World").GetComponent<World>().Animate(new Animation
         {
             Update = t =>
             {
