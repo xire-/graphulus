@@ -1,8 +1,8 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
 
 public class CameraMovement : MonoBehaviour
 {
-    private const float _movementSpeed = 0.5f;
     private readonly Vector2 _sensitivity = new Vector2(3, 3);
     private readonly Vector2 _smoothing = new Vector2(3, 3);
 
@@ -11,10 +11,33 @@ public class CameraMovement : MonoBehaviour
         Cursor.lockState = CursorLockMode.Locked;
     }
 
+    private Node FindLookedNodeObject()
+    {
+        RaycastHit hit;
+        const float radius = 0.02f;
+        if (Physics.SphereCast(Camera.main.transform.position, radius, Camera.main.transform.forward, out hit))
+        {
+            var lookedObject = hit.transform.gameObject;
+            if (lookedObject.tag == "Node")
+                return lookedObject.GetComponent<Node>();
+            else
+                return null;
+        }
+        else
+            return null;
+    }
+
+    private void Start()
+    {
+        StartCoroutine("UpdateLookedNodeObject");
+    }
+
     private void Update()
     {
         UpdateLook();
         UpdateMovement();
+
+        UpdateLookedNodeObject();
     }
 
     private void UpdateLook()
@@ -49,21 +72,43 @@ public class CameraMovement : MonoBehaviour
         transform.localRotation *= yRotation;
     }
 
+    private IEnumerator UpdateLookedNodeObject()
+    {
+        Node lookedNode = null, lookedNodePrev = null;
+        while (true)
+        {
+            lookedNodePrev = lookedNode;
+            lookedNode = FindLookedNodeObject();
+
+            if (lookedNodePrev != lookedNode)
+            {
+                if (lookedNodePrev != null)
+                    lookedNodePrev.Selected = false;
+                if (lookedNode != null)
+                    lookedNode.Selected = true;
+            }
+
+            yield return new WaitForSeconds(.5f);
+        }
+    }
+
     private void UpdateMovement()
     {
+        const float movementSpeed = 0.5f;
+
         if (Input.GetKey(KeyCode.W))
-            transform.position += transform.forward * _movementSpeed * Time.deltaTime;
+            transform.position += transform.forward * movementSpeed * Time.deltaTime;
         else if (Input.GetKey(KeyCode.S))
-            transform.position -= transform.forward * _movementSpeed * Time.deltaTime;
+            transform.position -= transform.forward * movementSpeed * Time.deltaTime;
 
         if (Input.GetKey(KeyCode.A))
-            transform.position -= transform.right * _movementSpeed * Time.deltaTime;
+            transform.position -= transform.right * movementSpeed * Time.deltaTime;
         else if (Input.GetKey(KeyCode.D))
-            transform.position += transform.right * _movementSpeed * Time.deltaTime;
+            transform.position += transform.right * movementSpeed * Time.deltaTime;
 
         if (Input.GetKey(KeyCode.E))
-            transform.position += Vector3.up * _movementSpeed * Time.deltaTime;
+            transform.position += Vector3.up * movementSpeed * Time.deltaTime;
         else if (Input.GetKey(KeyCode.Q))
-            transform.position -= Vector3.up * _movementSpeed * Time.deltaTime;
+            transform.position -= Vector3.up * movementSpeed * Time.deltaTime;
     }
 }
