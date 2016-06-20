@@ -36,8 +36,6 @@ public class CameraManager : MonoBehaviour
     {
         UpdateLook();
         UpdateMovement();
-
-        UpdateLookedNodeObject();
     }
 
     private void UpdateLook()
