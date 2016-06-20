@@ -90,29 +90,42 @@ public class PinchManager : MonoBehaviour
 
             transformDoubleAnchor();
         }
-        else if (PinchDetectorR.IsPinching)
+        else
         {
-            if (_closestNodeObject != null)
-            {
-                if (PinchDetectorR.DidStartPinch)
-                {
-                    // single pinch started, save parameters
-                    _closestNodeObject.GetComponent<Node>().Pinched = true;
-
-                    _singlePinchParams = new SinglePinchParams
-                    {
-                        nodeObject = _closestNodeObject,
-                        nodeObjectInitialPosition = _closestNodeObject.transform.position,
-                        pinchDetectorInitialPosition = PinchDetectorR.Position,
-                    };
-                }
-
-                transformSingleAnchor(PinchDetectorR);
-            }
+            UpdateSinglePinch(PinchDetectorR);
+            UpdateSinglePinch(PinchDetectorL);
         }
 
         if (didUpdate)
             graphObject.transform.SetParent(_pinchControllerObject.transform, true);
+    }
+
+    private void UpdateSinglePinch(PinchDetector pinchDetector)
+    {
+        // early exit if not pinching near a node
+        if (_closestNodeObject == null)
+            return;
+
+        if (pinchDetector.DidStartPinch)
+        {
+            _singlePinchParams = new SinglePinchParams
+            {
+                nodeObject = _closestNodeObject,
+                nodeObjectInitialPosition = _closestNodeObject.transform.position,
+                pinchDetectorInitialPosition = pinchDetector.Position,
+            };
+
+            _singlePinchParams.nodeObject.GetComponent<Node>().Pinched = true;
+        }
+
+        if (pinchDetector.IsPinching && _singlePinchParams.nodeObject != null)
+            transformSingleAnchor(pinchDetector);
+
+        if (pinchDetector.DidEndPinch && _singlePinchParams.nodeObject != null)
+        {
+            _singlePinchParams.nodeObject.GetComponent<Node>().Pinched = false;
+            _singlePinchParams.nodeObject = null;
+        }
     }
 
     private struct SinglePinchParams
