@@ -5,6 +5,7 @@ public class Node : MonoBehaviour
     public Springy.Node springyNode;
     private Color _color;
     private bool _selected;
+    private TextMesh _textMesh;
 
     public bool Pinched
     {
@@ -35,12 +36,17 @@ public class Node : MonoBehaviour
     {
         get
         {
-            return transform.Find("Text").GetComponent<TextMesh>().text;
+            return _textMesh.text;
         }
         set
         {
-            transform.Find("Text").GetComponent<TextMesh>().text = value;
+            _textMesh.text = value;
         }
+    }
+
+    private void Awake()
+    {
+        _textMesh = transform.Find("Text").GetComponent<TextMesh>();
     }
 
     private void LateUpdate()
