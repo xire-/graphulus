@@ -102,7 +102,8 @@ public class Graph : MonoBehaviour
             Repulsion = jsonRoot.parameters.repulsion,
             Convergence = jsonRoot.parameters.convergence,
             Damping = jsonRoot.parameters.damping,
-            SimulationEnabled = true
+            EnergyThreshold = -1f,
+            SimulationEnabled = true,
         };
 
         AddNodes(jsonRoot);
