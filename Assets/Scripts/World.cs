@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class World : MonoBehaviour
@@ -7,6 +8,7 @@ public class World : MonoBehaviour
     // to be set in editor
     public GameObject graphObject;
 
+    private Dictionary<KeyCode, Action> _keyToActionMap = new Dictionary<KeyCode, Action>();
     private Settings _settings = new Settings();
 
     private Theme Theme
@@ -89,8 +91,43 @@ public class World : MonoBehaviour
         GUI.TextArea(new Rect(Screen.width - 250 - 10, 10, 250, Screen.height - 20), text);
     }
 
+    private void SetupKeymap()
+    {
+        // switch themes
+        _keyToActionMap.Add(KeyCode.L, () => ChangeTheme(_settings.lightTheme));
+        _keyToActionMap.Add(KeyCode.K, () => ChangeTheme(_settings.darkTheme));
+
+        // toggle edges active
+        _keyToActionMap.Add(KeyCode.E, () =>
+        {
+            _settings.edgesActive = !_settings.edgesActive;
+            graphObject.GetComponent<Graph>().EdgesActive = _settings.edgesActive;
+        });
+
+        // toggle texts active
+        _keyToActionMap.Add(KeyCode.T, () =>
+        {
+            _settings.textsActive = !_settings.textsActive;
+            graphObject.GetComponent<Graph>().TextsActive = _settings.textsActive;
+        });
+
+        // adjust rotation velocity
+        _keyToActionMap.Add(KeyCode.B, () =>
+        {
+            if (_settings.rotationSpeed < _settings.rotationSpeedMax)
+                _settings.rotationSpeed += 10f;
+        });
+        _keyToActionMap.Add(KeyCode.V, () =>
+        {
+            if (_settings.rotationSpeed > -_settings.rotationSpeedMax)
+                _settings.rotationSpeed -= 10f;
+        });
+    }
+
     private void Start()
     {
+        SetupKeymap();
+
         graphObject.GetComponent<Graph>().PopulateFrom("Assets/Graphs/miserables.json");
 
         ChangeTheme(_settings.darkTheme);
@@ -101,42 +138,11 @@ public class World : MonoBehaviour
         // continuously rotate graph
         if (_settings.rotationEnabled)
             graphObject.transform.Rotate(Vector3.up, Time.deltaTime * _settings.rotationSpeed);
-        UpdateInput();
-    }
 
-    private void UpdateInput()
-    {
-        // set themes
-        if (Input.GetKeyUp(KeyCode.L))
-            ChangeTheme(_settings.lightTheme);
-        if (Input.GetKeyUp(KeyCode.K))
-            ChangeTheme(_settings.darkTheme);
-
-        // toggle edges active
-        if (Input.GetKeyDown(KeyCode.E))
-        {
-            _settings.edgesActive = !_settings.edgesActive;
-            graphObject.GetComponent<Graph>().EdgesActive = _settings.edgesActive;
-        }
-
-        // toggle texts active
-        if (Input.GetKeyDown(KeyCode.T))
-        {
-            _settings.textsActive = !_settings.textsActive;
-            graphObject.GetComponent<Graph>().TextsActive = _settings.textsActive;
-        }
-
-        // adjust rotation velocity
-        if (Input.GetKeyDown(KeyCode.B))
-        {
-            if (_settings.rotationSpeed < _settings.rotationSpeedMax)
-                _settings.rotationSpeed += 10f;
-        }
-        else if (Input.GetKeyDown(KeyCode.V))
-        {
-            if (_settings.rotationSpeed > -_settings.rotationSpeedMax)
-                _settings.rotationSpeed -= 10f;
-        }
+        // update input
+        foreach (KeyCode keyCode in _keyToActionMap.Keys)
+            if (Input.GetKeyDown(keyCode))
+                _keyToActionMap[keyCode]();
     }
 
     private class Settings
