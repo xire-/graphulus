@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Leap.Unity;
+using UnityEngine;
 
 public class PinchManager : MonoBehaviour
 {
@@ -6,32 +7,34 @@ public class PinchManager : MonoBehaviour
     public GameObject graphObject;
 
     // to be set in editor
-    public Leap.Unity.PinchDetector PinchDetectorL, PinchDetectorR;
+    public PinchDetector PinchDetectorL, PinchDetectorR;
 
+    private readonly float _maxClosestNodeDistance = 0.08f;
     private bool _allowScale = true;
-    private GameObject _pinchControlObject;
+    private GameObject _closestNodeObject, _closestNodeObjectPrev;
+    private GameObject _pinchControllerObject;
     private SinglePinchParams _singlePinchParams;
 
     private void Awake()
     {
-        _pinchControlObject = new GameObject("Pinch Control");
-        _pinchControlObject.transform.parent = graphObject.transform.parent;
-        graphObject.transform.parent = _pinchControlObject.transform;
+        _pinchControllerObject = new GameObject("PinchController");
+        _pinchControllerObject.transform.parent = graphObject.transform.parent;
+        graphObject.transform.parent = _pinchControllerObject.transform;
     }
 
     private void transformDoubleAnchor()
     {
-        _pinchControlObject.transform.position = (PinchDetectorR.Position + PinchDetectorL.Position) / 2f;
+        _pinchControllerObject.transform.position = (PinchDetectorR.Position + PinchDetectorL.Position) / 2f;
 
         Quaternion pp = Quaternion.Lerp(PinchDetectorR.Rotation, PinchDetectorL.Rotation, .5f);
         Vector3 u = pp * Vector3.up;
-        _pinchControlObject.transform.LookAt(PinchDetectorR.Position, u);
+        _pinchControllerObject.transform.LookAt(PinchDetectorR.Position, u);
 
         if (_allowScale)
-            _pinchControlObject.transform.localScale = Vector3.one * Vector3.Distance(PinchDetectorR.Position, PinchDetectorL.Position);
+            _pinchControllerObject.transform.localScale = Vector3.one * Vector3.Distance(PinchDetectorR.Position, PinchDetectorL.Position);
     }
 
-    private void transformSingleAnchor(Leap.Unity.PinchDetector singlePinch)
+    private void transformSingleAnchor(PinchDetector singlePinch)
     {
         var diff = _singlePinchParams.pinchDetectorInitialPosition - singlePinch.Position;
         _singlePinchParams.nodeObject.transform.position = _singlePinchParams.nodeObjectInitialPosition - diff;
@@ -39,40 +42,77 @@ public class PinchManager : MonoBehaviour
 
     private void Update()
     {
+        if (!PinchDetectorR.IsPinching)
+            UpdateClosestNodeObject();
+        UpdatePinch();
+    }
+
+    private void UpdateClosestNodeObject()
+    {
+        _closestNodeObjectPrev = _closestNodeObject;
+
+        // get closest object to index tip
+        var handModel = PinchDetectorR.GetComponentInParent<IHandModel>();
+        if (handModel != null)
+        {
+            var index = handModel.GetLeapHand().Fingers[1];
+            var indexTipPosition = index.TipPosition.ToVector3();
+            _closestNodeObject = graphObject.GetComponent<Graph>().FindClosestNodeObject(indexTipPosition, _maxClosestNodeDistance);
+        }
+
+        UpdateClosestNodeObjectSelection();
+    }
+
+    private void UpdateClosestNodeObjectSelection()
+    {
+        if (_closestNodeObjectPrev != _closestNodeObject)
+        {
+            if (_closestNodeObjectPrev != null)
+                _closestNodeObjectPrev.GetComponent<Node>().Selected = false;
+            if (_closestNodeObject != null)
+                _closestNodeObject.GetComponent<Node>().Selected = true;
+        }
+    }
+
+    private void UpdatePinch()
+    {
         bool didUpdate = false;
-        if (PinchDetectorR != null)
-            didUpdate |= PinchDetectorR.DidChangeFromLastFrame;
-        if (PinchDetectorL != null)
-            didUpdate |= PinchDetectorL.DidChangeFromLastFrame;
+        didUpdate |= PinchDetectorR.DidChangeFromLastFrame;
+        didUpdate |= PinchDetectorL.DidChangeFromLastFrame;
 
         if (didUpdate)
             graphObject.transform.SetParent(null, true);
 
-        if (PinchDetectorR.DidStartPinch)
+        if (PinchDetectorR.IsPinching && PinchDetectorL.IsPinching)
         {
-            var pinchDetector = PinchDetectorR.DidStartPinch ? PinchDetectorR : PinchDetectorL;
+            if (_closestNodeObject != null && _closestNodeObject.GetComponent<Node>().Pinched)
+                _closestNodeObject.GetComponent<Node>().Pinched = false;
 
-            var closestNodeObject = graphObject.GetComponent<Graph>().FindClosestNodeObject(pinchDetector.Position);
-            closestNodeObject.GetComponent<Node>().IsPinched = true;
-            closestNodeObject.GetComponent<Node>().Select();
-
-            _singlePinchParams = new SinglePinchParams
+            transformDoubleAnchor();
+        }
+        else if (PinchDetectorR.IsPinching)
+        {
+            if (_closestNodeObject != null)
             {
-                nodeObject = closestNodeObject,
-                nodeObjectInitialPosition = closestNodeObject.transform.position,
-                pinchDetectorInitialPosition = PinchDetectorR.Position,
-            };
+                if (PinchDetectorR.DidStartPinch)
+                {
+                    // single pinch started, save parameters
+                    _closestNodeObject.GetComponent<Node>().Pinched = true;
+
+                    _singlePinchParams = new SinglePinchParams
+                    {
+                        nodeObject = _closestNodeObject,
+                        nodeObjectInitialPosition = _closestNodeObject.transform.position,
+                        pinchDetectorInitialPosition = PinchDetectorR.Position,
+                    };
+                }
+
+                transformSingleAnchor(PinchDetectorR);
+            }
         }
 
-        if (PinchDetectorR != null && PinchDetectorR.IsPinching && PinchDetectorL != null && PinchDetectorL.IsPinching)
-            transformDoubleAnchor();
-        else if (PinchDetectorR != null && PinchDetectorR.IsPinching)
-            transformSingleAnchor(PinchDetectorR);
-        //else if (PinchDetectorL != null && PinchDetectorL.IsPinching)
-        //    transformSingleAnchor(PinchDetectorL);
-
         if (didUpdate)
-            graphObject.transform.SetParent(_pinchControlObject.transform, true);
+            graphObject.transform.SetParent(_pinchControllerObject.transform, true);
     }
 
     private struct SinglePinchParams

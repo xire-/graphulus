@@ -127,7 +127,7 @@ public class World : MonoBehaviour
         {
             // selection
             if (Input.GetKeyUp(KeyCode.X))
-                lookedNode.GetComponent<Node>().Select();
+                lookedNode.GetComponent<Node>().Selected = true;
         }
 
         // set themes

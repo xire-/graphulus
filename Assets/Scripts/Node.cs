@@ -3,10 +3,34 @@
 public class Node : MonoBehaviour
 {
     public Springy.Node springyNode;
+    private bool renderEnabled;
     private const float fadeTime = 1f;
-    private const float totaltimeselection = 0.3f;
-    private bool renderEnabled, selected;
+
     private float renderTimeLeft, selectionTimeLeft;
+
+    private Color _color;
+
+    private bool _selected;
+    public bool Selected
+    {
+        get
+        {
+            return _selected;
+        }
+        set
+        {
+            if (value && !_selected) {
+                _color = GetComponent<Renderer>().material.color;
+                GetComponent<Renderer>().material.color = Color.white;
+            }
+            else if (!value && _selected)
+                GetComponent<Renderer>().material.color = _color;
+
+            _selected = value;
+        }
+    }
+
+
 
     public string Text
     {
@@ -33,37 +57,18 @@ public class Node : MonoBehaviour
         transform.Find("Text").GetComponent<Renderer>().enabled = true;
     }
 
-    public bool IsPinched {
+    public bool Pinched {
         get; set;
-    }
-
-    public void Select()
-    {
-        selected = true;
-        selectionTimeLeft = totaltimeselection;
     }
 
     private void LateUpdate()
     {
-        if (!IsPinched)
+        if (!Pinched)
             transform.localPosition = springyNode.Position / 20f;
     }
 
     private void Update()
     {
-        if (selected)
-        {
-            selectionTimeLeft -= Time.deltaTime;
-            if (selectionTimeLeft >= 0)
-            {
-                Color color = GetComponent<Renderer>().material.color;
-                float f = (totaltimeselection - selectionTimeLeft) / totaltimeselection;
-                Color newcolor = Color.Lerp(color, Color.white, f);
-                newcolor.a = color.a;
-                GetComponent<Renderer>().material.color = newcolor;
-            }
-        }
-
         if (renderEnabled)
         {
             renderTimeLeft -= Time.deltaTime;
