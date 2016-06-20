@@ -175,10 +175,10 @@ public class World : MonoBehaviour
 
         public readonly Theme lightTheme = new Theme()
         {
-            skyboxColor = new Color32(0xF3, 0xF3, 0xF3, 0xFF),
-            nodeColor = new Color32(0xEA, 0x24, 0x7A, 0xA1),
-            textColor = new Color32(0x85, 0x0F, 0x26, 0xFF),
-            edgeColor = new Color32(0x9F, 0x9D, 0x9D, 0x64)
+            skyboxColor = new Color32(0x02, 0x44, 0x5F, 0xFF),
+            nodeColor = new Color32(0x10, 0xAA, 0x51, 0xD2),
+            textColor = new Color32(0x9E, 0xCC, 0xC7, 0xFF),
+            edgeColor = new Color32(0xD9, 0x68, 0x3E, 0xC6)
         };
 
         public readonly float rotationSpeedMax = 100f;
