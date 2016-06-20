@@ -3,14 +3,18 @@
 public class Node : MonoBehaviour
 {
     public Springy.Node springyNode;
-    private bool renderEnabled;
     private const float fadeTime = 1f;
-
+    private readonly float _positionScale = 20f;
+    private Color _color;
+    private bool _selected;
+    private bool renderEnabled;
     private float renderTimeLeft, selectionTimeLeft;
 
-    private Color _color;
+    public bool Pinched
+    {
+        get; set;
+    }
 
-    private bool _selected;
     public bool Selected
     {
         get
@@ -19,7 +23,8 @@ public class Node : MonoBehaviour
         }
         set
         {
-            if (value && !_selected) {
+            if (value && !_selected)
+            {
                 _color = GetComponent<Renderer>().material.color;
                 GetComponent<Renderer>().material.color = Color.white;
             }
@@ -29,8 +34,6 @@ public class Node : MonoBehaviour
             _selected = value;
         }
     }
-
-
 
     public string Text
     {
@@ -57,14 +60,12 @@ public class Node : MonoBehaviour
         transform.Find("Text").GetComponent<Renderer>().enabled = true;
     }
 
-    public bool Pinched {
-        get; set;
-    }
-
     private void LateUpdate()
     {
-        if (!Pinched)
-            transform.localPosition = springyNode.Position / 20f;
+        if (Pinched)
+            springyNode.Position = transform.localPosition * _positionScale;
+        else
+            transform.localPosition = springyNode.Position / _positionScale;
     }
 
     private void Update()
