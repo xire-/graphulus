@@ -11,7 +11,7 @@ public class PinchManager : MonoBehaviour
 
     private readonly float _maxClosestNodeDistance = 0.08f;
     private bool _allowScale = true;
-    private GameObject _closestNodeObject, _closestNodeObjectPrev;
+    private ClosestNodeObjectParams _closestNodeParamsL, _closestNodeParamsR;
     private GameObject _pinchControllerObject;
     private SinglePinchParams _singlePinchParams;
 
@@ -20,6 +20,9 @@ public class PinchManager : MonoBehaviour
         _pinchControllerObject = new GameObject("PinchController");
         _pinchControllerObject.transform.parent = graphObject.transform.parent;
         graphObject.transform.parent = _pinchControllerObject.transform;
+
+        _closestNodeParamsL = new ClosestNodeObjectParams { pinchDetector = PinchDetectorL };
+        _closestNodeParamsR = new ClosestNodeObjectParams { pinchDetector = PinchDetectorR };
     }
 
     private void transformDoubleAnchor()
@@ -43,34 +46,37 @@ public class PinchManager : MonoBehaviour
     private void Update()
     {
         if (!PinchDetectorR.IsPinching)
-            UpdateClosestNodeObject();
+            UpdateClosestNodeObject(ref _closestNodeParamsR);
+        if (!PinchDetectorL.IsPinching)
+            UpdateClosestNodeObject(ref _closestNodeParamsL);
+
         UpdatePinch();
     }
 
-    private void UpdateClosestNodeObject()
+    private void UpdateClosestNodeObject(ref ClosestNodeObjectParams closestNodeObjectParams)
     {
-        _closestNodeObjectPrev = _closestNodeObject;
+        closestNodeObjectParams.closestNodeObjectPrev = closestNodeObjectParams.closestNodeObject;
 
         // get closest object to index tip
-        var handModel = PinchDetectorR.GetComponentInParent<IHandModel>();
+        var handModel = closestNodeObjectParams.pinchDetector.GetComponentInParent<IHandModel>();
         if (handModel != null)
         {
             var index = handModel.GetLeapHand().Fingers[1];
             var indexTipPosition = index.TipPosition.ToVector3();
-            _closestNodeObject = graphObject.GetComponent<Graph>().FindClosestNodeObject(indexTipPosition, _maxClosestNodeDistance);
+            closestNodeObjectParams.closestNodeObject = graphObject.GetComponent<Graph>().FindClosestNodeObject(indexTipPosition, _maxClosestNodeDistance);
         }
 
-        UpdateClosestNodeObjectSelection();
+        UpdateClosestNodeObjectSelection(ref closestNodeObjectParams);
     }
 
-    private void UpdateClosestNodeObjectSelection()
+    private void UpdateClosestNodeObjectSelection(ref ClosestNodeObjectParams closestNodeObjectParams)
     {
-        if (_closestNodeObjectPrev != _closestNodeObject)
+        if (closestNodeObjectParams.closestNodeObjectPrev != closestNodeObjectParams.closestNodeObject)
         {
-            if (_closestNodeObjectPrev != null)
-                _closestNodeObjectPrev.GetComponent<Node>().Selected = false;
-            if (_closestNodeObject != null)
-                _closestNodeObject.GetComponent<Node>().Selected = true;
+            if (closestNodeObjectParams.closestNodeObjectPrev != null)
+                closestNodeObjectParams.closestNodeObjectPrev.GetComponent<Node>().Selected = false;
+            if (closestNodeObjectParams.closestNodeObject != null)
+                closestNodeObjectParams.closestNodeObject.GetComponent<Node>().Selected = true;
         }
     }
 
@@ -85,33 +91,35 @@ public class PinchManager : MonoBehaviour
 
         if (PinchDetectorR.IsPinching && PinchDetectorL.IsPinching)
         {
-            if (_closestNodeObject != null && _closestNodeObject.GetComponent<Node>().Pinched)
-                _closestNodeObject.GetComponent<Node>().Pinched = false;
+            if (_closestNodeParamsR.closestNodeObject != null && _closestNodeParamsR.closestNodeObject.GetComponent<Node>().Pinched)
+                _closestNodeParamsR.closestNodeObject.GetComponent<Node>().Pinched = false;
+            if (_closestNodeParamsL.closestNodeObject != null && _closestNodeParamsL.closestNodeObject.GetComponent<Node>().Pinched)
+                _closestNodeParamsL.closestNodeObject.GetComponent<Node>().Pinched = false;
 
             transformDoubleAnchor();
         }
         else
         {
-            UpdateSinglePinch(PinchDetectorR);
-            UpdateSinglePinch(PinchDetectorL);
+            UpdateSinglePinch(PinchDetectorR, ref _closestNodeParamsR);
+            UpdateSinglePinch(PinchDetectorL, ref _closestNodeParamsL);
         }
 
         if (didUpdate)
             graphObject.transform.SetParent(_pinchControllerObject.transform, true);
     }
 
-    private void UpdateSinglePinch(PinchDetector pinchDetector)
+    private void UpdateSinglePinch(PinchDetector pinchDetector, ref ClosestNodeObjectParams closestNodeObjectParams)
     {
         // early exit if not pinching near a node
-        if (_closestNodeObject == null)
+        if (closestNodeObjectParams.closestNodeObject == null)
             return;
 
         if (pinchDetector.DidStartPinch)
         {
             _singlePinchParams = new SinglePinchParams
             {
-                nodeObject = _closestNodeObject,
-                nodeObjectInitialPosition = _closestNodeObject.transform.position,
+                nodeObject = closestNodeObjectParams.closestNodeObject,
+                nodeObjectInitialPosition = closestNodeObjectParams.closestNodeObject.transform.position,
                 pinchDetectorInitialPosition = pinchDetector.Position,
             };
 
@@ -126,6 +134,13 @@ public class PinchManager : MonoBehaviour
             _singlePinchParams.nodeObject.GetComponent<Node>().Pinched = false;
             _singlePinchParams.nodeObject = null;
         }
+    }
+
+    private struct ClosestNodeObjectParams
+    {
+        public GameObject closestNodeObject;
+        public GameObject closestNodeObjectPrev;
+        public PinchDetector pinchDetector;
     }
 
     private struct SinglePinchParams
