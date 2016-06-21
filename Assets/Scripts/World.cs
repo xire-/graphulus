@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class World : MonoBehaviour
 {
@@ -165,8 +166,33 @@ public class World : MonoBehaviour
 
         public readonly float rotationSpeedMax = 100f;
         public bool edgesActive = true;
-        public bool rotationEnabled = true;
+        public bool rotationEnabled = false;
         public float rotationSpeed = 10f;
         public bool textsActive = true;
+    }
+
+
+    public void ToggleEdgeRendering()
+    {
+        _settings.edgesActive = !_settings.edgesActive;
+        graphObject.GetComponent<Graph>().EdgesActive = _settings.edgesActive;
+    }
+
+    public void ToggleTextRendering()
+    {
+        _settings.textsActive = !_settings.textsActive;
+        graphObject.GetComponent<Graph>().TextsActive = _settings.textsActive;
+    }
+
+    public void ToggleAutoRotation()
+    {
+        _settings.rotationEnabled = !_settings.rotationEnabled;
+        GameObject.Find("SliderRotation").GetComponent<Slider>().interactable = _settings.rotationEnabled;
+    }
+
+    public void ChangeRotationSpeed()
+    {
+        var value = GameObject.Find("SliderRotation").GetComponent<Slider>().value;
+        _settings.rotationSpeed = value;
     }
 }

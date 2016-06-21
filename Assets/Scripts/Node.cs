@@ -51,7 +51,7 @@ public class Node : MonoBehaviour
 
     private void LateUpdate()
     {
-        const float scale = 20f;
+        const float scale = 30f;
         if (Pinched)
             springyNode.Position = transform.localPosition * scale;
         else
