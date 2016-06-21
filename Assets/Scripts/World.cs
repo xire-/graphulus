@@ -12,10 +12,24 @@ public class World : MonoBehaviour
     private Dictionary<KeyCode, Action> _keyToActionMap = new Dictionary<KeyCode, Action>();
     private Settings _settings = new Settings();
 
-    private Theme Theme
-    {
-        get
-        {
+    public bool EdgesActive {
+        get { return _settings.edgesActive; }
+        set {
+            _settings.edgesActive = value;
+            graphObject.GetComponent<Graph>().EdgesActive = _settings.edgesActive;
+        }
+    }
+
+    public bool TextsActive {
+        get { return _settings.textsActive; }
+        set {
+            _settings.textsActive = value;
+            graphObject.GetComponent<Graph>().TextsActive = _settings.textsActive;
+        }
+    }
+
+    private Theme Theme {
+        get {
             return new Theme
             {
                 skyboxColor = Camera.main.backgroundColor,
@@ -29,6 +43,28 @@ public class World : MonoBehaviour
     public void Animate(Animation animation)
     {
         StartCoroutine("AnimateCoroutine", animation);
+    }
+
+    public void ChangeRotationSpeed()
+    {
+        var value = GameObject.Find("SliderRotation").GetComponent<Slider>().value;
+        _settings.autoRotationSpeed = value;
+    }
+
+    public void ToggleAutoRotation()
+    {
+        _settings.autoRotationEnabled = !_settings.autoRotationEnabled;
+        GameObject.Find("SliderRotation").GetComponent<Slider>().interactable = _settings.autoRotationEnabled;
+    }
+
+    public void ToggleEdgesActive()
+    {
+        EdgesActive = !EdgesActive;
+    }
+
+    public void ToggleTextsActive()
+    {
+        TextsActive = !TextsActive;
     }
 
     private IEnumerator AnimateCoroutine(Animation animation)
@@ -88,7 +124,7 @@ public class World : MonoBehaviour
             "\n" +
             String.Format("Text rendering: {0}\n", _settings.textsActive ? "ON" : "OFF") +
             String.Format("Edge rendering: {0}\n", _settings.edgesActive ? "ON" : "OFF") +
-            String.Format("_rotationSpeed: {0:f}\n", _settings.rotationSpeed);
+            String.Format("_rotationSpeed: {0:f}\n", _settings.autoRotationSpeed);
         GUI.TextArea(new Rect(Screen.width - 250 - 10, 10, 250, Screen.height - 20), text);
     }
 
@@ -115,13 +151,13 @@ public class World : MonoBehaviour
         // adjust rotation velocity
         _keyToActionMap.Add(KeyCode.B, () =>
         {
-            if (_settings.rotationSpeed < _settings.rotationSpeedMax)
-                _settings.rotationSpeed += 10f;
+            if (_settings.autoRotationSpeed < _settings.autoRotationSpeedMax)
+                _settings.autoRotationSpeed += 10f;
         });
         _keyToActionMap.Add(KeyCode.V, () =>
         {
-            if (_settings.rotationSpeed > -_settings.rotationSpeedMax)
-                _settings.rotationSpeed -= 10f;
+            if (_settings.autoRotationSpeed > -_settings.autoRotationSpeedMax)
+                _settings.autoRotationSpeed -= 10f;
         });
     }
 
@@ -137,8 +173,8 @@ public class World : MonoBehaviour
     private void Update()
     {
         // continuously rotate graph
-        if (_settings.rotationEnabled)
-            graphObject.transform.Rotate(Vector3.up, Time.deltaTime * _settings.rotationSpeed);
+        if (_settings.autoRotationEnabled)
+            graphObject.transform.Rotate(Vector3.up, Time.deltaTime * _settings.autoRotationSpeed);
 
         // update input
         foreach (KeyCode keyCode in _keyToActionMap.Keys)
@@ -148,6 +184,8 @@ public class World : MonoBehaviour
 
     private class Settings
     {
+        public readonly float autoRotationSpeedMax = 100f;
+
         public readonly Theme darkTheme = new Theme()
         {
             skyboxColor = new Color32(0x10, 0x0F, 0x0F, 0xFF),
@@ -164,35 +202,9 @@ public class World : MonoBehaviour
             edgeColor = new Color32(0xD9, 0x68, 0x3E, 0xC6)
         };
 
-        public readonly float rotationSpeedMax = 100f;
+        public bool autoRotationEnabled = false;
+        public float autoRotationSpeed = 10f;
         public bool edgesActive = true;
-        public bool rotationEnabled = false;
-        public float rotationSpeed = 10f;
         public bool textsActive = true;
-    }
-
-
-    public void ToggleEdgeRendering()
-    {
-        _settings.edgesActive = !_settings.edgesActive;
-        graphObject.GetComponent<Graph>().EdgesActive = _settings.edgesActive;
-    }
-
-    public void ToggleTextRendering()
-    {
-        _settings.textsActive = !_settings.textsActive;
-        graphObject.GetComponent<Graph>().TextsActive = _settings.textsActive;
-    }
-
-    public void ToggleAutoRotation()
-    {
-        _settings.rotationEnabled = !_settings.rotationEnabled;
-        GameObject.Find("SliderRotation").GetComponent<Slider>().interactable = _settings.rotationEnabled;
-    }
-
-    public void ChangeRotationSpeed()
-    {
-        var value = GameObject.Find("SliderRotation").GetComponent<Slider>().value;
-        _settings.rotationSpeed = value;
     }
 }
