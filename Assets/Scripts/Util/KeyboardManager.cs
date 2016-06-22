@@ -2,8 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class KeyboardManager : MonoBehaviour
-{
+public class KeyboardManager : MonoBehaviour {
     private Dictionary<KeyCode, Action> _keyToActionMap = new Dictionary<KeyCode, Action>();
 
     private void Start() {

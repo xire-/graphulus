@@ -1,7 +1,6 @@
 ﻿using UnityEngine;
 
-public class Edge : MonoBehaviour
-{
+public class Edge : MonoBehaviour {
     public GameObject source, target;
     public Springy.Edge springyEdge;
 

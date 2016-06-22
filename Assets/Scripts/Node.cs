@@ -1,7 +1,6 @@
 ﻿using UnityEngine;
 
-public class Node : MonoBehaviour
-{
+public class Node : MonoBehaviour {
     public Springy.Node springyNode;
     private Color _color;
     private bool _selected;

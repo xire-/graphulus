@@ -2,8 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Graph : MonoBehaviour
-{
+public class Graph : MonoBehaviour {
     private List<GameObject> _edgeObjects = new List<GameObject>();
     private Springy.ForceDirectedGraph _forceDirectedGraph;
     private List<GameObject> _nodeObjects = new List<GameObject>();

@@ -2,8 +2,8 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-public class GameSystem : MonoBehaviour
-{
+public class GameSystem : MonoBehaviour {
+
     // to be set in editor
     public GameObject graphObject;
 
@@ -150,8 +150,8 @@ public class GameSystem : MonoBehaviour
         }
     }
 
-    private class Settings
-    {
+    private class Settings {
+
         public static readonly Theme[] themes = new Theme[] {
             new Theme {
                 name = "Dark",

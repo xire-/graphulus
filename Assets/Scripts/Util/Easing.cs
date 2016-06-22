@@ -1,7 +1,7 @@
 ﻿// https://gist.github.com/gre/1650294
 
-public class Easing
-{
+public class Easing {
+
     // accelerating from zero velocity
     public static float EaseInCubic(float t) {
         return t * t * t;

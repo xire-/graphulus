@@ -1,7 +1,6 @@
 ﻿using System;
 
-public class Animation
-{
+public struct Animation {
     public float duration;
     public Func<float, float> Ease;
     public Action OnEnd;

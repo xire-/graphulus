@@ -1,8 +1,8 @@
 ﻿using Leap.Unity;
 using UnityEngine;
 
-public class PinchManager : MonoBehaviour
-{
+public class PinchManager : MonoBehaviour {
+
     // to be set in editor
     public GameObject graphObject;
 
@@ -141,15 +141,13 @@ public class PinchManager : MonoBehaviour
         }
     }
 
-    private struct PinchInfo
-    {
+    private struct PinchInfo {
         public Node node;
         public Vector3 nodeInitialPosition;
         public Vector3 pinchDetectorInitialPosition;
     }
 
-    private class ClosestNode
-    {
+    private class ClosestNode {
         public Node curr;
         public Node prev;
     }

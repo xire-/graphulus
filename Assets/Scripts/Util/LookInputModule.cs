@@ -2,8 +2,8 @@
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class LookInputModule : BaseInputModule
-{
+public class LookInputModule : BaseInputModule {
+
     // name of axis to use for scrolling/sliders
     public string controlAxisName = "Horizontal";
 
@@ -117,6 +117,7 @@ public class LookInputModule : BaseInputModule
     public static LookInputModule singleton {
         get { return _singleton; }
     }
+
     public bool buttonUsed {
         get { return _buttonUsed; }
     }
@@ -126,8 +127,9 @@ public class LookInputModule : BaseInputModule
     }
 
     public bool guiRaycastHit {
-        get {     return _guiRaycastHit;   }
+        get { return _guiRaycastHit; }
     }
+
     // clear the current selection
     public void ClearSelection() {
         if (eventSystem.currentSelectedGameObject) {
