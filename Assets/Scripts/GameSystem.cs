@@ -17,23 +17,29 @@ public class GameSystem : MonoBehaviour
         get { return _instance; }
     }
 
+    public bool AutoRotationEnabled {
+        get { return _settings.autoRotationEnabled; }
+        set { _settings.autoRotationEnabled = value; }
+    }
+
     public float AutoRotationSpeed {
         get { return _settings.autoRotationSpeed; }
+        set { _settings.autoRotationSpeed = value; }
     }
 
     public bool EdgesActive {
         get { return _settings.edgesActive; }
         set {
+            graphObject.GetComponent<Graph>().EdgesActive = value;
             _settings.edgesActive = value;
-            graphObject.GetComponent<Graph>().EdgesActive = _settings.edgesActive;
         }
     }
 
     public bool TextsActive {
         get { return _settings.textsActive; }
         set {
+            graphObject.GetComponent<Graph>().TextsActive = value;
             _settings.textsActive = value;
-            graphObject.GetComponent<Graph>().TextsActive = _settings.textsActive;
         }
     }
 
@@ -46,8 +52,8 @@ public class GameSystem : MonoBehaviour
     }
 
     public void ChangeRotationSpeed() {
-        var value = GameObject.Find("SliderRotation").GetComponent<Slider>().value;
-        _settings.autoRotationSpeed = value;
+        var value = GameObject.Find("SliderRotation").GetComponent<Slider>().value; // TODO
+        AutoRotationSpeed = value;
     }
 
     public void SwitchTheme() {
@@ -63,8 +69,8 @@ public class GameSystem : MonoBehaviour
     }
 
     public void ToggleAutoRotation() {
-        _settings.autoRotationEnabled = !_settings.autoRotationEnabled;
-        GameObject.Find("SliderRotation").GetComponent<Slider>().interactable = _settings.autoRotationEnabled;
+        AutoRotationEnabled = !AutoRotationEnabled;
+        GameObject.Find("SliderRotation").GetComponent<Slider>().interactable = _settings.autoRotationEnabled; // TODO
     }
 
     public void ToggleEdgesActive() {
@@ -127,31 +133,15 @@ public class GameSystem : MonoBehaviour
     }
 
     private void SetupKeymap() {
-        // switch to the next theme
         _keyToActionMap.Add(KeyCode.L, SwitchTheme);
+        _keyToActionMap.Add(KeyCode.R, ToggleEdgesActive);
+        _keyToActionMap.Add(KeyCode.T, ToggleTextsActive);
 
-        // toggle edges active
-        _keyToActionMap.Add(KeyCode.E, () => {
-            _settings.edgesActive = !_settings.edgesActive;
-            graphObject.GetComponent<Graph>().EdgesActive = _settings.edgesActive;
-        });
-
-        // toggle texts active
-        _keyToActionMap.Add(KeyCode.T, () => {
-            _settings.textsActive = !_settings.textsActive;
-            graphObject.GetComponent<Graph>().TextsActive = _settings.textsActive;
-        });
-
-        // adjust rotation velocity
         _keyToActionMap.Add(KeyCode.B, () => {
-            if (_settings.autoRotationSpeed < _settings.autoRotationSpeedMax) {
-                _settings.autoRotationSpeed += 10f;
-            }
+            AutoRotationSpeed += 10f;
         });
         _keyToActionMap.Add(KeyCode.V, () => {
-            if (_settings.autoRotationSpeed > -_settings.autoRotationSpeedMax) {
-                _settings.autoRotationSpeed -= 10f;
-            }
+            AutoRotationSpeed -= 10f;
         });
     }
 
@@ -204,9 +194,8 @@ public class GameSystem : MonoBehaviour
             }
         };
 
-        public readonly float autoRotationSpeedMax = 100f;
         public bool autoRotationEnabled = false;
-        public float autoRotationSpeed = 10f;
+        public float autoRotationSpeed = 15f;
         public bool edgesActive = true;
         public bool textsActive = true;
         public int themeIndex = 0;
