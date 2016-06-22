@@ -17,6 +17,10 @@ public class GameSystem : MonoBehaviour
         get { return _instance; }
     }
 
+    public float AutoRotationSpeed {
+        get { return _settings.autoRotationSpeed; }
+    }
+
     public bool EdgesActive {
         get { return _settings.edgesActive; }
         set {
@@ -116,19 +120,6 @@ public class GameSystem : MonoBehaviour
 
     private void OnDestroy() {
         _instance = null;
-    }
-
-    private void OnGUI() {
-        // draw debug menu
-        var text =
-            String.Format("FPS: {0:f} [{1:f}ms]\n", (int)(1.0f / Time.smoothDeltaTime), Time.smoothDeltaTime * 1000f) +
-            "\n" +
-            String.Format("Total energy: {0:f} [{1:f}]\n", graphObject.GetComponent<Graph>().TotalKineticEnergy, graphObject.GetComponent<Graph>().EnergyThreshold) +
-            "\n" +
-            String.Format("Text rendering: {0}\n", _settings.textsActive ? "ON" : "OFF") +
-            String.Format("Edge rendering: {0}\n", _settings.edgesActive ? "ON" : "OFF") +
-            String.Format("_rotationSpeed: {0:f}\n", _settings.autoRotationSpeed);
-        GUI.TextArea(new Rect(Screen.width - 250 - 10, 10, 250, Screen.height - 20), text);
     }
 
     private void SetupKeymap() {

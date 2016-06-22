@@ -27,6 +27,18 @@ public class CameraManager : MonoBehaviour
         }
     }
 
+    private void OnGUI() {
+        var text =
+            string.Format("FPS: {0:f} [{1:f}ms]\n", (int)(1.0f / Time.smoothDeltaTime), Time.smoothDeltaTime * 1000f) +
+            "\n" +
+            string.Format("Total energy: {0:f} [{1:f}]\n", GameSystem.Instance.graphObject.GetComponent<Graph>().TotalKineticEnergy, GameSystem.Instance.graphObject.GetComponent<Graph>().EnergyThreshold) +
+            "\n" +
+            string.Format("Text rendering: {0}\n", GameSystem.Instance.TextsActive ? "ON" : "OFF") +
+            string.Format("Edge rendering: {0}\n", GameSystem.Instance.EdgesActive ? "ON" : "OFF") +
+            string.Format("_rotationSpeed: {0:f}\n", GameSystem.Instance.AutoRotationSpeed);
+        GUI.TextArea(new Rect(Screen.width - 250 - 10, 10, 250, Screen.height - 20), text);
+    }
+
     private void Start() {
         StartCoroutine("UpdateLookedNodeObject");
     }
