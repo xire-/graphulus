@@ -19,6 +19,8 @@ namespace Springy {
         public bool RepulsionEnabled { get; set; }
         public bool InEquilibrium { get; set; }
 
+        public bool UseBarnesHutOptimization { get; set; }
+
         public ForceDirectedGraph() {
             nodes = new List<Node>();
             edges = new List<Edge>();
@@ -33,6 +35,8 @@ namespace Springy {
             Convergence = 0.7f;
             Damping = 0.5f;
             EnergyThreshold = 0.05f;
+
+            UseBarnesHutOptimization = true;
         }
 
         public Node CreateNewNode(float mass = 1) {
@@ -87,8 +91,11 @@ namespace Springy {
         public void Tick(float timestep) {
             if (SimulationEnabled && !InEquilibrium) {
                 if (RepulsionEnabled) {
-                    //applyCoulombsLaw();
-                    applyCoulombsLaw_BarnesHut();
+                    if (UseBarnesHutOptimization) {
+                        applyCoulombsLaw_BarnesHut();
+                    } else {
+                        applyCoulombsLaw();
+                    }
                 }
                 if (SpringsEnabled) {
                     applyHookesLaw();
