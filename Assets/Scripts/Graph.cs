@@ -59,7 +59,7 @@ public class Graph : MonoBehaviour {
         get { return _forceDirectedGraph.TotalKineticEnergy(); }
     }
 
-    public GameObject FindClosestNodeObject(Vector3 point, float maxDistance) {
+    public Node GetClosestNodeOrNull(Vector3 point, float maxDistance) {
         GameObject closestObject = null;
         float closestDistance = float.MaxValue;
         foreach (var nodeObject in _nodeObjects) {
@@ -69,7 +69,7 @@ public class Graph : MonoBehaviour {
                 closestDistance = nodeDistance;
             }
         }
-        return closestObject;
+        return closestObject.GetComponent<Node>();
     }
 
     public void PopulateFrom(string jsonPath, bool adjustNodesSize = true) {

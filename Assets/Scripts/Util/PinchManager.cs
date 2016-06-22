@@ -79,8 +79,7 @@ public class PinchManager : MonoBehaviour {
             var indexTipPosition = index.TipPosition.ToVector3();
 
             const float maxClosestNodeDistance = 0.08f;
-            var closestNodeObject = _graph.FindClosestNodeObject(indexTipPosition, maxClosestNodeDistance);
-            closestNode.curr = closestNodeObject != null ? closestNodeObject.GetComponent<Node>() : null;
+            closestNode.curr = _graph.GetClosestNodeOrNull(indexTipPosition, maxClosestNodeDistance);
         }
 
         UpdateClosestNodeSelection(ref closestNode);
