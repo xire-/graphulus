@@ -1,8 +1,7 @@
 ﻿using System.Collections;
 using UnityEngine;
 
-public class CameraManager : MonoBehaviour
-{
+public class CameraManager : MonoBehaviour {
     private readonly Vector2 _sensitivity = new Vector2(3, 3);
     private readonly Vector2 _smoothing = new Vector2(3, 3);
 
@@ -10,37 +9,63 @@ public class CameraManager : MonoBehaviour
         Cursor.lockState = CursorLockMode.Locked;
     }
 
-    private Node FindLookedNodeObject() {
-        RaycastHit hit;
+    private Node GetLookedNodeOrNull() {
+        Node lookedNode = null;
         const float radius = 0.02f;
-        if (Physics.SphereCast(Camera.main.transform.position, radius, Camera.main.transform.forward, out hit)) {
+        RaycastHit hit;
+        if (Physics.SphereCast(transform.position, radius, transform.forward, out hit)) {
             var lookedObject = hit.transform.gameObject;
             if (lookedObject.tag == "Node") {
-                return lookedObject.GetComponent<Node>();
-            }
-            else {
-                return null;
+                lookedNode = lookedObject.GetComponent<Node>();
             }
         }
-        else {
-            return null;
+        return lookedNode;
+    }
+
+    private IEnumerator HandleLookedNode() {
+        Node lookedNode = null, lookedNodePrev = null;
+        while (true) {
+            lookedNodePrev = lookedNode;
+            lookedNode = GetLookedNodeOrNull();
+
+            if (lookedNodePrev != lookedNode) {
+                if (lookedNodePrev != null) {
+                    lookedNodePrev.Selected = false;
+                }
+                if (lookedNode != null) {
+                    lookedNode.Selected = true;
+                }
+            }
+
+            yield return new WaitForSeconds(.3f);
         }
     }
 
     private void OnGUI() {
         var text =
-            string.Format("FPS: {0:f} [{1:f}ms]\n", (int)(1.0f / Time.smoothDeltaTime), Time.smoothDeltaTime * 1000f) +
+            string.Format("FPS: {0:f} [{1:f} ms]\n", (int)(1f / Time.smoothDeltaTime), Time.smoothDeltaTime * 1000f) +
             "\n" +
-            string.Format("Total energy: {0:f} [{1:f}]\n", GameSystem.Instance.graphObject.GetComponent<Graph>().TotalKineticEnergy, GameSystem.Instance.graphObject.GetComponent<Graph>().EnergyThreshold) +
+            string.Format("Total kinetic energy: {0:f} N\n", GameSystem.Instance.graphObject.GetComponent<Graph>().TotalKineticEnergy) +
+            string.Format("Energy threshold: {0:f} N\n", GameSystem.Instance.graphObject.GetComponent<Graph>().EnergyThreshold) +
             "\n" +
-            string.Format("Text rendering: {0}\n", GameSystem.Instance.TextsActive ? "ON" : "OFF") +
-            string.Format("Edge rendering: {0}\n", GameSystem.Instance.EdgesActive ? "ON" : "OFF") +
-            string.Format("_rotationSpeed: {0:f}\n", GameSystem.Instance.AutoRotationSpeed);
-        GUI.TextArea(new Rect(Screen.width - 250 - 10, 10, 250, Screen.height - 20), text);
+            string.Format("Theme: {0}\n", GameSystem.Instance.Theme.name) +
+            "\n" +
+            string.Format("Texts active: {0}\n", GameSystem.Instance.TextsActive) +
+            string.Format("Edges active: {0}\n", GameSystem.Instance.EdgesActive) +
+            "\n" +
+            string.Format("Auto rotation enabled: {0}\n", GameSystem.Instance.AutoRotationEnabled) +
+            string.Format("Auto rotation: {0:f} °/s\n", GameSystem.Instance.AutoRotationSpeed);
+
+        const int border = 20;
+        const int width = 200;
+        int x = Screen.width - width - border;
+        int y = border;
+        int height = Screen.height - border * 2;
+        GUI.TextArea(new Rect(x, y, width, height), text);
     }
 
     private void Start() {
-        StartCoroutine("UpdateLookedNodeObject");
+        StartCoroutine("HandleLookedNode");
     }
 
     private void Update() {
@@ -79,25 +104,6 @@ public class CameraManager : MonoBehaviour
 
         var yRotation = Quaternion.AngleAxis(mouseAbsolute.x, transform.InverseTransformDirection(Vector3.up));
         transform.localRotation *= yRotation;
-    }
-
-    private IEnumerator UpdateLookedNodeObject() {
-        Node lookedNode = null, lookedNodePrev = null;
-        while (true) {
-            lookedNodePrev = lookedNode;
-            lookedNode = FindLookedNodeObject();
-
-            if (lookedNodePrev != lookedNode) {
-                if (lookedNodePrev != null) {
-                    lookedNodePrev.Selected = false;
-                }
-                if (lookedNode != null) {
-                    lookedNode.Selected = true;
-                }
-            }
-
-            yield return new WaitForSeconds(.5f);
-        }
     }
 
     private void UpdateMovement() {
