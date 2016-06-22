@@ -37,15 +37,8 @@ public class GameSystem : MonoBehaviour
         }
     }
 
-    private Theme Theme {
-        get {
-            return new Theme {
-                skyboxColor = Camera.main.backgroundColor,
-                nodeColor = graphObject.GetComponent<Graph>().NodesColor,
-                textColor = graphObject.GetComponent<Graph>().TextsColor,
-                edgeColor = graphObject.GetComponent<Graph>().EdgesColor
-            };
-        }
+    public Theme Theme {
+        get { return Settings.themes[_settings.themeIndex]; }
     }
 
     public void Animate(Animation animation) {
@@ -55,6 +48,18 @@ public class GameSystem : MonoBehaviour
     public void ChangeRotationSpeed() {
         var value = GameObject.Find("SliderRotation").GetComponent<Slider>().value;
         _settings.autoRotationSpeed = value;
+    }
+
+    public void SwitchTheme() {
+        var currentTheme = Theme;
+
+        // set the new theme
+        int newThemeIndex = (_settings.themeIndex + 1) % Settings.themes.Length;
+        _settings.themeIndex = newThemeIndex;
+
+        // animate transition to the new theme
+        var newTheme = Settings.themes[newThemeIndex];
+        ChangeThemeAnim(currentTheme, newTheme);
     }
 
     public void ToggleAutoRotation() {
@@ -104,14 +109,13 @@ public class GameSystem : MonoBehaviour
         UnityEngine.Random.seed = 1337;
     }
 
-    private void ChangeTheme(Theme newTheme) {
-        var startTheme = Theme;
+    private void ChangeThemeAnim(Theme startTheme, Theme endTheme) {
         Animate(new Animation {
             Update = t => {
-                Camera.main.backgroundColor = Color.Lerp(startTheme.skyboxColor, newTheme.skyboxColor, t);
-                graphObject.GetComponent<Graph>().NodesColor = Color.Lerp(startTheme.nodeColor, newTheme.nodeColor, t);
-                graphObject.GetComponent<Graph>().TextsColor = Color.Lerp(startTheme.textColor, newTheme.textColor, t);
-                graphObject.GetComponent<Graph>().EdgesColor = Color.Lerp(startTheme.edgeColor, newTheme.edgeColor, t);
+                Camera.main.backgroundColor = Color.Lerp(startTheme.skyboxColor, endTheme.skyboxColor, t);
+                graphObject.GetComponent<Graph>().NodesColor = Color.Lerp(startTheme.nodeColor, endTheme.nodeColor, t);
+                graphObject.GetComponent<Graph>().TextsColor = Color.Lerp(startTheme.textColor, endTheme.textColor, t);
+                graphObject.GetComponent<Graph>().EdgesColor = Color.Lerp(startTheme.edgeColor, endTheme.edgeColor, t);
             },
             duration = 1.5f,
             Ease = Easing.EaseOutCubic
@@ -123,9 +127,8 @@ public class GameSystem : MonoBehaviour
     }
 
     private void SetupKeymap() {
-        // switch themes
-        _keyToActionMap.Add(KeyCode.L, () => ChangeTheme(_settings.lightTheme));
-        _keyToActionMap.Add(KeyCode.K, () => ChangeTheme(_settings.darkTheme));
+        // switch to the next theme
+        _keyToActionMap.Add(KeyCode.L, SwitchTheme);
 
         // toggle edges active
         _keyToActionMap.Add(KeyCode.E, () => {
@@ -157,7 +160,15 @@ public class GameSystem : MonoBehaviour
 
         graphObject.GetComponent<Graph>().PopulateFrom("Assets/Graphs/miserables.json");
 
-        ChangeTheme(_settings.darkTheme);
+        // animate the transition from editor colors to the default theme
+        var currentTheme = new Theme {
+            skyboxColor = Camera.main.backgroundColor,
+            nodeColor = graphObject.GetComponent<Graph>().NodesColor,
+            textColor = graphObject.GetComponent<Graph>().TextsColor,
+            edgeColor = graphObject.GetComponent<Graph>().EdgesColor
+        };
+        var newTheme = Theme;
+        ChangeThemeAnim(currentTheme, newTheme);
     }
 
     private void Update() {
@@ -176,25 +187,28 @@ public class GameSystem : MonoBehaviour
 
     private class Settings
     {
+        public static readonly Theme[] themes = new Theme[] {
+            new Theme {
+                name = "Dark",
+                skyboxColor = new Color32(0x10, 0x0F, 0x0F, 0xFF),
+                nodeColor = new Color32(0x17, 0xE2, 0xDA, 0xA1),
+                textColor = new Color32(0xE3, 0xE3, 0xE3, 0xFF),
+                edgeColor = new Color32(0xF3, 0xF3, 0xF3, 0x64)
+            },
+            new Theme {
+                name = "Light",
+                skyboxColor = new Color32(0x02, 0x44, 0x5F, 0xFF),
+                nodeColor = new Color32(0x10, 0xAA, 0x51, 0xD2),
+                textColor = new Color32(0x9E, 0xCC, 0xC7, 0xFF),
+                edgeColor = new Color32(0xD9, 0x68, 0x3E, 0xC6)
+            }
+        };
+
         public readonly float autoRotationSpeedMax = 100f;
-
-        public readonly Theme darkTheme = new Theme() {
-            skyboxColor = new Color32(0x10, 0x0F, 0x0F, 0xFF),
-            nodeColor = new Color32(0x17, 0xE2, 0xDA, 0xA1),
-            textColor = new Color32(0xE3, 0xE3, 0xE3, 0xFF),
-            edgeColor = new Color32(0xF3, 0xF3, 0xF3, 0x64)
-        };
-
-        public readonly Theme lightTheme = new Theme() {
-            skyboxColor = new Color32(0x02, 0x44, 0x5F, 0xFF),
-            nodeColor = new Color32(0x10, 0xAA, 0x51, 0xD2),
-            textColor = new Color32(0x9E, 0xCC, 0xC7, 0xFF),
-            edgeColor = new Color32(0xD9, 0x68, 0x3E, 0xC6)
-        };
-
         public bool autoRotationEnabled = false;
         public float autoRotationSpeed = 10f;
         public bool edgesActive = true;
         public bool textsActive = true;
+        public int themeIndex = 0;
     }
 }
