@@ -7,9 +7,9 @@ public class PinchManager : MonoBehaviour {
     public PinchDetector PinchDetectorR, PinchDetectorL;
 
     private ClosestNode _closestNodeR = new ClosestNode(), _closestNodeL = new ClosestNode();
+    private Graph _graph;
     private GameObject _pinchControllerObject;
     private PinchInfo _pinchInfoR, _pinchInfoL;
-    private Graph _graph;
 
     private PinchInfo GetPinchInfo(PinchDetector pinchDetector, ClosestNode closestNode) {
         return new PinchInfo {
@@ -89,10 +89,10 @@ public class PinchManager : MonoBehaviour {
     private void UpdateClosestNodeSelection(ref ClosestNode closestNodeParams) {
         if (closestNodeParams.prev != closestNodeParams.curr) {
             if (closestNodeParams.prev != null) {
-                closestNodeParams.prev.GetComponent<Node>().Selected = false;
+                closestNodeParams.prev.Selected = false;
             }
             if (closestNodeParams.curr != null) {
-                closestNodeParams.curr.GetComponent<Node>().Selected = true;
+                closestNodeParams.curr.Selected = true;
             }
         }
     }
@@ -104,11 +104,11 @@ public class PinchManager : MonoBehaviour {
             if (noNodePinch) {
                 // finalize single pinch (if any)
                 if (PinchDetectorR.DidStartPinch || PinchDetectorL.DidStartPinch) {
-                    if (_closestNodeR.curr != null && _closestNodeR.curr.GetComponent<Node>().Pinched) {
-                        _closestNodeR.curr.GetComponent<Node>().Pinched = false;
+                    if (_closestNodeR.curr != null && _closestNodeR.curr.Pinched) {
+                        _closestNodeR.curr.Pinched = false;
                     }
-                    if (_closestNodeL.curr != null && _closestNodeL.curr.GetComponent<Node>().Pinched) {
-                        _closestNodeL.curr.GetComponent<Node>().Pinched = false;
+                    if (_closestNodeL.curr != null && _closestNodeL.curr.Pinched) {
+                        _closestNodeL.curr.Pinched = false;
                     }
                 }
 
