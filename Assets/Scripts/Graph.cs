@@ -6,14 +6,11 @@ public class Graph : MonoBehaviour {
     private List<GameObject> _edgeObjects = new List<GameObject>();
     private Springy.ForceDirectedGraph _forceDirectedGraph;
     private List<GameObject> _nodeObjects = new List<GameObject>();
+    private GameObject _nodesObject, _edgesObject;
     private List<GameObject> _textObjects = new List<GameObject>();
 
     public bool EdgesActive {
-        set {
-            foreach (var edge in _edgeObjects) {
-                edge.SetActive(value);
-            }
-        }
+        set { _edgesObject.SetActive(value); }
     }
 
     public Color EdgesColor {
@@ -110,6 +107,10 @@ public class Graph : MonoBehaviour {
     }
 
     private void AddEdges(JsonLoader.JsonRoot jsonRoot) {
+        Destroy(_edgesObject);
+        _edgesObject = new GameObject("Edges");
+        _edgesObject.transform.parent = transform;
+
         _edgeObjects.Clear();
 
         foreach (var jsonEdge in jsonRoot.edges) {
@@ -118,12 +119,16 @@ public class Graph : MonoBehaviour {
             var springyEdge = _forceDirectedGraph.CreateNewEdge(sourceNode.GetComponent<Node>().springyNode, targetNode.GetComponent<Node>().springyNode, jsonEdge.value);
 
             var edge = CreateEdge(springyEdge, sourceNode, targetNode);
-            edge.transform.parent = transform;
+            edge.transform.parent = _edgesObject.transform;
             _edgeObjects.Add(edge);
         }
     }
 
     private void AddNodes(JsonLoader.JsonRoot jsonRoot) {
+        Destroy(_nodesObject);
+        _nodesObject = new GameObject("Nodes");
+        _nodesObject.transform.parent = transform;
+
         _nodeObjects.Clear();
         _textObjects.Clear();
 
@@ -131,7 +136,7 @@ public class Graph : MonoBehaviour {
             var springyNode = _forceDirectedGraph.CreateNewNode();
 
             var node = CreateNode(springyNode, jsonNode.name);
-            node.transform.parent = transform;
+            node.transform.parent = _nodesObject.transform;
             _nodeObjects.Add(node);
 
             var text = node.transform.Find("Text").gameObject;
