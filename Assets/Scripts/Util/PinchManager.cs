@@ -4,20 +4,12 @@ using UnityEngine;
 public class PinchManager : MonoBehaviour {
 
     // to be set in editor
-    public GameObject graphObject;
-
-    // to be set in editor
     public PinchDetector PinchDetectorR, PinchDetectorL;
 
     private ClosestNode _closestNodeR = new ClosestNode(), _closestNodeL = new ClosestNode();
     private GameObject _pinchControllerObject;
     private PinchInfo _pinchInfoR, _pinchInfoL;
-
-    private void Awake() {
-        _pinchControllerObject = new GameObject("PinchController");
-        _pinchControllerObject.transform.parent = graphObject.transform.parent;
-        graphObject.transform.parent = _pinchControllerObject.transform;
-    }
+    private Graph _graph;
 
     private PinchInfo GetPinchInfo(PinchDetector pinchDetector, ClosestNode closestNode) {
         return new PinchInfo {
@@ -25,6 +17,14 @@ public class PinchManager : MonoBehaviour {
             nodeInitialPosition = (closestNode.curr == null) ? Vector3.zero : closestNode.curr.gameObject.transform.position,
             pinchDetectorInitialPosition = pinchDetector.Position,
         };
+    }
+
+    private void Start() {
+        _graph = GameSystem.Instance.graph;
+
+        _pinchControllerObject = new GameObject("PinchController");
+        _pinchControllerObject.transform.parent = _graph.transform.parent;
+        _graph.transform.parent = _pinchControllerObject.transform;
     }
 
     private void transformDoubleAnchor() {
@@ -57,7 +57,7 @@ public class PinchManager : MonoBehaviour {
         // update anchors
         bool didUpdate = PinchDetectorR.DidChangeFromLastFrame | PinchDetectorL.DidChangeFromLastFrame;
         if (didUpdate) {
-            graphObject.transform.SetParent(null, true);
+            _graph.transform.SetParent(null, true);
         }
 
         UpdatePinchSingle(PinchDetectorR, _closestNodeR, ref _pinchInfoR);
@@ -65,7 +65,7 @@ public class PinchManager : MonoBehaviour {
         UpdatePinchDouble();
 
         if (didUpdate) {
-            graphObject.transform.SetParent(_pinchControllerObject.transform, true);
+            _graph.transform.SetParent(_pinchControllerObject.transform, true);
         }
     }
 
@@ -79,7 +79,7 @@ public class PinchManager : MonoBehaviour {
             var indexTipPosition = index.TipPosition.ToVector3();
 
             const float maxClosestNodeDistance = 0.08f;
-            var closestNodeObject = graphObject.GetComponent<Graph>().FindClosestNodeObject(indexTipPosition, maxClosestNodeDistance);
+            var closestNodeObject = _graph.FindClosestNodeObject(indexTipPosition, maxClosestNodeDistance);
             closestNode.curr = closestNodeObject != null ? closestNodeObject.GetComponent<Node>() : null;
         }
 

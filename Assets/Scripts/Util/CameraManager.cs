@@ -45,8 +45,8 @@ public class CameraManager : MonoBehaviour {
         var text =
             string.Format("FPS: {0:f} [{1:f} ms]\n", (int)(1f / Time.smoothDeltaTime), Time.smoothDeltaTime * 1000f) +
             "\n" +
-            string.Format("Total kinetic energy: {0:f} N\n", GameSystem.Instance.graphObject.GetComponent<Graph>().TotalKineticEnergy) +
-            string.Format("Energy threshold: {0:f} N\n", GameSystem.Instance.graphObject.GetComponent<Graph>().EnergyThreshold) +
+            string.Format("Total kinetic energy: {0:f} N\n", GameSystem.Instance.graph.TotalKineticEnergy) +
+            string.Format("Energy threshold: {0:f} N\n", GameSystem.Instance.graph.EnergyThreshold) +
             "\n" +
             string.Format("Theme: {0}\n", GameSystem.Instance.Theme.name) +
             "\n" +
