@@ -4,13 +4,16 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class World : MonoBehaviour
+public class GameSystem : MonoBehaviour
 {
     // to be set in editor
     public GameObject graphObject;
 
+    private static GameSystem _instance;
     private Dictionary<KeyCode, Action> _keyToActionMap = new Dictionary<KeyCode, Action>();
     private Settings _settings = new Settings();
+
+    public static GameSystem Instance { get { return _instance; } }
 
     public bool EdgesActive {
         get { return _settings.edgesActive; }
@@ -94,6 +97,8 @@ public class World : MonoBehaviour
 
     private void Awake()
     {
+        _instance = this;
+
         UnityEngine.Random.seed = 1337;
     }
 
@@ -112,6 +117,11 @@ public class World : MonoBehaviour
             duration = 1.5f,
             Ease = Easing.EaseOutCubic
         });
+    }
+
+    private void OnDestroy()
+    {
+        _instance = null;
     }
 
     private void OnGUI()
