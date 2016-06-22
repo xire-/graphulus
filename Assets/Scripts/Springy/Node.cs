@@ -13,27 +13,24 @@ namespace Springy
         public float Mass { get; set; }
         private Vector3 forcesAccumulator { get; set; }
 
-        float IMassPoint.Mass
-        {
+        float IMassPoint.Mass {
             get { return Mass; }
             set { Mass = value; }
         }
 
-        Vector3 IMassPoint.Position
-        {
+        Vector3 IMassPoint.Position {
             get { return Position; }
             set { Position = value; }
         }
 
-        public Node(int id, float mass, float randRange = 100f)
-        {
+        public Node(int id, float mass, float randRange = 100f) {
             this.Id = id;
 
             this.Position = new Vector3(
-                UnityEngine.Random.Range(-randRange, randRange),
-                UnityEngine.Random.Range(-randRange, randRange),
-                UnityEngine.Random.Range(-randRange, randRange)
-                );
+                Random.Range(-randRange, randRange),
+                Random.Range(-randRange, randRange),
+                Random.Range(-randRange, randRange)
+            );
             this.Velocity = new Vector3();
             this.Acceleration = new Vector3();
 
@@ -41,13 +38,11 @@ namespace Springy
             this.forcesAccumulator = new Vector3();
         }
 
-        public void AddForce(Vector3 f)
-        {
+        public void AddForce(Vector3 f) {
             forcesAccumulator += f;
         }
 
-        public void ComputeAcceleration()
-        {
+        public void ComputeAcceleration() {
             Acceleration = forcesAccumulator / Mass;
             forcesAccumulator = Vector3.zero;
         }

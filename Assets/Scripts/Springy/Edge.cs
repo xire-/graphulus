@@ -1,5 +1,4 @@
-﻿
-namespace Springy
+﻿namespace Springy
 {
     public class Edge
     {
@@ -8,9 +7,7 @@ namespace Springy
         public Node Target { get; private set; }
         public float Length { get; set; }
 
-
-        public Edge(int id, Node source, Node target, float length)
-        {
+        public Edge(int id, Node source, Node target, float length) {
             this.Id = id;
             this.Source = source;
             this.Target = target;

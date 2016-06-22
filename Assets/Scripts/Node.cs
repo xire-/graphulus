@@ -7,21 +7,12 @@ public class Node : MonoBehaviour
     private bool _selected;
     private TextMesh _textMesh;
 
-    public bool Pinched
-    {
-        get; set;
-    }
+    public bool Pinched { get; set; }
 
-    public bool Selected
-    {
-        get
-        {
-            return _selected;
-        }
-        set
-        {
-            if (value && !_selected)
-            {
+    public bool Selected {
+        get { return _selected; }
+        set {
+            if (value && !_selected) {
                 _color = GetComponent<Renderer>().material.color;
                 Select(Color.white);
             }
@@ -32,40 +23,30 @@ public class Node : MonoBehaviour
         }
     }
 
-    public string Text
-    {
-        get
-        {
-            return _textMesh.text;
-        }
-        set
-        {
-            _textMesh.text = value;
-        }
+    public string Text {
+        get { return _textMesh.text; }
+        set { _textMesh.text = value; }
     }
 
-    private void Awake()
-    {
+    private void Awake() {
         _textMesh = transform.Find("Text").GetComponent<TextMesh>();
     }
 
-    private void LateUpdate()
-    {
+    private void LateUpdate() {
         const float scale = 30f;
-        if (Pinched)
+        if (Pinched) {
             springyNode.Position = transform.localPosition * scale;
-        else
+        }
+        else {
             transform.localPosition = springyNode.Position / scale;
+        }
     }
 
-    private void Select(Color endColor)
-    {
+    private void Select(Color endColor) {
         var startColor = GetComponent<Renderer>().material.color;
         //var startScale = transform.Find("Text").localScale;
-        GameSystem.Instance.GetComponent<GameSystem>().Animate(new Animation
-        {
-            Update = t =>
-            {
+        GameSystem.Instance.GetComponent<GameSystem>().Animate(new Animation {
+            Update = t => {
                 GetComponent<Renderer>().material.color = Color.Lerp(startColor, endColor, t);
                 //transform.Find("Text").localScale = startScale * (1f + t / 1f);
             },

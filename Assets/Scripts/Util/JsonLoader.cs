@@ -3,8 +3,7 @@ using System.Collections.Generic;
 
 public class JsonLoader
 {
-    public static JsonRoot Deserialize(string path)
-    {
+    public static JsonRoot Deserialize(string path) {
         var json = System.IO.File.ReadAllText(path);
         return JsonConvert.DeserializeObject<JsonRoot>(json);
     }
@@ -28,6 +27,7 @@ public class JsonLoader
         public float repulsion;
         public float stiffness;
     }
+
     public struct JsonRoot
     {
         public List<JsonEdge> links;

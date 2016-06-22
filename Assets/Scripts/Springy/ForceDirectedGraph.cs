@@ -20,8 +20,7 @@ namespace Springy
         public bool RepulsionEnabled { get; set; }
         public bool InEquilibrium { get; set; }
 
-        public ForceDirectedGraph()
-        {
+        public ForceDirectedGraph() {
             nodes = new List<Node>();
             edges = new List<Edge>();
 
@@ -37,22 +36,23 @@ namespace Springy
             EnergyThreshold = 0.05f;
         }
 
-        public Node CreateNewNode(float mass = 1)
-        {
-            if (mass < 0)
+        public Node CreateNewNode(float mass = 1) {
+            if (mass < 0) {
                 throw new ArgumentException("Cannot have negative mass");
+            }
 
             Node node = new Node(nodes.Count, mass);
             nodes.Add(node);
             return node;
         }
 
-        public Edge CreateNewEdge(Node source, Node target, float length)
-        {
-            if (source.Id == target.Id)
+        public Edge CreateNewEdge(Node source, Node target, float length) {
+            if (source.Id == target.Id) {
                 throw new ArgumentException("Cannot link a node with itself");
-            if (length < 0)
+            }
+            if (length < 0) {
                 throw new ArgumentException("Cannot have negative length");
+            }
 
             Edge edge = new Edge(edges.Count, source, target, length);
             edges.Add(edge);
@@ -63,36 +63,28 @@ namespace Springy
         // TODO detachNode removes edges associated with a given node
         // TODO removeEdge remove an edge from the graph
 
-        public void Tick(float timestep)
-        {
-            if (SimulationEnabled && !InEquilibrium)
-            {
-                if (RepulsionEnabled)
-                {
+        public void Tick(float timestep) {
+            if (SimulationEnabled && !InEquilibrium) {
+                if (RepulsionEnabled) {
                     //applyCoulombsLaw();
                     applyCoulombsLaw_BarnesHut();
                 }
-                if (SpringsEnabled)
-                {
+                if (SpringsEnabled) {
                     applyHookesLaw();
                 }
                 attractToCenter();
                 physicStep(timestep);
 
-                if (TotalKineticEnergy() < EnergyThreshold)
-                {
+                if (TotalKineticEnergy() < EnergyThreshold) {
                     InEquilibrium = true;
                 }
             }
         }
 
-        private void applyCoulombsLaw()
-        {
-            for (int i = 0; i < nodes.Count; i++)
-            {
+        private void applyCoulombsLaw() {
+            for (int i = 0; i < nodes.Count; i++) {
                 Node n1 = nodes[i];
-                for (int j = i + 1; j < nodes.Count; j++)
-                {
+                for (int j = i + 1; j < nodes.Count; j++) {
                     Node n2 = nodes[j];
 
                     Vector3 delta = n1.Position - n2.Position;
@@ -103,17 +95,14 @@ namespace Springy
                     n2.AddForce((direction * Repulsion) / (sqrDistance * -0.5f));
                 }
             }
-
         }
 
-        private void applyCoulombsLaw_BarnesHut()
-        {
+        private void applyCoulombsLaw_BarnesHut() {
             // first find the bounds of the nodes
             Vector3 minVector = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
             Vector3 maxVector = new Vector3(float.MinValue, float.MinValue, float.MinValue);
 
-            foreach (var node in nodes)
-            {
+            foreach (var node in nodes) {
                 minVector.x = Mathf.Min(minVector.x, node.Position.x);
                 minVector.y = Mathf.Min(minVector.y, node.Position.y);
                 minVector.z = Mathf.Min(minVector.z, node.Position.z);
@@ -125,18 +114,13 @@ namespace Springy
             float total_width = Mathf.Max(maxVector.x - minVector.x, maxVector.y - minVector.y, maxVector.z - minVector.z);
 
             BarnesHutOctree<Node> bh_tree = new BarnesHutOctree<Node>((maxVector + minVector) / 2, total_width / 2, 0.5f);
-            foreach (var node in nodes)
-            {
+            foreach (var node in nodes) {
                 bh_tree.AddObject(node);
             }
 
-
             // start iteration over nodes to apply forces
-            foreach (var node in nodes)
-            {
-
-                foreach (var body in bh_tree.GetNearBodies(node.Position))
-                {
+            foreach (var node in nodes) {
+                foreach (var body in bh_tree.GetNearBodies(node.Position)) {
                     if (body == node) continue;
                     Vector3 delta = node.Position - body.Position;
                     float sqrDistance = Math.Max(0.1f, delta.sqrMagnitude);
@@ -148,10 +132,8 @@ namespace Springy
             }
         }
 
-        private void applyHookesLaw()
-        {
-            foreach (Edge edge in edges)
-            {
+        private void applyHookesLaw() {
+            foreach (Edge edge in edges) {
                 Vector3 delta = edge.Target.Position - edge.Source.Position;
                 float displacement = edge.Length - delta.magnitude;
                 Vector3 direction = delta.normalized;
@@ -160,19 +142,15 @@ namespace Springy
             }
         }
 
-        private void attractToCenter()
-        {
-            foreach (Node n in nodes)
-            {
+        private void attractToCenter() {
+            foreach (Node n in nodes) {
                 Vector3 direction = n.Position * -1;
                 n.AddForce(direction * Convergence);
             }
         }
 
-        private void physicStep(float timestep)
-        {
-            foreach (Node n in nodes)
-            {
+        private void physicStep(float timestep) {
+            foreach (Node n in nodes) {
                 // calculate acceleration from forces
                 n.ComputeAcceleration();
 
@@ -181,11 +159,9 @@ namespace Springy
             }
         }
 
-        public float TotalKineticEnergy()
-        {
+        public float TotalKineticEnergy() {
             float energy = 0.0f;
-            foreach (Node n in nodes)
-            {
+            foreach (Node n in nodes) {
                 float speed = n.Velocity.magnitude;
                 energy += 0.5f * n.Mass * speed * speed;
             }

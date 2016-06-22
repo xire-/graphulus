@@ -6,40 +6,37 @@ public class CameraManager : MonoBehaviour
     private readonly Vector2 _sensitivity = new Vector2(3, 3);
     private readonly Vector2 _smoothing = new Vector2(3, 3);
 
-    private void Awake()
-    {
+    private void Awake() {
         Cursor.lockState = CursorLockMode.Locked;
     }
 
-    private Node FindLookedNodeObject()
-    {
+    private Node FindLookedNodeObject() {
         RaycastHit hit;
         const float radius = 0.02f;
-        if (Physics.SphereCast(Camera.main.transform.position, radius, Camera.main.transform.forward, out hit))
-        {
+        if (Physics.SphereCast(Camera.main.transform.position, radius, Camera.main.transform.forward, out hit)) {
             var lookedObject = hit.transform.gameObject;
-            if (lookedObject.tag == "Node")
+            if (lookedObject.tag == "Node") {
                 return lookedObject.GetComponent<Node>();
-            else
+            }
+            else {
                 return null;
+            }
         }
-        else
+        else {
             return null;
+        }
     }
 
-    private void Start()
-    {
+    private void Start() {
         StartCoroutine("UpdateLookedNodeObject");
     }
 
-    private void Update()
-    {
+    private void Update() {
         UpdateLook();
         UpdateMovement();
     }
 
-    private void UpdateLook()
-    {
+    private void UpdateLook() {
         // http://forum.unity3d.com/threads/a-free-simple-smooth-mouselook.73117/
 
         var targetOrientation = Quaternion.Euler(transform.localRotation.eulerAngles);
@@ -55,14 +52,16 @@ public class CameraManager : MonoBehaviour
         mouseAbsolute += smoothMouse;
 
         Vector2 clampInDegrees = new Vector2(360f, 180f);
-        if (clampInDegrees.x < 360f)
+        if (clampInDegrees.x < 360f) {
             mouseAbsolute.x = Mathf.Clamp(mouseAbsolute.x, -clampInDegrees.x * 0.5f, clampInDegrees.x * 0.5f);
+        }
 
         var xRotation = Quaternion.AngleAxis(-mouseAbsolute.y, targetOrientation * Vector3.right);
         transform.localRotation = xRotation;
 
-        if (clampInDegrees.y < 360f)
+        if (clampInDegrees.y < 360f) {
             mouseAbsolute.y = Mathf.Clamp(mouseAbsolute.y, -clampInDegrees.y * 0.5f, clampInDegrees.y * 0.5f);
+        }
 
         transform.localRotation *= targetOrientation;
 
@@ -70,43 +69,47 @@ public class CameraManager : MonoBehaviour
         transform.localRotation *= yRotation;
     }
 
-    private IEnumerator UpdateLookedNodeObject()
-    {
+    private IEnumerator UpdateLookedNodeObject() {
         Node lookedNode = null, lookedNodePrev = null;
-        while (true)
-        {
+        while (true) {
             lookedNodePrev = lookedNode;
             lookedNode = FindLookedNodeObject();
 
-            if (lookedNodePrev != lookedNode)
-            {
-                if (lookedNodePrev != null)
+            if (lookedNodePrev != lookedNode) {
+                if (lookedNodePrev != null) {
                     lookedNodePrev.Selected = false;
-                if (lookedNode != null)
+                }
+                if (lookedNode != null) {
                     lookedNode.Selected = true;
+                }
             }
 
             yield return new WaitForSeconds(.5f);
         }
     }
 
-    private void UpdateMovement()
-    {
+    private void UpdateMovement() {
         const float movementSpeed = 0.5f;
 
-        if (Input.GetKey(KeyCode.W))
+        if (Input.GetKey(KeyCode.W)) {
             transform.position += transform.forward * movementSpeed * Time.deltaTime;
-        else if (Input.GetKey(KeyCode.S))
+        }
+        else if (Input.GetKey(KeyCode.S)) {
             transform.position -= transform.forward * movementSpeed * Time.deltaTime;
+        }
 
-        if (Input.GetKey(KeyCode.A))
+        if (Input.GetKey(KeyCode.A)) {
             transform.position -= transform.right * movementSpeed * Time.deltaTime;
-        else if (Input.GetKey(KeyCode.D))
+        }
+        else if (Input.GetKey(KeyCode.D)) {
             transform.position += transform.right * movementSpeed * Time.deltaTime;
+        }
 
-        if (Input.GetKey(KeyCode.E))
+        if (Input.GetKey(KeyCode.E)) {
             transform.position += Vector3.up * movementSpeed * Time.deltaTime;
-        else if (Input.GetKey(KeyCode.Q))
+        }
+        else if (Input.GetKey(KeyCode.Q)) {
             transform.position -= Vector3.up * movementSpeed * Time.deltaTime;
+        }
     }
 }
