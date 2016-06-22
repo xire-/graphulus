@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -10,7 +8,6 @@ public class GameSystem : MonoBehaviour
     public GameObject graphObject;
 
     private static GameSystem _instance;
-    private Dictionary<KeyCode, Action> _keyToActionMap = new Dictionary<KeyCode, Action>();
     private Settings _settings = new Settings();
 
     public static GameSystem Instance {
@@ -132,22 +129,7 @@ public class GameSystem : MonoBehaviour
         _instance = null;
     }
 
-    private void SetupKeymap() {
-        _keyToActionMap.Add(KeyCode.L, SwitchTheme);
-        _keyToActionMap.Add(KeyCode.R, ToggleEdgesActive);
-        _keyToActionMap.Add(KeyCode.T, ToggleTextsActive);
-
-        _keyToActionMap.Add(KeyCode.B, () => {
-            AutoRotationSpeed += 10f;
-        });
-        _keyToActionMap.Add(KeyCode.V, () => {
-            AutoRotationSpeed -= 10f;
-        });
-    }
-
     private void Start() {
-        SetupKeymap();
-
         graphObject.GetComponent<Graph>().PopulateFrom("Assets/Graphs/miserables.json");
 
         // animate the transition from editor colors to the default theme
@@ -165,13 +147,6 @@ public class GameSystem : MonoBehaviour
         // continuously rotate graph
         if (_settings.autoRotationEnabled) {
             graphObject.transform.Rotate(Vector3.up, Time.deltaTime * _settings.autoRotationSpeed);
-        }
-
-        // update input
-        foreach (KeyCode keyCode in _keyToActionMap.Keys) {
-            if (Input.GetKeyDown(keyCode)) {
-                _keyToActionMap[keyCode]();
-            }
         }
     }
 
