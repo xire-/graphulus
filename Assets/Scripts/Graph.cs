@@ -1,22 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class Graph : MonoBehaviour {
-    private List<GameObject> _edgeObjects = new List<GameObject>();
+    private static Object _edgeResource = Resources.Load("Edge");
+    private static Object _nodeResource = Resources.Load("Node");
+
     private Springy.ForceDirectedGraph _forceDirectedGraph;
-    private List<GameObject> _nodeObjects = new List<GameObject>();
     private GameObject _nodesObject, _edgesObject;
-    private List<GameObject> _textObjects = new List<GameObject>();
 
     public bool EdgesActive {
         set { _edgesObject.SetActive(value); }
     }
 
     public Color EdgesColor {
-        get { return _edgeObjects.Count > 0 ? _edgeObjects[0].GetComponent<Renderer>().material.color : Color.black; }
+        get { return _edgesObject.transform.childCount > 0 ? _edgesObject.transform.GetChild(0).GetComponent<Renderer>().material.color : Color.black; }
         set {
-            foreach (var edge in _edgeObjects) {
+            foreach (Transform edge in _edgesObject.transform) {
                 edge.GetComponent<Renderer>().material.color = value;
             }
         }
@@ -27,9 +25,9 @@ public class Graph : MonoBehaviour {
     }
 
     public Color NodesColor {
-        get { return _nodeObjects.Count > 0 ? _nodeObjects[0].GetComponent<Renderer>().material.color : Color.black; }
+        get { return _nodesObject.transform.childCount > 0 ? _nodesObject.transform.GetChild(0).GetComponent<Renderer>().material.color : Color.black; }
         set {
-            foreach (var node in _nodeObjects) {
+            foreach (Transform node in _nodesObject.transform) {
                 node.GetComponent<Renderer>().material.color = value;
             }
         }
@@ -37,17 +35,21 @@ public class Graph : MonoBehaviour {
 
     public bool TextsActive {
         set {
-            foreach (var text in _textObjects) {
-                text.SetActive(value);
+            foreach (Transform node in _nodesObject.transform) {
+                node.Find("Text").gameObject.SetActive(value);
             }
         }
     }
 
     public Color TextsColor {
-        get { return _textObjects.Count > 0 ? _textObjects[0].GetComponent<Renderer>().material.color : Color.black; }
+        get {
+            return _nodesObject.transform.childCount > 0 ?
+                _nodesObject.transform.GetChild(0).Find("Text").GetComponent<Renderer>().material.color :
+                Color.black;
+        }
         set {
-            foreach (var text in _textObjects) {
-                text.GetComponent<TextMesh>().color = value;
+            foreach (Transform node in _nodesObject.transform) {
+                node.Find("Text").GetComponent<TextMesh>().color = value;
             }
         }
     }
@@ -59,17 +61,17 @@ public class Graph : MonoBehaviour {
     public Node GetClosestNodeOrNull(Vector3 point, float maxDistance) {
         GameObject closestObject = null;
         float closestDistance = float.MaxValue;
-        foreach (var nodeObject in _nodeObjects) {
-            var nodeDistance = Vector3.Distance(point, nodeObject.transform.position);
+        foreach (Transform nodeObject in _nodesObject.transform) {
+            var nodeDistance = Vector3.Distance(point, nodeObject.position);
             if (nodeDistance < closestDistance && nodeDistance <= maxDistance) {
-                closestObject = nodeObject;
+                closestObject = nodeObject.gameObject;
                 closestDistance = nodeDistance;
             }
         }
         return closestObject.GetComponent<Node>();
     }
 
-    public void PopulateFrom(string jsonPath, bool adjustNodesSize = true) {
+    public void PopulateFrom(string jsonPath) {
         var jsonRoot = JsonLoader.Deserialize(jsonPath);
 
         _forceDirectedGraph = new Springy.ForceDirectedGraph {
@@ -84,26 +86,26 @@ public class Graph : MonoBehaviour {
         AddNodes(jsonRoot);
         AddEdges(jsonRoot);
 
-        if (adjustNodesSize) {
-            AdjustNodesSize();
-        }
+        AdjustNodesSize();
     }
 
     private static GameObject CreateEdge(Springy.Edge springyEdge, GameObject sourceNode, GameObject targetNode) {
-        var edge = (GameObject)Instantiate(Resources.Load("Edge"));
-        edge.name = String.Format("E.{0}.{1}", sourceNode.name, targetNode.name);
-        edge.GetComponent<Edge>().springyEdge = springyEdge;
-        edge.GetComponent<Edge>().source = sourceNode;
-        edge.GetComponent<Edge>().target = targetNode;
-        return edge;
+        var edgeObject = (GameObject)Instantiate(_edgeResource);
+        edgeObject.name = string.Format("{0}---{1}", sourceNode.name, targetNode.name);
+        var edge = edgeObject.GetComponent<Edge>();
+        edge.springyEdge = springyEdge;
+        edge.source = sourceNode;
+        edge.target = targetNode;
+        return edgeObject;
     }
 
     private static GameObject CreateNode(Springy.Node springyNode, string text) {
-        var node = (GameObject)Instantiate(Resources.Load("Node"));
-        node.name = String.Format("N.{0}", text);
-        node.GetComponent<Node>().springyNode = springyNode;
-        node.GetComponent<Node>().Text = text;
-        return node;
+        var nodeObject = (GameObject)Instantiate(_nodeResource);
+        nodeObject.name = text;
+        var node = nodeObject.GetComponent<Node>();
+        node.springyNode = springyNode;
+        node.Text = text;
+        return nodeObject;
     }
 
     private void AddEdges(JsonLoader.JsonRoot jsonRoot) {
@@ -111,16 +113,13 @@ public class Graph : MonoBehaviour {
         _edgesObject = new GameObject("Edges");
         _edgesObject.transform.parent = transform;
 
-        _edgeObjects.Clear();
-
         foreach (var jsonEdge in jsonRoot.edges) {
-            var sourceNode = _nodeObjects[jsonEdge.source];
-            var targetNode = _nodeObjects[jsonEdge.target];
+            var sourceNode = _nodesObject.transform.GetChild(jsonEdge.source).gameObject;
+            var targetNode = _nodesObject.transform.GetChild(jsonEdge.target).gameObject;
             var springyEdge = _forceDirectedGraph.CreateNewEdge(sourceNode.GetComponent<Node>().springyNode, targetNode.GetComponent<Node>().springyNode, jsonEdge.value);
 
-            var edge = CreateEdge(springyEdge, sourceNode, targetNode);
-            edge.transform.parent = _edgesObject.transform;
-            _edgeObjects.Add(edge);
+            var edgeObject = CreateEdge(springyEdge, sourceNode, targetNode);
+            edgeObject.transform.parent = _edgesObject.transform;
         }
     }
 
@@ -129,35 +128,28 @@ public class Graph : MonoBehaviour {
         _nodesObject = new GameObject("Nodes");
         _nodesObject.transform.parent = transform;
 
-        _nodeObjects.Clear();
-        _textObjects.Clear();
-
         foreach (var jsonNode in jsonRoot.nodes) {
             var springyNode = _forceDirectedGraph.CreateNewNode();
 
-            var node = CreateNode(springyNode, jsonNode.name);
-            node.transform.parent = _nodesObject.transform;
-            _nodeObjects.Add(node);
-
-            var text = node.transform.Find("Text").gameObject;
-            _textObjects.Add(text);
+            var nodeObject = CreateNode(springyNode, jsonNode.name);
+            nodeObject.transform.parent = _nodesObject.transform;
         }
     }
 
     private void AdjustNodesSize() {
-        // count the number of connections
-        var connectionsCount = new Dictionary<GameObject, int>();
-        foreach (var node in _nodeObjects) {
-            connectionsCount[node] = 0;
-        }
-        foreach (var edge in _edgeObjects) {
-            connectionsCount[edge.GetComponent<Edge>().source]++;
-            connectionsCount[edge.GetComponent<Edge>().target]++;
-        }
+        //// count the number of connections
+        //var connectionsCount = new Dictionary<GameObject, int>();
+        //foreach (var node in _nodeObjects) {
+        //    connectionsCount[node] = 0;
+        //}
+        //foreach (var edge in _edgeObjects) {
+        //    connectionsCount[edge.GetComponent<Edge>().source]++;
+        //    connectionsCount[edge.GetComponent<Edge>().target]++;
+        //}
 
-        foreach (var node in _nodeObjects) {
-            node.transform.localScale *= 1.5f - Mathf.Pow(1.2f, -connectionsCount[node]);
-        }
+        //foreach (var node in _nodeObjects) {
+        //    node.transform.localScale *= 1.5f - Mathf.Pow(1.2f, -connectionsCount[node]);
+        //}
     }
 
     private void FixedUpdate() {
