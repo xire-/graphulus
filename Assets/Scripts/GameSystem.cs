@@ -130,7 +130,7 @@ public class GameSystem : MonoBehaviour {
     }
 
     private void Start() {
-        graphObject.GetComponent<Graph>().PopulateFrom("Assets/Graphs/Miserables.json");
+        graphObject.GetComponent<Graph>().PopulateFrom(string.Format("Assets/Graphs/{0}.json", _settings.graph));
 
         // animate the transition from editor colors to the default theme
         var currentTheme = new Theme {
@@ -172,6 +172,7 @@ public class GameSystem : MonoBehaviour {
         public bool autoRotationEnabled = false;
         public float autoRotationSpeed = 15f;
         public bool edgesActive = true;
+        public string graph = "Miserables";
         public bool textsActive = true;
         public int themeIndex = 0;
     }
