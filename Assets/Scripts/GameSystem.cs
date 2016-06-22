@@ -130,7 +130,7 @@ public class GameSystem : MonoBehaviour
     }
 
     private void Start() {
-        graphObject.GetComponent<Graph>().PopulateFrom("Assets/Graphs/miserables.json");
+        graphObject.GetComponent<Graph>().PopulateFrom("Assets/Graphs/Miserables.json");
 
         // animate the transition from editor colors to the default theme
         var currentTheme = new Theme {

@@ -84,7 +84,7 @@
     {"name":"Brujon","group":4},
     {"name":"Mme.Hucheloup","group":8}
   ],
-  "links":[
+  "edges":[
     {"source":1,"target":0,"value":1},
     {"source":2,"target":0,"value":8},
     {"source":3,"target":0,"value":10},

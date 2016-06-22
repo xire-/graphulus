@@ -113,7 +113,7 @@ public class Graph : MonoBehaviour
     private void AddEdges(JsonLoader.JsonRoot jsonRoot) {
         _edgeObjects.Clear();
 
-        foreach (var jsonEdge in jsonRoot.links) {
+        foreach (var jsonEdge in jsonRoot.edges) {
             var sourceNode = _nodeObjects[jsonEdge.source];
             var targetNode = _nodeObjects[jsonEdge.target];
             var springyEdge = _forceDirectedGraph.CreateNewEdge(sourceNode.GetComponent<Node>().springyNode, targetNode.GetComponent<Node>().springyNode, jsonEdge.value);

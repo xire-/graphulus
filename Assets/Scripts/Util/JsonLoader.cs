@@ -30,7 +30,7 @@ public class JsonLoader
 
     public struct JsonRoot
     {
-        public List<JsonEdge> links;
+        public List<JsonEdge> edges;
         public List<JsonNode> nodes;
         public JsonParams parameters;
     }

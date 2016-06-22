@@ -31,27 +31,27 @@ def gen_torus_graph(radius_ext, radius_int, n_ext, n_int):
         ris.append(circle_slice)
 
 
-    asd = {'nodes':[], 'links':[]}
+    asd = {'nodes':[], 'edges':[]}
     for i, c in enumerate(ris):
         for j, p in enumerate(c):
             asd['nodes'].append({'name':'{}-{}'.format(i,j),'group':1})
 
             # link with next node on same ring
-            asd['links'].append({
+            asd['edges'].append({
                 'source':i*n_int+j,
                 'target':i*n_int+(j+1)%n_int,
                 'value':distance(ris[i][j], ris[i][(j+1)%n_int]),
                 })
 
             # link with next node on next ring
-            asd['links'].append({
+            asd['edges'].append({
                 'source':i*n_int+j,
                 'target':(i+1)%n_ext*n_int+j,
                 'value':distance(ris[i][j], ris[(i+1)%n_ext][j]),
                 })
 
             # link with next node on next ring and next position
-            asd['links'].append({
+            asd['edges'].append({
                 'source':i*n_int+j,
                 'target':(i+1)%n_ext*n_int+(j+1)%n_int,
                 'value':distance(ris[i][j], ris[(i+1)%n_ext][(j+1)%n_int]),
@@ -71,6 +71,6 @@ def gen_torus_graph(radius_ext, radius_int, n_ext, n_int):
 
 
 asd = gen_torus_graph(30, 6, 12, 12)
-with open('torus_graph.json', 'w') as f:
+with open('Torus.json', 'w') as f:
     f.write(asd)
 
