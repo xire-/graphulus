@@ -2,10 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Springy
-{
-    public class ForceDirectedGraph
-    {
+namespace Springy {
+
+    public class ForceDirectedGraph {
         private List<Node> nodes;
         private List<Edge> edges;
 
@@ -59,9 +58,31 @@ namespace Springy
             return edge;
         }
 
-        // TODO removeNode remove a node and it's associated edges from the graph
-        // TODO detachNode removes edges associated with a given node
-        // TODO removeEdge remove an edge from the graph
+        public bool RemoveNode(Node node) {
+            if (node == null) {
+                throw new ArgumentException("Specified node cannot be null");
+            }
+
+            DetachNode(node);
+            return nodes.Remove(node);
+        }
+
+        public bool DetachNode(Node node) {
+            if (node == null) {
+                throw new ArgumentException("Specified node cannot be null");
+            }
+            // remove all edges connecting this node
+            int num_removed = edges.RemoveAll(edge => (edge.Source == node || edge.Target == node));
+            return num_removed > 0;
+        }
+
+        public bool RemoveEdge(Edge edge) {
+            if (edge == null) {
+                throw new ArgumentException("Specified edge cannot be null");
+            }
+
+            return edges.Remove(edge);
+        }
 
         public void Tick(float timestep) {
             if (SimulationEnabled && !InEquilibrium) {
