@@ -78,6 +78,31 @@ public class GameSystem : MonoBehaviour {
         TextsActive = !TextsActive;
     }
 
+
+    public void TestCor(Test animation)
+    {
+        StartCoroutine("StartCor", animation);
+    }
+
+    private IEnumerator StartCor(Test animation) {
+        if (animation.OnStart != null) {
+            animation.OnStart();
+        }
+
+        float elapsedSinceStart = 0;
+        while (true) {
+            elapsedSinceStart += Time.deltaTime;
+            if (!animation.Update(elapsedSinceStart, Time.deltaTime)) {
+                break;
+            }
+            yield return null;
+        }
+
+        if (animation.OnEnd != null) {
+            animation.OnEnd();
+        }
+    }
+
     private IEnumerator AnimateCoroutine(Animation animation) {
         if (animation.OnStart != null) {
             animation.OnStart();
