@@ -10,19 +10,30 @@ public class Node : MonoBehaviour {
     public bool Selected {
         get { return _selected; }
         set {
-            if (value && !_selected) {
-                OnSelect();
+            if (Selectable)
+            {
+                if (value && !_selected)
+                {
+                    OnSelect();
+                }
+                else if (!value && _selected)
+                {
+                    OnDeselect();
+                }
+                _selected = value;
             }
-            else if (!value && _selected) {
-                OnDeselect();
-            }
-            _selected = value;
         }
     }
+
+    public bool Selectable { get; private set; }
 
     public string Text {
         get { return transform.Find("Text").GetComponent<TextMesh>().text; }
         set { transform.Find("Text").GetComponent<TextMesh>().text = value; }
+    }
+
+    private void Awake() {
+        Selectable = true;
     }
 
     private void LateUpdate() {
@@ -41,9 +52,15 @@ public class Node : MonoBehaviour {
         var startScale = transform.Find("Text").localScale;
         var endScale = startScale * 2;
         GameSystem.Instance.GetComponent<GameSystem>().Animate(new Animation {
+            OnStart = () => {
+                Selectable = false;
+            },
             Update = t => {
                 GetComponent<Renderer>().material.color = Color.Lerp(startColor, endColor, t);
                 transform.Find("Text").localScale = Vector3.Lerp(startScale, endScale, t);
+            },
+            OnEnd = () => {
+                Selectable = true;
             },
             duration = 0.3f,
             Ease = Easing.EaseOutCubic
@@ -56,11 +73,16 @@ public class Node : MonoBehaviour {
         var endColor = GameSystem.Instance.Theme.nodeColor;
         var startScale = transform.Find("Text").localScale;
         var endScale = startScale / 2;
-        GameSystem.Instance.GetComponent<GameSystem>().Animate(new Animation
-        {
+        GameSystem.Instance.GetComponent<GameSystem>().Animate(new Animation {
+            OnStart = () => {
+                Selectable = false;
+            },
             Update = t => {
                 GetComponent<Renderer>().material.color = Color.Lerp(startColor, endColor, t);
                 transform.Find("Text").localScale = Vector3.Lerp(startScale, endScale, t);
+            },
+            OnEnd = () => {
+                Selectable = true;
             },
             duration = 0.3f,
             Ease = Easing.EaseOutCubic
