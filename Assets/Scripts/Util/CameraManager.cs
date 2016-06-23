@@ -54,7 +54,7 @@ public class CameraManager : MonoBehaviour {
             string.Format("Edges active: {0}\n", GameSystem.Instance.EdgesActive) +
             "\n" +
             string.Format("Auto rotation enabled: {0}\n", GameSystem.Instance.AutoRotationEnabled) +
-            string.Format("Auto rotation: {0:f} °/s\n", GameSystem.Instance.AutoRotationSpeed);
+            string.Format("Auto rotation speed: {0:f} °/s\n", GameSystem.Instance.AutoRotationSpeed);
 
         const int border = 20;
         const int width = 200;
