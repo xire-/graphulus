@@ -27,7 +27,8 @@ public class Node : MonoBehaviour {
     }
 
     private void AnimateSelection(bool select) {
-        var status = select ? 0f : 1f;
+        // set the direction of the animation
+        var t = select ? 0f : 1f;
 
         var startColor = GameSystem.Instance.Theme.nodeColor;
         var endColor = GameSystem.Instance.Theme.nodeSelectedColor;
@@ -36,26 +37,28 @@ public class Node : MonoBehaviour {
         var endScale = _initialScale * 2f;
         endScale.z = 1;
 
-        var duration = 0.3f;
-
-        GameSystem.Instance.TestCor(new Test {
+        const float duration = 0.2f;
+        GameSystem.Instance.AnimateConditional(new AnimationConditional {
             OnStart = () => {
                 _currentlyAnimated = true;
             },
-            Update = (timeSinceStart, dt) => {
-                float delta = dt / duration;
+            Update = (deltaTime) => {
+                float delta = Mathf.Clamp01(deltaTime / duration);
+
+                // if node is deselected, invert the animation
                 if (!Selected) {
                     delta = -delta;
                 }
-                status += delta;
+                t = Mathf.Clamp01(t + delta);
 
-                var t = Mathf.Clamp(status, 0f, 1f);
+                // interpolate
                 GetComponent<Renderer>().material.color = Color.Lerp(startColor, endColor, t);
                 transform.Find("Text").localScale = Vector3.Lerp(startScale, endScale, t);
 
-                bool exit1 = Selected && t == 1f;
-                bool exit2 = !Selected && t == 0f;
-                return !(exit1 || exit2);
+                // continue animation until completion
+                bool selectedAndCompleted = Selected && t >= 1f;
+                bool deselectedAndCompleted = !Selected && t <= 0f;
+                return !(selectedAndCompleted || deselectedAndCompleted);
             },
             OnEnd = () => {
                 _currentlyAnimated = false;

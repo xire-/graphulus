@@ -48,6 +48,10 @@ public class GameSystem : MonoBehaviour {
         StartCoroutine("AnimateCoroutine", animation);
     }
 
+    public void AnimateConditional(AnimationConditional animation) {
+        StartCoroutine("AnimateConditionalCoroutine", animation);
+    }
+
     public void ChangeRotationSpeed() {
         var value = GameObject.Find("SliderRotation").GetComponent<Slider>().value; // TODO
         AutoRotationSpeed = value;
@@ -78,21 +82,13 @@ public class GameSystem : MonoBehaviour {
         TextsActive = !TextsActive;
     }
 
-
-    public void TestCor(Test animation)
-    {
-        StartCoroutine("StartCor", animation);
-    }
-
-    private IEnumerator StartCor(Test animation) {
+    private IEnumerator AnimateConditionalCoroutine(AnimationConditional animation) {
         if (animation.OnStart != null) {
             animation.OnStart();
         }
 
-        float elapsedSinceStart = 0;
         while (true) {
-            elapsedSinceStart += Time.deltaTime;
-            if (!animation.Update(elapsedSinceStart, Time.deltaTime)) {
+            if (!animation.Update(Time.deltaTime)) {
                 break;
             }
             yield return null;
