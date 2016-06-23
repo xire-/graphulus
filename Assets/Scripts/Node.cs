@@ -1,82 +1,48 @@
 ﻿using UnityEngine;
 
-public class Node : MonoBehaviour
-{
+public class Node : MonoBehaviour {
     public Springy.Node springyNode;
 
+    private bool _currentlyAnimated;
+    private Vector3 _initialScale;
     private bool _selected;
 
     public bool Pinched { get; set; }
 
-    public bool Selected
-    {
+    public bool Selected {
         get { return _selected; }
-        set
-        {
-            if (value && !_selected) {
+        set {
+            if ((value && !_selected) || (!value && _selected)) {
                 _selected = value;
-                OnSelect();
-            }
-            else if (!value && _selected) {
-                _selected = value;
-                OnDeselect();
+                if (!_currentlyAnimated) {
+                    AnimateSelection(value);
+                }
             }
         }
     }
 
-
-    private Vector3 _initialScale;
-    private void Awake() {
-        _initialScale = transform.Find("Text").localScale;
-    }
-
-    public string Text
-    {
+    public string Text {
         get { return transform.Find("Text").GetComponent<TextMesh>().text; }
         set { transform.Find("Text").GetComponent<TextMesh>().text = value; }
     }
 
-    private void LateUpdate()
-    {
-        const float scale = 30f;
-        if (Pinched)
-        {
-            springyNode.Position = transform.localPosition * scale;
-        }
-        else {
-            transform.localPosition = springyNode.Position / scale;
-        }
-    }
+    private void AnimateSelection(bool select) {
+        var status = select ? 0f : 1f;
 
-    private void OnSelect()
-    {
-        if (!Animated) {
-            var endscale = _initialScale * 2f;
-            endscale.z = 1;
-            SelectAnim(0f, GameSystem.Instance.Theme.nodeColor, GameSystem.Instance.Theme.nodeSelectedColor, _initialScale, endscale);
-        }
-    }
+        var startColor = GameSystem.Instance.Theme.nodeColor;
+        var endColor = GameSystem.Instance.Theme.nodeSelectedColor;
 
-    private void OnDeselect()
-    {
-        if (!Animated) {
-            var endscale = _initialScale * 2f;
-            endscale.z = 1;
-            SelectAnim(1f, GameSystem.Instance.Theme.nodeColor, GameSystem.Instance.Theme.nodeSelectedColor, _initialScale, endscale);
-        }
-    }
+        var startScale = _initialScale;
+        var endScale = _initialScale * 2f;
+        endScale.z = 1;
 
-    public bool Animated { get; set; }
-
-    private void SelectAnim(float status, Color startColor, Color endColor, Vector3 startScale, Vector3 endScale) {
         var duration = 0.3f;
-        GameSystem.Instance.TestCor(new Test
-        {
+
+        GameSystem.Instance.TestCor(new Test {
             OnStart = () => {
-                Animated = true;
+                _currentlyAnimated = true;
             },
-            Update = (timeSinceStart, dt) =>
-            {
+            Update = (timeSinceStart, dt) => {
                 float delta = dt / duration;
                 if (!Selected) {
                     delta = -delta;
@@ -92,8 +58,22 @@ public class Node : MonoBehaviour
                 return !(exit1 || exit2);
             },
             OnEnd = () => {
-                Animated = false;
+                _currentlyAnimated = false;
             },
         });
+    }
+
+    private void Awake() {
+        _initialScale = transform.Find("Text").localScale;
+    }
+
+    private void LateUpdate() {
+        const float scale = 30f;
+        if (Pinched) {
+            springyNode.Position = transform.localPosition * scale;
+        }
+        else {
+            transform.localPosition = springyNode.Position / scale;
+        }
     }
 }
