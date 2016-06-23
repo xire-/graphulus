@@ -6,17 +6,19 @@ public class Graph : MonoBehaviour {
 
     private Springy.ForceDirectedGraph _forceDirectedGraph;
     private GameObject _nodesObject, _edgesObject;
+    private Color _edgesColor, _nodesColor, _textsColor;
 
     public bool EdgesActive {
         set { _edgesObject.SetActive(value); }
     }
 
     public Color EdgesColor {
-        get { return _edgesObject.transform.childCount > 0 ? _edgesObject.transform.GetChild(0).GetComponent<Renderer>().material.color : Color.black; }
+        get { return _edgesColor; }
         set {
             foreach (Transform edge in _edgesObject.transform) {
                 edge.GetComponent<Renderer>().material.color = value;
             }
+            _edgesColor = value;
         }
     }
 
@@ -25,11 +27,12 @@ public class Graph : MonoBehaviour {
     }
 
     public Color NodesColor {
-        get { return _nodesObject.transform.childCount > 0 ? _nodesObject.transform.GetChild(0).GetComponent<Renderer>().material.color : Color.black; }
+        get { return _nodesColor; }
         set {
             foreach (Transform node in _nodesObject.transform) {
                 node.GetComponent<Renderer>().material.color = value;
             }
+            _nodesColor = value;
         }
     }
 
@@ -42,15 +45,12 @@ public class Graph : MonoBehaviour {
     }
 
     public Color TextsColor {
-        get {
-            return _nodesObject.transform.childCount > 0 ?
-                _nodesObject.transform.GetChild(0).Find("Text").GetComponent<Renderer>().material.color :
-                Color.black;
-        }
+        get { return _textsColor; }
         set {
             foreach (Transform node in _nodesObject.transform) {
                 node.Find("Text").GetComponent<TextMesh>().color = value;
             }
+            _textsColor = value;
         }
     }
 
