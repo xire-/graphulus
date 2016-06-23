@@ -59,16 +59,16 @@ public class Graph : MonoBehaviour {
     }
 
     public Node GetClosestNode(Vector3 point) {
-        GameObject closestObject = null;
+        GameObject closestNodeObject = null;
         float closestDistance = float.MaxValue;
         foreach (Transform nodeTransform in _nodesObject.transform) {
             var nodeDistance = Vector3.Distance(point, nodeTransform.position);
             if (nodeDistance < closestDistance) {
-                closestObject = nodeTransform.gameObject;
+                closestNodeObject = nodeTransform.gameObject;
                 closestDistance = nodeDistance;
             }
         }
-        return closestObject != null ? closestObject.GetComponent<Node>() : null;
+        return closestNodeObject != null ? closestNodeObject.GetComponent<Node>() : null;
     }
 
     public void PopulateFrom(string jsonPath) {
