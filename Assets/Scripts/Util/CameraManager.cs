@@ -9,7 +9,7 @@ public class CameraManager : MonoBehaviour {
         Cursor.lockState = CursorLockMode.Locked;
     }
 
-    private Node GetLookedNodeOrNull() {
+    private Node GetLookedNode() {
         Node lookedNode = null;
         const float radius = 0.02f;
         RaycastHit hit;
@@ -26,7 +26,7 @@ public class CameraManager : MonoBehaviour {
         Node lookedNode = null, lookedNodePrev = null;
         while (true) {
             lookedNodePrev = lookedNode;
-            lookedNode = GetLookedNodeOrNull();
+            lookedNode = GetLookedNode();
 
             if (lookedNodePrev != lookedNode) {
                 if (lookedNodePrev != null) {
