@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 public class Graph : MonoBehaviour {
     private static Object _edgeResource = Resources.Load("Edge");
@@ -137,19 +138,20 @@ public class Graph : MonoBehaviour {
     }
 
     private void AdjustNodesSize() {
-        //// count the number of connections
-        //var connectionsCount = new Dictionary<GameObject, int>();
-        //foreach (var node in _nodeObjects) {
-        //    connectionsCount[node] = 0;
-        //}
-        //foreach (var edge in _edgeObjects) {
-        //    connectionsCount[edge.GetComponent<Edge>().source]++;
-        //    connectionsCount[edge.GetComponent<Edge>().target]++;
-        //}
+        // count the number of connections
+        var connectionsCount = new Dictionary<GameObject, int>();
+        foreach (Transform nodeTransform in _nodesObject.transform) {
+            connectionsCount[nodeTransform.gameObject] = 0;
+        }
+        foreach (Transform edgeTransform in _edgesObject.transform) {
+            connectionsCount[edgeTransform.GetComponent<Edge>().source]++;
+            connectionsCount[edgeTransform.GetComponent<Edge>().target]++;
+        }
 
-        //foreach (var node in _nodeObjects) {
-        //    node.transform.localScale *= 1.5f - Mathf.Pow(1.2f, -connectionsCount[node]);
-        //}
+        // adjust node size
+        foreach (Transform nodeTransform in _nodesObject.transform) {
+            nodeTransform.localScale *= 1.5f - Mathf.Pow(1.2f, -connectionsCount[nodeTransform.gameObject]);
+        }
     }
 
     private void FixedUpdate() {
