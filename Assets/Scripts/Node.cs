@@ -2,9 +2,8 @@
 
 public class Node : MonoBehaviour {
     public Springy.Node springyNode;
-    private Color _color;
+
     private bool _selected;
-    private TextMesh _textMesh;
 
     public bool Pinched { get; set; }
 
@@ -12,23 +11,18 @@ public class Node : MonoBehaviour {
         get { return _selected; }
         set {
             if (value && !_selected) {
-                _color = GetComponent<Renderer>().material.color;
-                Select(Color.white);
+                OnSelect();
             }
-            else if (!value && _selected)
-                Select(_color);
-
+            else if (!value && _selected) {
+                OnDeselect();
+            }
             _selected = value;
         }
     }
 
     public string Text {
-        get { return _textMesh.text; }
-        set { _textMesh.text = value; }
-    }
-
-    private void Awake() {
-        _textMesh = transform.Find("Text").GetComponent<TextMesh>();
+        get { return transform.Find("Text").GetComponent<TextMesh>().text; }
+        set { transform.Find("Text").GetComponent<TextMesh>().text = value; }
     }
 
     private void LateUpdate() {
@@ -41,13 +35,32 @@ public class Node : MonoBehaviour {
         }
     }
 
-    private void Select(Color endColor) {
+    private void OnSelect() {
         var startColor = GetComponent<Renderer>().material.color;
-        //var startScale = transform.Find("Text").localScale;
+        var endColor = GameSystem.Instance.Theme.nodeSelectedColor;
+        var startScale = transform.Find("Text").localScale;
+        var endScale = startScale * 2;
         GameSystem.Instance.GetComponent<GameSystem>().Animate(new Animation {
             Update = t => {
                 GetComponent<Renderer>().material.color = Color.Lerp(startColor, endColor, t);
-                //transform.Find("Text").localScale = startScale * (1f + t / 1f);
+                transform.Find("Text").localScale = Vector3.Lerp(startScale, endScale, t);
+            },
+            duration = 0.3f,
+            Ease = Easing.EaseOutCubic
+        });
+    }
+
+    private void OnDeselect()
+    {
+        var startColor = GetComponent<Renderer>().material.color;
+        var endColor = GameSystem.Instance.Theme.nodeColor;
+        var startScale = transform.Find("Text").localScale;
+        var endScale = startScale / 2;
+        GameSystem.Instance.GetComponent<GameSystem>().Animate(new Animation
+        {
+            Update = t => {
+                GetComponent<Renderer>().material.color = Color.Lerp(startColor, endColor, t);
+                transform.Find("Text").localScale = Vector3.Lerp(startScale, endScale, t);
             },
             duration = 0.3f,
             Ease = Easing.EaseOutCubic
