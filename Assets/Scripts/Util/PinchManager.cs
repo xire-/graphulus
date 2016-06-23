@@ -78,8 +78,9 @@ public class PinchManager : MonoBehaviour {
             var index = handModel.GetLeapHand().Fingers[1];
             var indexTipPosition = index.TipPosition.ToVector3();
 
-            const float maxClosestNodeDistance = 0.08f;
-            closestNode.curr = _graph.GetClosestNodeOrNull(indexTipPosition, maxClosestNodeDistance);
+            var closestNodeToIndexTip = _graph.GetClosestNode(indexTipPosition);
+            const float maxDistance = 0.03f;
+            closestNode.curr = Vector3.Distance(indexTipPosition, closestNodeToIndexTip.transform.position) <= maxDistance ? closestNodeToIndexTip : null;
         }
 
         UpdateClosestNodeSelection(ref closestNode);

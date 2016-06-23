@@ -58,13 +58,13 @@ public class Graph : MonoBehaviour {
         get { return _forceDirectedGraph.TotalKineticEnergy(); }
     }
 
-    public Node GetClosestNodeOrNull(Vector3 point, float maxDistance) {
+    public Node GetClosestNode(Vector3 point) {
         GameObject closestObject = null;
         float closestDistance = float.MaxValue;
-        foreach (Transform nodeObject in _nodesObject.transform) {
-            var nodeDistance = Vector3.Distance(point, nodeObject.position);
-            if (nodeDistance < closestDistance && nodeDistance <= maxDistance) {
-                closestObject = nodeObject.gameObject;
+        foreach (Transform nodeTransform in _nodesObject.transform) {
+            var nodeDistance = Vector3.Distance(point, nodeTransform.position);
+            if (nodeDistance < closestDistance) {
+                closestObject = nodeTransform.gameObject;
                 closestDistance = nodeDistance;
             }
         }
