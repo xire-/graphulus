@@ -68,7 +68,7 @@ public class Graph : MonoBehaviour {
                 closestDistance = nodeDistance;
             }
         }
-        return closestObject.GetComponent<Node>();
+        return closestObject != null ? closestObject.GetComponent<Node>() : null;
     }
 
     public void PopulateFrom(string jsonPath) {
