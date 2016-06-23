@@ -82,6 +82,9 @@ public class PinchManager : MonoBehaviour {
             const float maxDistance = 0.03f;
             closestNode.curr = Vector3.Distance(indexTipPosition, closestNodeToIndexTip.transform.position) <= maxDistance ? closestNodeToIndexTip : null;
         }
+        else {
+            closestNode.curr = null;
+        }
 
         UpdateClosestNodeSelection(ref closestNode);
     }
