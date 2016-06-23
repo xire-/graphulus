@@ -1,6 +1,5 @@
 ﻿using System.Collections;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class GameSystem : MonoBehaviour {
 
@@ -52,11 +51,6 @@ public class GameSystem : MonoBehaviour {
         StartCoroutine("AnimateConditionalCoroutine", animation);
     }
 
-    public void ChangeRotationSpeed() {
-        var value = GameObject.Find("SliderRotation").GetComponent<Slider>().value; // TODO
-        AutoRotationSpeed = value;
-    }
-
     public void SwitchTheme() {
         var currentTheme = Theme;
 
@@ -71,7 +65,6 @@ public class GameSystem : MonoBehaviour {
 
     public void ToggleAutoRotation() {
         AutoRotationEnabled = !AutoRotationEnabled;
-        GameObject.Find("SliderRotation").GetComponent<Slider>().interactable = _settings.autoRotationEnabled; // TODO
     }
 
     public void ToggleEdgesActive() {

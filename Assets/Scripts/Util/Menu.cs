@@ -1,30 +1,57 @@
 ﻿using UnityEngine;
-using System.Collections;
 using UnityEngine.UI;
 
 public class Menu : MonoBehaviour {
+    private Transform _panelTransform;
 
-    private bool visible = false;
+    public void ChangeAutoRotationEnabled() {
+        GameSystem.Instance.AutoRotationEnabled = _panelTransform.Find("ToggleAutoRotationEnabled").GetComponent<Toggle>().isOn;
+        _panelTransform.Find("SliderAutoRotationSpeed").GetComponent<Slider>().interactable = GameSystem.Instance.AutoRotationEnabled;
+    }
 
-	void Update () {
+    public void ChangeAutoRotationSpeed() {
+        GameSystem.Instance.AutoRotationSpeed = _panelTransform.Find("SliderAutoRotationSpeed").GetComponent<Slider>().value;
+    }
+
+    public void ChangeEdgesActive() {
+        GameSystem.Instance.EdgesActive = _panelTransform.Find("ToggleEdgesActive").GetComponent<Toggle>().isOn;
+    }
+
+    public void ChangeTextsActive() {
+        GameSystem.Instance.EdgesActive = _panelTransform.Find("ToggleTextsActive").GetComponent<Toggle>().isOn;
+    }
+
+    private void Start() {
+        _panelTransform = transform.Find("Panel");
+
+        _panelTransform.Find("ToggleEdgesActive").GetComponent<Toggle>().isOn = GameSystem.Instance.EdgesActive;
+
+        _panelTransform.Find("ToggleTextsActive").GetComponent<Toggle>().isOn = GameSystem.Instance.TextsActive;
+
+        _panelTransform.Find("ToggleAutoRotationEnabled").GetComponent<Toggle>().isOn = GameSystem.Instance.AutoRotationEnabled;
+
+        _panelTransform.Find("SliderAutoRotationSpeed").GetComponent<Slider>().interactable = GameSystem.Instance.AutoRotationEnabled;
+        _panelTransform.Find("SliderAutoRotationSpeed").GetComponent<Slider>().value = GameSystem.Instance.AutoRotationSpeed;
+    }
+
+    private void Update() {
         var angle = Camera.main.transform.eulerAngles.x;
         if (angle >= 25 && angle <= 90) {
-            if (!visible) {
-                var v = Camera.main.transform.forward;
-                v.y = 0;
-                v.Normalize();
-                v.y = -1f;
-                transform.position = Camera.main.transform.position + v;
-
+            bool alreadyVisible = GetComponent<CanvasGroup>().alpha > 0;
+            if (!alreadyVisible) {
+                // move the menu in front of the camera
+                var vec = Camera.main.transform.forward;
+                vec.y = 0;
+                vec.Normalize();
+                vec.y = -1f;
+                transform.position = Camera.main.transform.position + vec;
                 transform.LookAt(transform.position + Camera.main.transform.rotation * Vector3.forward);
-                visible = true;
             }
+
             GetComponent<CanvasGroup>().alpha = Mathf.Lerp(0, 1, (angle - 25f) / (5f));
         }
-        else
-        {
-            visible = false;
-            transform.position = Vector3.one * 100;
+        else {
+            GetComponent<CanvasGroup>().alpha = 0;
         }
     }
 }
