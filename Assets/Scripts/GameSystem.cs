@@ -162,7 +162,7 @@ public class GameSystem : MonoBehaviour {
     private void Update() {
         // continuously rotate graph
         if (_settings.autoRotationEnabled) {
-            graph.transform.Rotate(Vector3.up, Time.deltaTime * _settings.autoRotationSpeed);
+            graph.transform.RotateAround(graph.transform.position, Vector3.up, Time.deltaTime * _settings.autoRotationSpeed);
         }
     }
 
