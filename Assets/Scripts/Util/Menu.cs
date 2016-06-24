@@ -37,8 +37,9 @@ public class Menu : MonoBehaviour {
     private void Update() {
         var angle = Camera.main.transform.eulerAngles.x;
         if (angle >= 25 && angle <= 90) {
-            bool alreadyVisible = GetComponent<CanvasGroup>().alpha > 0;
-            if (!alreadyVisible) {
+            if (!_panelTransform.gameObject.activeSelf) {
+                _panelTransform.gameObject.SetActive(true);
+
                 // move the menu in front of the camera
                 var vec = Camera.main.transform.forward;
                 vec.y = 0;
@@ -51,7 +52,9 @@ public class Menu : MonoBehaviour {
             GetComponent<CanvasGroup>().alpha = Mathf.Lerp(0, 1, (angle - 25f) / (5f));
         }
         else {
-            GetComponent<CanvasGroup>().alpha = 0;
+            if (_panelTransform.gameObject.activeSelf) {
+                _panelTransform.gameObject.SetActive(false);
+            }
         }
     }
 }
