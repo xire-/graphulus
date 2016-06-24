@@ -21,6 +21,10 @@ public class Menu : MonoBehaviour {
         GameSystem.Instance.EdgesActive = _panelTransform.Find("ToggleTextsActive").GetComponent<Toggle>().isOn;
     }
 
+    public void SwitchTheme() {
+        GameSystem.Instance.SwitchTheme();
+    }
+
     private void Start() {
         _panelTransform = transform.Find("Panel");
 
