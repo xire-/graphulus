@@ -2,7 +2,8 @@
 using UnityEngine.UI;
 
 public class CursorManager : MonoBehaviour {
-    void OnEnable() {
+
+    private void OnEnable() {
         GetComponent<Image>().color = GameSystem.Instance.Theme.nodeColor;
     }
 }

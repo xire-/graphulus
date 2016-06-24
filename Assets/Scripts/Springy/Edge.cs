@@ -1,11 +1,6 @@
-﻿namespace Springy
-{
-    public class Edge
-    {
-        public int Id { get; private set; }
-        public Node Source { get; private set; }
-        public Node Target { get; private set; }
-        public float Length { get; set; }
+﻿namespace Springy {
+
+    public class Edge {
 
         public Edge(int id, Node source, Node target, float length) {
             this.Id = id;
@@ -13,5 +8,10 @@
             this.Target = target;
             this.Length = length;
         }
+
+        public int Id { get; private set; }
+        public float Length { get; set; }
+        public Node Source { get; private set; }
+        public Node Target { get; private set; }
     }
 }

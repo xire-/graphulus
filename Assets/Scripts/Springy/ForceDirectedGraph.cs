@@ -5,21 +5,8 @@ using UnityEngine;
 namespace Springy {
 
     public class ForceDirectedGraph {
-        private List<Node> nodes;
         private List<Edge> edges;
-
-        public float Stiffness { get; set; }
-        public float Repulsion { get; set; }
-        public float Convergence { get; set; }
-        public float Damping { get; set; }
-        public float EnergyThreshold { get; set; }
-
-        public bool SimulationEnabled { get; set; }
-        public bool SpringsEnabled { get; set; }
-        public bool RepulsionEnabled { get; set; }
-        public bool InEquilibrium { get; set; }
-
-        public bool UseBarnesHutOptimization { get; set; }
+        private List<Node> nodes;
 
         public ForceDirectedGraph() {
             nodes = new List<Node>();
@@ -39,15 +26,16 @@ namespace Springy {
             UseBarnesHutOptimization = true;
         }
 
-        public Node CreateNewNode(float mass = 1) {
-            if (mass < 0) {
-                throw new ArgumentException("Cannot have negative mass");
-            }
-
-            Node node = new Node(nodes.Count, mass);
-            nodes.Add(node);
-            return node;
-        }
+        public float Convergence { get; set; }
+        public float Damping { get; set; }
+        public float EnergyThreshold { get; set; }
+        public bool InEquilibrium { get; set; }
+        public float Repulsion { get; set; }
+        public bool RepulsionEnabled { get; set; }
+        public bool SimulationEnabled { get; set; }
+        public bool SpringsEnabled { get; set; }
+        public float Stiffness { get; set; }
+        public bool UseBarnesHutOptimization { get; set; }
 
         public Edge CreateNewEdge(Node source, Node target, float length) {
             if (source.Id == target.Id) {
@@ -62,13 +50,14 @@ namespace Springy {
             return edge;
         }
 
-        public bool RemoveNode(Node node) {
-            if (node == null) {
-                throw new ArgumentException("Specified node cannot be null");
+        public Node CreateNewNode(float mass = 1) {
+            if (mass < 0) {
+                throw new ArgumentException("Cannot have negative mass");
             }
 
-            DetachNode(node);
-            return nodes.Remove(node);
+            Node node = new Node(nodes.Count, mass);
+            nodes.Add(node);
+            return node;
         }
 
         public bool DetachNode(Node node) {
@@ -88,12 +77,22 @@ namespace Springy {
             return edges.Remove(edge);
         }
 
+        public bool RemoveNode(Node node) {
+            if (node == null) {
+                throw new ArgumentException("Specified node cannot be null");
+            }
+
+            DetachNode(node);
+            return nodes.Remove(node);
+        }
+
         public void Tick(float timestep) {
             if (SimulationEnabled && !InEquilibrium) {
                 if (RepulsionEnabled) {
                     if (UseBarnesHutOptimization) {
                         applyCoulombsLaw_BarnesHut();
-                    } else {
+                    }
+                    else {
                         applyCoulombsLaw();
                     }
                 }
@@ -107,6 +106,15 @@ namespace Springy {
                     InEquilibrium = true;
                 }
             }
+        }
+
+        public float TotalKineticEnergy() {
+            float energy = 0.0f;
+            foreach (Node n in nodes) {
+                float speed = n.Velocity.magnitude;
+                energy += 0.5f * n.Mass * speed * speed;
+            }
+            return energy;
         }
 
         private void applyCoulombsLaw() {
@@ -185,15 +193,6 @@ namespace Springy {
                 n.Velocity = (n.Velocity + n.Acceleration * timestep) * Damping;
                 n.Position += n.Velocity * timestep;
             }
-        }
-
-        public float TotalKineticEnergy() {
-            float energy = 0.0f;
-            foreach (Node n in nodes) {
-                float speed = n.Velocity.magnitude;
-                energy += 0.5f * n.Mass * speed * speed;
-            }
-            return energy;
         }
     }
 }
