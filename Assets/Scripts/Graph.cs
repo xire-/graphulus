@@ -2,12 +2,11 @@
 using UnityEngine;
 
 public class Graph : MonoBehaviour {
-    private static Object _edgeResource = Resources.Load("Edge");
-    private static Object _nodeResource = Resources.Load("Node");
+    private static Object _edgeResource, _nodeResource;
 
+    private Color _edgesColor, _nodesColor, _textsColor;
     private Springy.ForceDirectedGraph _forceDirectedGraph;
     private GameObject _nodesObject, _edgesObject;
-    private Color _edgesColor, _nodesColor, _textsColor;
 
     public bool EdgesActive {
         set { _edgesObject.SetActive(value); }
@@ -152,6 +151,11 @@ public class Graph : MonoBehaviour {
         foreach (Transform nodeTransform in _nodesObject.transform) {
             nodeTransform.localScale *= 1.5f - Mathf.Pow(1.2f, -connectionsCount[nodeTransform.gameObject]);
         }
+    }
+
+    private void Awake() {
+        _edgeResource = Resources.Load("Edge");
+        _nodeResource = Resources.Load("Node");
     }
 
     private void FixedUpdate() {

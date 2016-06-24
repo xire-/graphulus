@@ -4,9 +4,11 @@ public class Edge : MonoBehaviour {
     public GameObject source, target;
     public Springy.Edge springyEdge;
 
-    private static Object _lightResource = Resources.Load("Light");
+    private static Object _lightResource;
 
     private void Awake() {
+        _lightResource = Resources.Load("Light");
+
         // draw edges before nodes
         GetComponent<Renderer>().material.renderQueue = 0;
     }
