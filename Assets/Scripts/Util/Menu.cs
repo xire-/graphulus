@@ -18,7 +18,7 @@ public class Menu : MonoBehaviour {
     }
 
     public void ChangeGraphScale() {
-        GameSystem.Instance.graph.Scale = _panelTransform.Find("SliderGraphScale").GetComponent<Slider>().value;
+        GameSystem.Instance.graph.Scale = Mathf.Exp(_panelTransform.Find("SliderGraphScale").GetComponent<Slider>().value);
     }
 
     public void ChangeTextsActive() {
@@ -87,7 +87,7 @@ public class Menu : MonoBehaviour {
         _panelTransform.Find("SliderAutoRotationSpeed").GetComponent<Slider>().interactable = GameSystem.Instance.AutoRotationEnabled;
         _panelTransform.Find("SliderAutoRotationSpeed").GetComponent<Slider>().value = GameSystem.Instance.AutoRotationSpeed;
 
-        _panelTransform.Find("SliderGraphScale").GetComponent<Slider>().value = GameSystem.Instance.graph.Scale;
+        _panelTransform.Find("SliderGraphScale").GetComponent<Slider>().value = Mathf.Log(GameSystem.Instance.graph.Scale);
     }
 
     private void Update() {

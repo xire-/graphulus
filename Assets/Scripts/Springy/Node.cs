@@ -32,9 +32,9 @@ namespace Springy {
             set { Position = value; }
         }
 
+        public float Mass { get; set; }
         public Vector3 Position { get; set; }
         public Vector3 Velocity { get; set; }
-        public float Mass { get; set; }
         private Vector3 forcesAccumulator { get; set; }
 
         public void AddForce(Vector3 f) {

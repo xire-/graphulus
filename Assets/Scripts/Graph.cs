@@ -159,7 +159,7 @@ public class Graph : MonoBehaviour {
         _edgeResource = Resources.Load("Edge");
         _nodeResource = Resources.Load("Node");
 
-        Scale = 30f;
+        Scale = 1f / 30f;
     }
 
     private void FixedUpdate() {
