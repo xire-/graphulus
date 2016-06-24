@@ -36,6 +36,8 @@ public class Graph : MonoBehaviour {
         }
     }
 
+    public float Scale { get; set; }
+
     public bool TextsActive {
         set {
             foreach (Transform node in _nodesObject.transform) {
@@ -156,6 +158,8 @@ public class Graph : MonoBehaviour {
     private void Awake() {
         _edgeResource = Resources.Load("Edge");
         _nodeResource = Resources.Load("Node");
+
+        Scale = 30f;
     }
 
     private void FixedUpdate() {

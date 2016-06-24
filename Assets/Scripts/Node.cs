@@ -71,12 +71,11 @@ public class Node : MonoBehaviour {
     }
 
     private void LateUpdate() {
-        const float scale = 30f;
         if (Pinched) {
-            springyNode.Position = transform.localPosition * scale;
+            springyNode.Position = transform.localPosition * GameSystem.Instance.graph.Scale;
         }
         else {
-            transform.localPosition = springyNode.Position / scale;
+            transform.localPosition = springyNode.Position / GameSystem.Instance.graph.Scale;
         }
     }
 }

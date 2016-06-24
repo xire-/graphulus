@@ -124,6 +124,9 @@ public class GameSystem : MonoBehaviour {
         _instance = this;
 
         UnityEngine.Random.seed = 1337;
+
+        var graphObject = new GameObject("Graph");
+        graph = graphObject.AddComponent<Graph>();
     }
 
     private void ChangeThemeAnim(Theme startTheme, Theme endTheme) {
@@ -144,8 +147,6 @@ public class GameSystem : MonoBehaviour {
     }
 
     private void Start() {
-        var graphObject = new GameObject("Graph");
-        graph = graphObject.AddComponent<Graph>();
         graph.PopulateFrom(string.Format("Assets/Graphs/{0}.json", _settings.graph));
 
         // animate the transition from editor colors to the default theme

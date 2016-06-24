@@ -17,6 +17,10 @@ public class Menu : MonoBehaviour {
         GameSystem.Instance.EdgesActive = _panelTransform.Find("ToggleEdgesActive").GetComponent<Toggle>().isOn;
     }
 
+    public void ChangeGraphScale() {
+        GameSystem.Instance.graph.Scale = _panelTransform.Find("SliderGraphScale").GetComponent<Slider>().value;
+    }
+
     public void ChangeTextsActive() {
         GameSystem.Instance.EdgesActive = _panelTransform.Find("ToggleTextsActive").GetComponent<Toggle>().isOn;
     }
@@ -36,6 +40,8 @@ public class Menu : MonoBehaviour {
 
         _panelTransform.Find("SliderAutoRotationSpeed").GetComponent<Slider>().interactable = GameSystem.Instance.AutoRotationEnabled;
         _panelTransform.Find("SliderAutoRotationSpeed").GetComponent<Slider>().value = GameSystem.Instance.AutoRotationSpeed;
+
+        _panelTransform.Find("SliderGraphScale").GetComponent<Slider>().value = GameSystem.Instance.graph.Scale;
     }
 
     private void Update() {
