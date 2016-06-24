@@ -64,6 +64,13 @@ public class Menu : MonoBehaviour {
         }
     }
 
+    public void SwitchGraph(System.Int32 asd) {
+        var options = _panelTransform.Find("DropdownSwitchGraph").GetComponent<Dropdown>().options;
+        var graphName = options[_panelTransform.Find("DropdownSwitchGraph").GetComponent<Dropdown>().value].text;
+
+        GameSystem.Instance.ResetGraph(graphName);
+    }
+
     public void SwitchTheme() {
         GameSystem.Instance.SwitchTheme();
     }

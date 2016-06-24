@@ -40,10 +40,14 @@ public class Edge : MonoBehaviour {
                 light.SetActive(true);
             },
             Update = t => {
-                light.transform.position = Vector3.Lerp(source.transform.position, target.transform.position, t);
+                if (light != null) {
+                    light.transform.position = Vector3.Lerp(source.transform.position, target.transform.position, t);
+                }
             },
             OnEnd = () => {
-                Destroy(light);
+                if (light != null) {
+                    Destroy(light);
+                }
             },
             duration = duration,
             Ease = easing,

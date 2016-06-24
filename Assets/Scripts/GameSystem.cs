@@ -51,6 +51,12 @@ public class GameSystem : MonoBehaviour {
         StartCoroutine("AnimateConditionalCoroutine", animation);
     }
 
+    public void ResetGraph(string graphName) {
+        graph.PopulateFrom(string.Format("Assets/Graphs/{0}.json", graphName));
+
+        ChangeThemeAnim(Theme, Theme);
+    }
+
     public void SwitchTheme() {
         var currentTheme = Theme;
 
