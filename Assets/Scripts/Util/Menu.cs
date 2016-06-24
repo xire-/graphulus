@@ -22,7 +22,7 @@ public class Menu : MonoBehaviour {
     }
 
     public void ChangeTextsActive() {
-        GameSystem.Instance.EdgesActive = _panelTransform.Find("ToggleTextsActive").GetComponent<Toggle>().isOn;
+        GameSystem.Instance.TextsActive = _panelTransform.Find("ToggleTextsActive").GetComponent<Toggle>().isOn;
     }
 
     public void ResetGraphTransform() {
