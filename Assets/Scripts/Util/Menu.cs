@@ -25,7 +25,7 @@ public class Menu : MonoBehaviour {
         GameSystem.Instance.TextsActive = _panelTransform.Find("ToggleTextsActive").GetComponent<Toggle>().isOn;
     }
 
-    public void ResetGraphTransform() {
+    public void RecenterGraph() {
         var pinchController = GameSystem.Instance.Graph.GetComponent<GraphPinchController>();
         var pinchControllerInitialPosition = pinchController.transform.position;
         var pinchControllerInitialScale = pinchController.transform.localScale;
