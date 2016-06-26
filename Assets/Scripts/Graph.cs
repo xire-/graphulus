@@ -8,28 +8,24 @@ public class Graph : MonoBehaviour {
     private Springy.ForceDirectedGraph _forceDirectedGraph;
     private GameObject _nodesObject, _edgesObject;
 
-    public bool EdgesActive {
-        set { _edgesObject.SetActive(value); }
-    }
+    public bool EdgesActive { set { _edgesObject.SetActive(value); } }
 
     public Color EdgesColor {
         get { return _edgesColor; }
         set {
-            foreach (Transform edge in _edgesObject.transform) {
-                edge.GetComponent<Renderer>().material.color = value;
+            foreach (Transform edgeTransform in _edgesObject.transform) {
+                edgeTransform.GetComponent<Renderer>().material.color = value;
             }
             _edgesColor = value;
         }
     }
 
-    public float EnergyThreshold {
-        get { return _forceDirectedGraph.EnergyThreshold; }
-    }
+    public float EnergyThreshold { get { return _forceDirectedGraph.EnergyThreshold; } }
 
     public bool LabelsActive {
         set {
-            foreach (Transform node in _nodesObject.transform) {
-                node.Find("Text").gameObject.SetActive(value);
+            foreach (Transform nodeTransform in _nodesObject.transform) {
+                nodeTransform.Find("Text").gameObject.SetActive(value);
             }
         }
     }
@@ -37,8 +33,8 @@ public class Graph : MonoBehaviour {
     public Color LabelsColor {
         get { return _labelsColor; }
         set {
-            foreach (Transform node in _nodesObject.transform) {
-                node.Find("Text").GetComponent<TextMesh>().color = value;
+            foreach (Transform nodeTransform in _nodesObject.transform) {
+                nodeTransform.Find("Text").GetComponent<TextMesh>().color = value;
             }
             _labelsColor = value;
         }
@@ -47,8 +43,8 @@ public class Graph : MonoBehaviour {
     public Color NodesColor {
         get { return _nodesColor; }
         set {
-            foreach (Transform node in _nodesObject.transform) {
-                node.GetComponent<Renderer>().material.color = value;
+            foreach (Transform nodeTransform in _nodesObject.transform) {
+                nodeTransform.GetComponent<Renderer>().material.color = value;
             }
             _nodesColor = value;
         }
@@ -56,11 +52,9 @@ public class Graph : MonoBehaviour {
 
     public float Scale { get; set; }
 
-    public float TotalKineticEnergy {
-        get { return _forceDirectedGraph.TotalKineticEnergy(); }
-    }
+    public float TotalKineticEnergy { get { return _forceDirectedGraph.TotalKineticEnergy(); } }
 
-    public Node GetClosestNode(Vector3 point) {
+    public Node GetClosestNodeOrNull(Vector3 point) {
         GameObject closestNodeObject = null;
         float closestDistance = float.MaxValue;
         foreach (Transform nodeTransform in _nodesObject.transform) {
@@ -82,7 +76,7 @@ public class Graph : MonoBehaviour {
             Convergence = jsonRoot.parameters.convergence,
             Damping = jsonRoot.parameters.damping,
             EnergyThreshold = -1f,
-            SimulationEnabled = true,
+            SimulationEnabled = true
         };
 
         AddNodes(jsonRoot);

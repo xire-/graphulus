@@ -69,7 +69,7 @@ public class GraphPinchController : MonoBehaviour {
             var index = handModel.GetLeapHand().Fingers[1];
             var indexTipPosition = index.TipPosition.ToVector3();
 
-            var closestNodeToIndexTip = gameObject.GetComponent<Graph>().GetClosestNode(indexTipPosition);
+            var closestNodeToIndexTip = gameObject.GetComponent<Graph>().GetClosestNodeOrNull(indexTipPosition);
             const float maxDistance = 0.03f;
             closestNode.curr = Vector3.Distance(indexTipPosition, closestNodeToIndexTip.transform.position) <= maxDistance ? closestNodeToIndexTip : null;
         }
