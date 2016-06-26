@@ -44,8 +44,8 @@ public class GameSystem : MonoBehaviour {
         get { return Settings.themes[_settings.themeIndex]; }
     }
 
-    public void Execute(Job job, float duration = float.PositiveInfinity) {
-        StartCoroutine(ExecuteCoroutine(job, duration));
+    public Coroutine Execute(Job job, float duration = float.PositiveInfinity) {
+        return StartCoroutine(ExecuteCoroutine(job, duration));
     }
 
     public void ResetAndLoadGraph(string graphName) {
