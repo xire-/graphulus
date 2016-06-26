@@ -47,9 +47,18 @@ public class GameSystem : MonoBehaviour {
     }
 
     public void ResetAndLoadGraph(string graphName) {
+        Random.seed = 1337;
+
         Graph.PopulateFrom(string.Format("Assets/Graphs/{0}.json", graphName));
 
-        ChangeThemeAnim(Theme, Theme);
+        var currentTheme = new Theme {
+            skyboxColor = Camera.main.backgroundColor,
+            nodeColor = Graph.NodesColor,
+            labelColor = Graph.LabelsColor,
+            edgeColor = Graph.EdgesColor
+        };
+        var newTheme = Theme;
+        ChangeThemeAnim(currentTheme, newTheme);
     }
 
     public void SwitchTheme() {
@@ -78,8 +87,6 @@ public class GameSystem : MonoBehaviour {
 
     private void Awake() {
         _instance = this;
-
-        Random.seed = 1337;
     }
 
     private void ChangeThemeAnim(Theme startTheme, Theme endTheme) {
@@ -124,17 +131,7 @@ public class GameSystem : MonoBehaviour {
     }
 
     private void Start() {
-        Graph.PopulateFrom(string.Format("Assets/Graphs/{0}.json", _settings.graph));
-
-        // animate the transition from editor colors to the default theme
-        var currentTheme = new Theme {
-            skyboxColor = Camera.main.backgroundColor,
-            nodeColor = Graph.NodesColor,
-            labelColor = Graph.LabelsColor,
-            edgeColor = Graph.EdgesColor
-        };
-        var newTheme = Theme;
-        ChangeThemeAnim(currentTheme, newTheme);
+        ResetAndLoadGraph(_settings.graph);
     }
 
     private void Update() {
