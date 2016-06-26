@@ -18,7 +18,7 @@ public class Menu : MonoBehaviour {
     }
 
     public void ChangeGraphScale() {
-        GameSystem.Instance.graph.Scale = Mathf.Exp(_panelTransform.Find("SliderGraphScale").GetComponent<Slider>().value);
+        GameSystem.Instance.Graph.Scale = Mathf.Exp(_panelTransform.Find("SliderGraphScale").GetComponent<Slider>().value);
     }
 
     public void ChangeTextsActive() {
@@ -26,50 +26,32 @@ public class Menu : MonoBehaviour {
     }
 
     public void ResetGraphTransform() {
-        var pinchController = GameObject.Find("PinchController");
-        if (pinchController != null) {
-            var pinchControllerInitialPosition = pinchController.transform.position;
-            var pinchControllerInitialScale = pinchController.transform.localScale;
-            var graphInitialPosition = GameSystem.Instance.graph.transform.position;
-            var graphInitialScale = GameSystem.Instance.graph.transform.localScale;
-            var graphInitialRotation = GameSystem.Instance.graph.transform.rotation;
+        var pinchController = GameSystem.Instance.Graph.GetComponent<GraphPinchController>();
+        var pinchControllerInitialPosition = pinchController.transform.position;
+        var pinchControllerInitialScale = pinchController.transform.localScale;
 
-            GameSystem.Instance.Execute(new Job {
-                Update = (_, t) => {
-                    t = Easing.EaseOutQuart(t);
+        var graphInitialPosition = GameSystem.Instance.Graph.transform.position;
+        var graphInitialScale = GameSystem.Instance.Graph.transform.localScale;
+        var graphInitialRotation = GameSystem.Instance.Graph.transform.rotation;
 
-                    pinchController.transform.position = Vector3.Lerp(pinchControllerInitialPosition, Vector3.zero, t);
-                    pinchController.transform.localScale = Vector3.Lerp(pinchControllerInitialScale, Vector3.one, t);
+        GameSystem.Instance.Execute(new Job {
+            Update = (_, t) => {
+                t = Easing.EaseOutQuart(t);
 
-                    GameSystem.Instance.graph.transform.position = Vector3.Lerp(graphInitialPosition, Vector3.zero, t);
-                    GameSystem.Instance.graph.transform.localScale = Vector3.Lerp(graphInitialScale, Vector3.one, t);
-                    GameSystem.Instance.graph.transform.rotation = Quaternion.Lerp(graphInitialRotation, Quaternion.Euler(0f, 0f, 0f), t);
-                    return true;
-                }
-            }, 2f);
-        }
-        else {
-            var graphInitialPosition = GameSystem.Instance.graph.transform.position;
-            var graphInitialScale = GameSystem.Instance.graph.transform.localScale;
-            var graphInitialRotation = GameSystem.Instance.graph.transform.rotation;
+                pinchController.transform.position = Vector3.Lerp(pinchControllerInitialPosition, Vector3.zero, t);
+                pinchController.transform.localScale = Vector3.Lerp(pinchControllerInitialScale, Vector3.one, t);
 
-            GameSystem.Instance.Execute(new Job {
-                Update = (_, t) => {
-                    t = Easing.EaseOutQuart(t);
-
-                    GameSystem.Instance.graph.transform.position = Vector3.Lerp(graphInitialPosition, Vector3.zero, t);
-                    GameSystem.Instance.graph.transform.localScale = Vector3.Lerp(graphInitialScale, Vector3.one, t);
-                    GameSystem.Instance.graph.transform.rotation = Quaternion.Lerp(graphInitialRotation, Quaternion.Euler(0f, 0f, 0f), t);
-                    return true;
-                }
-            }, 2f);
-        }
+                GameSystem.Instance.Graph.transform.position = Vector3.Lerp(graphInitialPosition, Vector3.zero, t);
+                GameSystem.Instance.Graph.transform.localScale = Vector3.Lerp(graphInitialScale, Vector3.one, t);
+                GameSystem.Instance.Graph.transform.rotation = Quaternion.Lerp(graphInitialRotation, Quaternion.Euler(0f, 0f, 0f), t);
+                return true;
+            }
+        }, 2f);
     }
 
     public void SwitchGraph(System.Int32 asd) {
         var options = _panelTransform.Find("DropdownSwitchGraph").GetComponent<Dropdown>().options;
         var graphName = options[_panelTransform.Find("DropdownSwitchGraph").GetComponent<Dropdown>().value].text;
-
         GameSystem.Instance.ResetGraph(graphName);
     }
 
@@ -89,7 +71,7 @@ public class Menu : MonoBehaviour {
         _panelTransform.Find("SliderAutoRotationSpeed").GetComponent<Slider>().interactable = GameSystem.Instance.AutoRotationEnabled;
         _panelTransform.Find("SliderAutoRotationSpeed").GetComponent<Slider>().value = GameSystem.Instance.AutoRotationSpeed;
 
-        _panelTransform.Find("SliderGraphScale").GetComponent<Slider>().value = Mathf.Log(GameSystem.Instance.graph.Scale);
+        _panelTransform.Find("SliderGraphScale").GetComponent<Slider>().value = Mathf.Log(GameSystem.Instance.Graph.Scale);
     }
 
     private void Update() {

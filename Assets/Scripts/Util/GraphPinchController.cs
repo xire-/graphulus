@@ -1,13 +1,10 @@
 ﻿using Leap.Unity;
 using UnityEngine;
 
-public class PinchManager : MonoBehaviour {
-
-    // to be set in editor
-    public PinchDetector PinchDetectorR, PinchDetectorL;
+public class GraphPinchController : MonoBehaviour {
+    public PinchDetector pinchDetectorR, pinchDetectorL;
 
     private ClosestNode _closestNodeR = new ClosestNode(), _closestNodeL = new ClosestNode();
-    private Graph _graph;
     private GameObject _pinchControllerObject;
     private PinchInfo _pinchInfoR, _pinchInfoL;
 
@@ -20,23 +17,21 @@ public class PinchManager : MonoBehaviour {
     }
 
     private void Start() {
-        _graph = GameSystem.Instance.graph;
-
-        _pinchControllerObject = new GameObject("PinchController");
-        _pinchControllerObject.transform.parent = _graph.transform.parent;
-        _graph.transform.parent = _pinchControllerObject.transform;
+        _pinchControllerObject = new GameObject("GraphPinchController");
+        _pinchControllerObject.transform.parent = transform.parent;
+        transform.parent = _pinchControllerObject.transform;
     }
 
     private void transformDoubleAnchor() {
-        _pinchControllerObject.transform.position = (PinchDetectorR.Position + PinchDetectorL.Position) / 2f;
+        _pinchControllerObject.transform.position = (pinchDetectorR.Position + pinchDetectorL.Position) / 2f;
 
-        Quaternion pp = Quaternion.Lerp(PinchDetectorR.Rotation, PinchDetectorL.Rotation, .5f);
+        Quaternion pp = Quaternion.Lerp(pinchDetectorR.Rotation, pinchDetectorL.Rotation, .5f);
         Vector3 u = pp * Vector3.up;
-        _pinchControllerObject.transform.LookAt(PinchDetectorR.Position, u);
+        _pinchControllerObject.transform.LookAt(pinchDetectorR.Position, u);
 
         const bool allowScale = true;
         if (allowScale) {
-            _pinchControllerObject.transform.localScale = Vector3.one * Vector3.Distance(PinchDetectorR.Position, PinchDetectorL.Position);
+            _pinchControllerObject.transform.localScale = Vector3.one * Vector3.Distance(pinchDetectorR.Position, pinchDetectorL.Position);
         }
     }
 
@@ -47,25 +42,25 @@ public class PinchManager : MonoBehaviour {
 
     private void Update() {
         // update closest node only when not pinching
-        if (!PinchDetectorR.IsPinching) {
-            UpdateClosestNode(PinchDetectorR, _closestNodeR);
+        if (!pinchDetectorR.IsPinching) {
+            UpdateClosestNode(pinchDetectorR, _closestNodeR);
         }
-        if (!PinchDetectorL.IsPinching) {
-            UpdateClosestNode(PinchDetectorL, _closestNodeL);
+        if (!pinchDetectorL.IsPinching) {
+            UpdateClosestNode(pinchDetectorL, _closestNodeL);
         }
 
         // update anchors
-        bool didUpdate = PinchDetectorR.DidChangeFromLastFrame | PinchDetectorL.DidChangeFromLastFrame;
+        bool didUpdate = pinchDetectorR.DidChangeFromLastFrame | pinchDetectorL.DidChangeFromLastFrame;
         if (didUpdate) {
-            _graph.transform.SetParent(null, true);
+            transform.SetParent(null, true);
         }
 
-        UpdatePinchSingle(PinchDetectorR, _closestNodeR, ref _pinchInfoR);
-        UpdatePinchSingle(PinchDetectorL, _closestNodeL, ref _pinchInfoL);
+        UpdatePinchSingle(pinchDetectorR, _closestNodeR, ref _pinchInfoR);
+        UpdatePinchSingle(pinchDetectorL, _closestNodeL, ref _pinchInfoL);
         UpdatePinchDouble();
 
         if (didUpdate) {
-            _graph.transform.SetParent(_pinchControllerObject.transform, true);
+            transform.SetParent(_pinchControllerObject.transform, true);
         }
     }
 
@@ -78,7 +73,7 @@ public class PinchManager : MonoBehaviour {
             var index = handModel.GetLeapHand().Fingers[1];
             var indexTipPosition = index.TipPosition.ToVector3();
 
-            var closestNodeToIndexTip = _graph.GetClosestNode(indexTipPosition);
+            var closestNodeToIndexTip = gameObject.GetComponent<Graph>().GetClosestNode(indexTipPosition);
             const float maxDistance = 0.03f;
             closestNode.curr = Vector3.Distance(indexTipPosition, closestNodeToIndexTip.transform.position) <= maxDistance ? closestNodeToIndexTip : null;
         }
@@ -101,12 +96,12 @@ public class PinchManager : MonoBehaviour {
     }
 
     private void UpdatePinchDouble() {
-        if (PinchDetectorR.IsPinching && PinchDetectorL.IsPinching) {
+        if (pinchDetectorR.IsPinching && pinchDetectorL.IsPinching) {
             // zoom and scale only when both pinch were not close to any node
             bool noNodePinch = _pinchInfoR.node == null && _pinchInfoL.node == null;
             if (noNodePinch) {
                 // finalize single pinch (if any)
-                if (PinchDetectorR.DidStartPinch || PinchDetectorL.DidStartPinch) {
+                if (pinchDetectorR.DidStartPinch || pinchDetectorL.DidStartPinch) {
                     if (_closestNodeR.curr != null && _closestNodeR.curr.Pinched) {
                         _closestNodeR.curr.Pinched = false;
                     }

@@ -2,10 +2,7 @@
 using UnityEngine;
 
 public class GameSystem : MonoBehaviour {
-
-    [HideInInspector]
-    public Graph graph;
-
+    public GameObject graphObject;
     private static GameSystem _instance;
     private Settings _settings = new Settings();
 
@@ -26,15 +23,17 @@ public class GameSystem : MonoBehaviour {
     public bool EdgesActive {
         get { return _settings.edgesActive; }
         set {
-            graph.EdgesActive = value;
+            Graph.EdgesActive = value;
             _settings.edgesActive = value;
         }
     }
 
+    public Graph Graph { get { return graphObject.GetComponent<Graph>(); } }
+
     public bool TextsActive {
         get { return _settings.textsActive; }
         set {
-            graph.TextsActive = value;
+            Graph.TextsActive = value;
             _settings.textsActive = value;
         }
     }
@@ -48,7 +47,7 @@ public class GameSystem : MonoBehaviour {
     }
 
     public void ResetGraph(string graphName) {
-        graph.PopulateFrom(string.Format("Assets/Graphs/{0}.json", graphName));
+        Graph.PopulateFrom(string.Format("Assets/Graphs/{0}.json", graphName));
 
         ChangeThemeAnim(Theme, Theme);
     }
@@ -80,10 +79,7 @@ public class GameSystem : MonoBehaviour {
     private void Awake() {
         _instance = this;
 
-        UnityEngine.Random.seed = 1337;
-
-        var graphObject = new GameObject("Graph");
-        graph = graphObject.AddComponent<Graph>();
+        Random.seed = 1337;
     }
 
     private void ChangeThemeAnim(Theme startTheme, Theme endTheme) {
@@ -92,9 +88,9 @@ public class GameSystem : MonoBehaviour {
                 t = Easing.EaseOutCubic(t);
 
                 Camera.main.backgroundColor = Color.Lerp(startTheme.skyboxColor, endTheme.skyboxColor, t);
-                graph.NodesColor = Color.Lerp(startTheme.nodeColor, endTheme.nodeColor, t);
-                graph.TextsColor = Color.Lerp(startTheme.textColor, endTheme.textColor, t);
-                graph.EdgesColor = Color.Lerp(startTheme.edgeColor, endTheme.edgeColor, t);
+                Graph.NodesColor = Color.Lerp(startTheme.nodeColor, endTheme.nodeColor, t);
+                Graph.TextsColor = Color.Lerp(startTheme.textColor, endTheme.textColor, t);
+                Graph.EdgesColor = Color.Lerp(startTheme.edgeColor, endTheme.edgeColor, t);
                 return true;
             },
         }, 1.5f);
@@ -128,14 +124,14 @@ public class GameSystem : MonoBehaviour {
     }
 
     private void Start() {
-        graph.PopulateFrom(string.Format("Assets/Graphs/{0}.json", _settings.graph));
+        Graph.PopulateFrom(string.Format("Assets/Graphs/{0}.json", _settings.graph));
 
         // animate the transition from editor colors to the default theme
         var currentTheme = new Theme {
             skyboxColor = Camera.main.backgroundColor,
-            nodeColor = graph.NodesColor,
-            textColor = graph.TextsColor,
-            edgeColor = graph.EdgesColor
+            nodeColor = Graph.NodesColor,
+            textColor = Graph.TextsColor,
+            edgeColor = Graph.EdgesColor
         };
         var newTheme = Theme;
         ChangeThemeAnim(currentTheme, newTheme);
@@ -144,7 +140,7 @@ public class GameSystem : MonoBehaviour {
     private void Update() {
         // continuously rotate graph
         if (_settings.autoRotationEnabled) {
-            graph.transform.RotateAround(graph.transform.position, Vector3.up, Time.deltaTime * _settings.autoRotationSpeed);
+            Graph.transform.RotateAround(Graph.transform.position, Vector3.up, Time.deltaTime * _settings.autoRotationSpeed);
         }
     }
 
