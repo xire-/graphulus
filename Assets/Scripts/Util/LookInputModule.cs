@@ -2,6 +2,8 @@
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
+// https://forums.oculus.com/community/discussion/16710/new-unity-ui-ovr-look-based-input-howto
+// slightly modified to add gaze input
 public class LookInputModule : BaseInputModule {
 
     // name of axis to use for scrolling/sliders
@@ -17,6 +19,9 @@ public class LookInputModule : BaseInputModule {
     // deselect when looking away from all UI elements
     // useful if you want to use axis for other controls
     public bool deselectWhenLookAway = false;
+
+    public bool gazeEnabled;
+    public float gazeTime;
 
     // ignore input when looking away from all UI elements
     // useful if you want to use buttons/axis for other controls
@@ -99,6 +104,7 @@ public class LookInputModule : BaseInputModule {
 
     private GameObject currentLook;
 
+    private float currentLookAtHandlerClickTime = 0f;
     private GameObject currentPressed;
 
     private Color currentSelectedHighlightedColor;
@@ -147,7 +153,11 @@ public class LookInputModule : BaseInputModule {
 
         // see if there is a UI element that is currently being looked at
         PointerEventData lookData = GetLookPointerEventData();
-        currentLook = lookData.pointerCurrentRaycast.gameObject;
+        var newLook = lookData.pointerCurrentRaycast.gameObject;
+        if (newLook != currentLook) {
+            currentLook = newLook;
+            currentLookAtHandlerClickTime = Time.realtimeSinceStartup + gazeTime;
+        }
 
         // deselect when look away
         if (deselectWhenLookAway && currentLook == null) {
@@ -164,7 +174,9 @@ public class LookInputModule : BaseInputModule {
         if (!ignoreInputsWhenLookAway || ignoreInputsWhenLookAway && currentLook != null) {
             // button down handling
             _buttonUsed = false;
-            if (Input.GetButtonDown(submitButtonName)) {
+            if ((gazeEnabled && Time.realtimeSinceStartup > currentLookAtHandlerClickTime) || Input.GetButtonDown(submitButtonName)) {
+                currentLookAtHandlerClickTime = float.PositiveInfinity;
+
                 ClearSelection();
                 lookData.pressPosition = lookData.position;
                 lookData.pointerPressRaycast = lookData.pointerCurrentRaycast;
