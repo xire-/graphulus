@@ -44,7 +44,7 @@ public class GameSystem : MonoBehaviour {
         get { return Settings.themes[_settings.themeIndex]; }
     }
 
-    public void Execute(Job job, float duration = 0f) {
+    public void Execute(Job job, float duration = float.PositiveInfinity) {
         StartCoroutine(ExecuteCoroutine(job, duration));
     }
 
@@ -100,7 +100,7 @@ public class GameSystem : MonoBehaviour {
         }
 
         float startTime = Time.realtimeSinceStartup;
-        float endTime = startTime + (duration > 0f ? duration : float.PositiveInfinity);
+        float endTime = startTime + duration;
 
         do {
             yield return null;
