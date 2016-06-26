@@ -8,6 +8,7 @@ public class GameSystem : MonoBehaviour {
 
     private static GameSystem _instance;
 
+    private Coroutine _changeThemeCoroutine;
     private Settings _settings = new Settings();
 
     public static GameSystem Instance { get { return _instance; } }
@@ -54,34 +55,36 @@ public class GameSystem : MonoBehaviour {
         Random.seed = 1337;
         Graph.PopulateFrom(string.Format("Assets/Graphs/{0}.json", _settings.graphName));
 
-        var currentTheme = new Theme {
-            skyboxColor = Camera.main.backgroundColor,
-            nodeColor = Graph.NodesColor,
-            labelColor = Graph.LabelsColor,
-            edgeColor = Graph.EdgesColor
-        };
-        var newTheme = Theme;
-        ChangeThemeAnim(currentTheme, newTheme);
+        ChangeThemeAnim(Theme);
     }
 
     public void SwitchTheme() {
-        var currentTheme = Theme;
-
         // set the new theme
         int newThemeIndex = (_settings.themeIndex + 1) % Settings.themes.Length;
         _settings.themeIndex = newThemeIndex;
 
         // animate transition to the new theme
         var newTheme = Settings.themes[newThemeIndex];
-        ChangeThemeAnim(currentTheme, newTheme);
+        ChangeThemeAnim(newTheme);
     }
 
     private void Awake() {
         _instance = this;
     }
 
-    private void ChangeThemeAnim(Theme startTheme, Theme endTheme) {
-        Execute(new Job {
+    private void ChangeThemeAnim(Theme endTheme) {
+        if (_changeThemeCoroutine != null) {
+            StopCoroutine(_changeThemeCoroutine);
+        }
+
+        var startTheme = new Theme {
+            skyboxColor = Camera.main.backgroundColor,
+            nodeColor = Graph.NodesColor,
+            labelColor = Graph.LabelsColor,
+            edgeColor = Graph.EdgesColor
+        };
+
+        _changeThemeCoroutine = Execute(new Job {
             Update = (deltaTime, t) => {
                 t = Easing.EaseOutCubic(t);
 
