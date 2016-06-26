@@ -8,7 +8,7 @@ public class KeyboardManager : MonoBehaviour {
     private void Start() {
         _keyToActionMap.Add(KeyCode.L, GameSystem.Instance.SwitchTheme);
         _keyToActionMap.Add(KeyCode.R, GameSystem.Instance.ToggleEdgesActive);
-        _keyToActionMap.Add(KeyCode.T, GameSystem.Instance.ToggleTextsActive);
+        _keyToActionMap.Add(KeyCode.T, GameSystem.Instance.ToggleLabelsActive);
 
         _keyToActionMap.Add(KeyCode.B, () => {
             GameSystem.Instance.AutoRotationSpeed += 10f;

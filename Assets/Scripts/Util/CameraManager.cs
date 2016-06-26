@@ -50,7 +50,7 @@ public class CameraManager : MonoBehaviour {
             "\n" +
             string.Format("Theme: {0}\n", GameSystem.Instance.Theme.name) +
             "\n" +
-            string.Format("Texts active: {0}\n", GameSystem.Instance.TextsActive) +
+            string.Format("Labels active: {0}\n", GameSystem.Instance.LabelsActive) +
             string.Format("Edges active: {0}\n", GameSystem.Instance.EdgesActive) +
             "\n" +
             string.Format("Auto rotation enabled: {0}\n", GameSystem.Instance.AutoRotationEnabled) +

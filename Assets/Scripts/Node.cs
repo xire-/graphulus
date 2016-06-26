@@ -7,6 +7,11 @@ public class Node : MonoBehaviour {
     private Vector3 _initialScale;
     private bool _selected;
 
+    public string Label {
+        get { return transform.Find("Text").GetComponent<TextMesh>().text; }
+        set { transform.Find("Text").GetComponent<TextMesh>().text = value; }
+    }
+
     public bool Pinched { get; set; }
 
     public bool Selected {
@@ -19,11 +24,6 @@ public class Node : MonoBehaviour {
                 }
             }
         }
-    }
-
-    public string Text {
-        get { return transform.Find("Text").GetComponent<TextMesh>().text; }
-        set { transform.Find("Text").GetComponent<TextMesh>().text = value; }
     }
 
     private void AnimateSelection(bool select) {

@@ -30,11 +30,11 @@ public class GameSystem : MonoBehaviour {
 
     public Graph Graph { get { return graphObject.GetComponent<Graph>(); } }
 
-    public bool TextsActive {
-        get { return _settings.textsActive; }
+    public bool LabelsActive {
+        get { return _settings.labelsActive; }
         set {
-            Graph.TextsActive = value;
-            _settings.textsActive = value;
+            Graph.LabelsActive = value;
+            _settings.labelsActive = value;
         }
     }
 
@@ -72,8 +72,8 @@ public class GameSystem : MonoBehaviour {
         EdgesActive = !EdgesActive;
     }
 
-    public void ToggleTextsActive() {
-        TextsActive = !TextsActive;
+    public void ToggleLabelsActive() {
+        LabelsActive = !LabelsActive;
     }
 
     private void Awake() {
@@ -89,7 +89,7 @@ public class GameSystem : MonoBehaviour {
 
                 Camera.main.backgroundColor = Color.Lerp(startTheme.skyboxColor, endTheme.skyboxColor, t);
                 Graph.NodesColor = Color.Lerp(startTheme.nodeColor, endTheme.nodeColor, t);
-                Graph.TextsColor = Color.Lerp(startTheme.textColor, endTheme.textColor, t);
+                Graph.LabelsColor = Color.Lerp(startTheme.labelColor, endTheme.labelColor, t);
                 Graph.EdgesColor = Color.Lerp(startTheme.edgeColor, endTheme.edgeColor, t);
                 return true;
             },
@@ -130,7 +130,7 @@ public class GameSystem : MonoBehaviour {
         var currentTheme = new Theme {
             skyboxColor = Camera.main.backgroundColor,
             nodeColor = Graph.NodesColor,
-            textColor = Graph.TextsColor,
+            labelColor = Graph.LabelsColor,
             edgeColor = Graph.EdgesColor
         };
         var newTheme = Theme;
@@ -152,7 +152,7 @@ public class GameSystem : MonoBehaviour {
                 skyboxColor = new Color32(0x10, 0x0F, 0x0F, 0xFF),
                 nodeColor = new Color32(0x17, 0xE2, 0xDA, 0xA1),
                 nodeSelectedColor = new Color32(0xD7, 0x8F, 0x32, 0xD9),
-                textColor = new Color32(0xE3, 0xE3, 0xE3, 0xFF),
+                labelColor = new Color32(0xE3, 0xE3, 0xE3, 0xFF),
                 edgeColor = new Color32(0xF3, 0xF3, 0xF3, 0x64)
             },
             new Theme {
@@ -160,7 +160,7 @@ public class GameSystem : MonoBehaviour {
                 skyboxColor = new Color32(0x02, 0x44, 0x5F, 0xFF),
                 nodeColor = new Color32(0x10, 0xAA, 0x51, 0xD2),
                 nodeSelectedColor = new Color32(0xE4, 0xE6, 0x2D, 0xD4),
-                textColor = new Color32(0x9E, 0xCC, 0xC7, 0xFF),
+                labelColor = new Color32(0x9E, 0xCC, 0xC7, 0xFF),
                 edgeColor = new Color32(0xD9, 0x68, 0x3E, 0xC6)
             }
         };
@@ -169,7 +169,7 @@ public class GameSystem : MonoBehaviour {
         public float autoRotationSpeed = 15f;
         public bool edgesActive = true;
         public string graph = "Miserables";
-        public bool textsActive = true;
+        public bool labelsActive = true;
         public int themeIndex = 0;
     }
 }

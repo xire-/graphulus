@@ -4,7 +4,7 @@ using UnityEngine;
 public class Graph : MonoBehaviour {
     private static Object _edgeResource, _nodeResource;
 
-    private Color _edgesColor, _nodesColor, _textsColor;
+    private Color _edgesColor, _nodesColor, _labelsColor;
     private Springy.ForceDirectedGraph _forceDirectedGraph;
     private GameObject _nodesObject, _edgesObject;
 
@@ -26,6 +26,24 @@ public class Graph : MonoBehaviour {
         get { return _forceDirectedGraph.EnergyThreshold; }
     }
 
+    public bool LabelsActive {
+        set {
+            foreach (Transform node in _nodesObject.transform) {
+                node.Find("Text").gameObject.SetActive(value);
+            }
+        }
+    }
+
+    public Color LabelsColor {
+        get { return _labelsColor; }
+        set {
+            foreach (Transform node in _nodesObject.transform) {
+                node.Find("Text").GetComponent<TextMesh>().color = value;
+            }
+            _labelsColor = value;
+        }
+    }
+
     public Color NodesColor {
         get { return _nodesColor; }
         set {
@@ -37,24 +55,6 @@ public class Graph : MonoBehaviour {
     }
 
     public float Scale { get; set; }
-
-    public bool TextsActive {
-        set {
-            foreach (Transform node in _nodesObject.transform) {
-                node.Find("Text").gameObject.SetActive(value);
-            }
-        }
-    }
-
-    public Color TextsColor {
-        get { return _textsColor; }
-        set {
-            foreach (Transform node in _nodesObject.transform) {
-                node.Find("Text").GetComponent<TextMesh>().color = value;
-            }
-            _textsColor = value;
-        }
-    }
 
     public float TotalKineticEnergy {
         get { return _forceDirectedGraph.TotalKineticEnergy(); }
@@ -101,12 +101,12 @@ public class Graph : MonoBehaviour {
         return edgeObject;
     }
 
-    private static GameObject CreateNode(Springy.Node springyNode, string text) {
+    private static GameObject CreateNode(Springy.Node springyNode, string label) {
         var nodeObject = (GameObject)Instantiate(_nodeResource);
-        nodeObject.name = text;
+        nodeObject.name = label;
         var node = nodeObject.GetComponent<Node>();
         node.springyNode = springyNode;
-        node.Text = text;
+        node.Label = label;
         return nodeObject;
     }
 
