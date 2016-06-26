@@ -37,13 +37,13 @@ public class Node : MonoBehaviour {
         var endScale = _initialScale * 2f;
         endScale.z = 1;
 
-        const float duration = 0.2f;
-        GameSystem.Instance.AnimateConditional(new AnimationConditional {
+        const float animationDuration = 0.2f;
+        GameSystem.Instance.Execute(new Job {
             OnStart = () => {
                 _currentlyAnimated = true;
             },
-            Update = (deltaTime) => {
-                float delta = Mathf.Clamp01(deltaTime / duration);
+            Update = (deltaTime, _) => {
+                float delta = Mathf.Clamp01(deltaTime / animationDuration);
 
                 // if node is deselected, invert the animation
                 if (!Selected) {

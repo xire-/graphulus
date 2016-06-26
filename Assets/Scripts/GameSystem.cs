@@ -43,12 +43,8 @@ public class GameSystem : MonoBehaviour {
         get { return Settings.themes[_settings.themeIndex]; }
     }
 
-    public void Animate(Animation animation) {
-        StartCoroutine("AnimateCoroutine", animation);
-    }
-
-    public void AnimateConditional(AnimationConditional animation) {
-        StartCoroutine("AnimateConditionalCoroutine", animation);
+    public void Execute(Job job, float duration = 0f) {
+        StartCoroutine(ExecuteCoroutine(job, duration));
     }
 
     public void ResetGraph(string graphName) {
@@ -81,51 +77,6 @@ public class GameSystem : MonoBehaviour {
         TextsActive = !TextsActive;
     }
 
-    private IEnumerator AnimateConditionalCoroutine(AnimationConditional animation) {
-        if (animation.OnStart != null) {
-            animation.OnStart();
-        }
-
-        while (true) {
-            if (!animation.Update(Time.deltaTime)) {
-                break;
-            }
-            yield return null;
-        }
-
-        if (animation.OnEnd != null) {
-            animation.OnEnd();
-        }
-    }
-
-    private IEnumerator AnimateCoroutine(Animation animation) {
-        if (animation.OnStart != null) {
-            animation.OnStart();
-        }
-
-        float startTime = Time.realtimeSinceStartup;
-        float endTime = startTime + animation.duration;
-
-        while (Time.realtimeSinceStartup < endTime) {
-            float t = (Time.realtimeSinceStartup - startTime) / animation.duration;
-            if (animation.Ease != null) {
-                t = animation.Ease(t);
-            }
-            if (animation.Update != null) {
-                animation.Update(t);
-            }
-            yield return null;
-        }
-
-        if (animation.Update != null) {
-            animation.Update(1f);
-        }
-
-        if (animation.OnEnd != null) {
-            animation.OnEnd();
-        }
-    }
-
     private void Awake() {
         _instance = this;
 
@@ -136,16 +87,40 @@ public class GameSystem : MonoBehaviour {
     }
 
     private void ChangeThemeAnim(Theme startTheme, Theme endTheme) {
-        Animate(new Animation {
-            Update = t => {
+        Execute(new Job {
+            Update = (deltaTime, t) => {
+                t = Easing.EaseOutCubic(t);
+
                 Camera.main.backgroundColor = Color.Lerp(startTheme.skyboxColor, endTheme.skyboxColor, t);
                 graph.NodesColor = Color.Lerp(startTheme.nodeColor, endTheme.nodeColor, t);
                 graph.TextsColor = Color.Lerp(startTheme.textColor, endTheme.textColor, t);
                 graph.EdgesColor = Color.Lerp(startTheme.edgeColor, endTheme.edgeColor, t);
+                return true;
             },
-            duration = 1.5f,
-            Ease = Easing.EaseOutCubic
-        });
+        }, 1.5f);
+    }
+
+    private IEnumerator ExecuteCoroutine(Job job, float duration) {
+        if (job.OnStart != null) {
+            job.OnStart();
+        }
+
+        float startTime = Time.realtimeSinceStartup;
+        float endTime = startTime + (duration > 0f ? duration : float.PositiveInfinity);
+
+        float t = 0f;
+        do {
+            yield return null;
+
+            t = Time.realtimeSinceStartup > endTime ? 1f : (Time.realtimeSinceStartup - startTime) / duration;
+            if (!job.Update(Time.deltaTime, t)) {
+                break;
+            }
+        } while (Time.realtimeSinceStartup <= endTime);
+
+        if (job.OnEnd != null) {
+            job.OnEnd();
+        }
     }
 
     private void OnDestroy() {

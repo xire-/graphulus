@@ -31,26 +31,27 @@ public class Edge : MonoBehaviour {
         // random duration and easing
         var duration = Random.Range(0.5f, 4f);
         System.Func<float, float>[] easings = { Easing.EaseOutCubic, Easing.EaseOutQuad, Easing.EaseOutQuart, Easing.EaseOutQuint };
-        var easing = easings[Random.Range(0, easings.Length)];
+        var ease = easings[Random.Range(0, easings.Length)];
 
         // start animation
-        GameSystem.Instance.Animate(new Animation {
+        GameSystem.Instance.Execute(new Job {
             OnStart = () => {
                 light.transform.position = source.transform.position;
                 light.SetActive(true);
             },
-            Update = t => {
+            Update = (deltaTime, t) => {
+                t = ease(t);
+
                 if (light != null) {
                     light.transform.position = Vector3.Lerp(source.transform.position, target.transform.position, t);
                 }
+                return true;
             },
             OnEnd = () => {
                 if (light != null) {
                     Destroy(light);
                 }
-            },
-            duration = duration,
-            Ease = easing,
-        });
+            }
+        }, duration);
     }
 }

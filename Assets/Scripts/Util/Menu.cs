@@ -34,33 +34,35 @@ public class Menu : MonoBehaviour {
             var graphInitialScale = GameSystem.Instance.graph.transform.localScale;
             var graphInitialRotation = GameSystem.Instance.graph.transform.rotation;
 
-            GameSystem.Instance.Animate(new Animation {
-                Update = t => {
+            GameSystem.Instance.Execute(new Job {
+                Update = (_, t) => {
+                    t = Easing.EaseOutQuart(t);
+
                     pinchController.transform.position = Vector3.Lerp(pinchControllerInitialPosition, Vector3.zero, t);
                     pinchController.transform.localScale = Vector3.Lerp(pinchControllerInitialScale, Vector3.one, t);
 
                     GameSystem.Instance.graph.transform.position = Vector3.Lerp(graphInitialPosition, Vector3.zero, t);
                     GameSystem.Instance.graph.transform.localScale = Vector3.Lerp(graphInitialScale, Vector3.one, t);
                     GameSystem.Instance.graph.transform.rotation = Quaternion.Lerp(graphInitialRotation, Quaternion.Euler(0f, 0f, 0f), t);
-                },
-                duration = 2f,
-                Ease = Easing.EaseOutQuart,
-            });
+                    return true;
+                }
+            }, 2f);
         }
         else {
             var graphInitialPosition = GameSystem.Instance.graph.transform.position;
             var graphInitialScale = GameSystem.Instance.graph.transform.localScale;
             var graphInitialRotation = GameSystem.Instance.graph.transform.rotation;
 
-            GameSystem.Instance.Animate(new Animation {
-                Update = t => {
+            GameSystem.Instance.Execute(new Job {
+                Update = (_, t) => {
+                    t = Easing.EaseOutQuart(t);
+
                     GameSystem.Instance.graph.transform.position = Vector3.Lerp(graphInitialPosition, Vector3.zero, t);
                     GameSystem.Instance.graph.transform.localScale = Vector3.Lerp(graphInitialScale, Vector3.one, t);
                     GameSystem.Instance.graph.transform.rotation = Quaternion.Lerp(graphInitialRotation, Quaternion.Euler(0f, 0f, 0f), t);
-                },
-                duration = 2f,
-                Ease = Easing.EaseOutQuart,
-            });
+                    return true;
+                }
+            }, 2f);
         }
     }
 
