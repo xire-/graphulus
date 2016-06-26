@@ -49,9 +49,10 @@ public class GameSystem : MonoBehaviour {
     }
 
     public void ResetAndLoadGraph(string graphName) {
-        Random.seed = 1337;
+        _settings.graphName = graphName;
 
-        Graph.PopulateFrom(string.Format("Assets/Graphs/{0}.json", graphName));
+        Random.seed = 1337;
+        Graph.PopulateFrom(string.Format("Assets/Graphs/{0}.json", _settings.graphName));
 
         var currentTheme = new Theme {
             skyboxColor = Camera.main.backgroundColor,
@@ -116,7 +117,7 @@ public class GameSystem : MonoBehaviour {
     }
 
     private void Start() {
-        ResetAndLoadGraph(_settings.graph);
+        ResetAndLoadGraph(_settings.graphName);
     }
 
     private void Update() {

@@ -24,7 +24,7 @@ public class Settings {
     public bool autoRotationEnabled = false;
     public float autoRotationSpeed = 15f;
     public bool edgesActive = true;
-    public string graph = "Miserables";
+    public string graphName = "Miserables";
     public bool labelsActive = true;
     public int themeIndex = 0;
 }
