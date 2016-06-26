@@ -46,7 +46,7 @@ public class GameSystem : MonoBehaviour {
         StartCoroutine(ExecuteCoroutine(job, duration));
     }
 
-    public void ResetGraph(string graphName) {
+    public void ResetAndLoadGraph(string graphName) {
         Graph.PopulateFrom(string.Format("Assets/Graphs/{0}.json", graphName));
 
         ChangeThemeAnim(Theme, Theme);

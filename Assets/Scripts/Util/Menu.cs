@@ -49,10 +49,10 @@ public class Menu : MonoBehaviour {
         }, 2f);
     }
 
-    public void SwitchGraph(System.Int32 asd) {
+    public void SwitchGraph() {
         var options = _panelTransform.Find("DropdownSwitchGraph").GetComponent<Dropdown>().options;
         var graphName = options[_panelTransform.Find("DropdownSwitchGraph").GetComponent<Dropdown>().value].text;
-        GameSystem.Instance.ResetGraph(graphName);
+        GameSystem.Instance.ResetAndLoadGraph(graphName);
     }
 
     public void SwitchTheme() {
