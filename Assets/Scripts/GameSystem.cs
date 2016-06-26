@@ -2,13 +2,15 @@
 using UnityEngine;
 
 public class GameSystem : MonoBehaviour {
+
+    // to be set in editor
     public GameObject graphObject;
+
     private static GameSystem _instance;
+
     private Settings _settings = new Settings();
 
-    public static GameSystem Instance {
-        get { return _instance; }
-    }
+    public static GameSystem Instance { get { return _instance; } }
 
     public bool AutoRotationEnabled {
         get { return _settings.autoRotationEnabled; }
@@ -73,18 +75,6 @@ public class GameSystem : MonoBehaviour {
         ChangeThemeAnim(currentTheme, newTheme);
     }
 
-    public void ToggleAutoRotation() {
-        AutoRotationEnabled = !AutoRotationEnabled;
-    }
-
-    public void ToggleEdgesActive() {
-        EdgesActive = !EdgesActive;
-    }
-
-    public void ToggleLabelsActive() {
-        LabelsActive = !LabelsActive;
-    }
-
     private void Awake() {
         _instance = this;
     }
@@ -111,11 +101,10 @@ public class GameSystem : MonoBehaviour {
         float startTime = Time.realtimeSinceStartup;
         float endTime = startTime + (duration > 0f ? duration : float.PositiveInfinity);
 
-        float t = 0f;
         do {
             yield return null;
 
-            t = Time.realtimeSinceStartup > endTime ? 1f : (Time.realtimeSinceStartup - startTime) / duration;
+            float t = Time.realtimeSinceStartup > endTime ? 1f : (Time.realtimeSinceStartup - startTime) / duration;
             if (!job.Update(Time.deltaTime, t)) {
                 break;
             }
@@ -126,18 +115,13 @@ public class GameSystem : MonoBehaviour {
         }
     }
 
-    private void OnDestroy() {
-        _instance = null;
-    }
-
     private void Start() {
         ResetAndLoadGraph(_settings.graph);
     }
 
     private void Update() {
-        // continuously rotate graph
-        if (_settings.autoRotationEnabled) {
-            Graph.transform.RotateAround(Graph.transform.position, Vector3.up, Time.deltaTime * _settings.autoRotationSpeed);
+        if (AutoRotationEnabled) {
+            Graph.transform.RotateAround(Graph.transform.position, Vector3.up, Time.deltaTime * AutoRotationSpeed);
         }
     }
 

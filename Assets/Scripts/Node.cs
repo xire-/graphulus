@@ -3,9 +3,8 @@
 public class Node : MonoBehaviour {
     public Springy.Node springyNode;
 
-    private bool _currentlyAnimated;
+    private bool _animated, _selected;
     private Vector3 _initialScale;
-    private bool _selected;
 
     public string Label {
         get { return transform.Find("Text").GetComponent<TextMesh>().text; }
@@ -19,7 +18,7 @@ public class Node : MonoBehaviour {
         set {
             if ((value && !_selected) || (!value && _selected)) {
                 _selected = value;
-                if (!_currentlyAnimated) {
+                if (!_animated) {
                     AnimateSelection(value);
                 }
             }
@@ -40,7 +39,7 @@ public class Node : MonoBehaviour {
         const float animationDuration = 0.2f;
         GameSystem.Instance.Execute(new Job {
             OnStart = () => {
-                _currentlyAnimated = true;
+                _animated = true;
             },
             Update = (deltaTime, _) => {
                 float delta = Mathf.Clamp01(deltaTime / animationDuration);
@@ -61,7 +60,7 @@ public class Node : MonoBehaviour {
                 return !(selectedAndCompleted || deselectedAndCompleted);
             },
             OnEnd = () => {
-                _currentlyAnimated = false;
+                _animated = false;
             },
         });
     }

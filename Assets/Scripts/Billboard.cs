@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public class CameraFacingBillboard : MonoBehaviour {
+public class Billboard : MonoBehaviour {
 
     private void LateUpdate() {
         // http://wiki.unity3d.com/index.php?title=CameraFacingBillboard

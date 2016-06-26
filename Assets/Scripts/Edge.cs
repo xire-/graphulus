@@ -19,7 +19,7 @@ public class Edge : MonoBehaviour {
 
         // randomly spawn light from source node to target
         const float spawnLightProbability = 0.0008f;
-        if (Random.value < spawnLightProbability) {
+        if (Random.value <= spawnLightProbability) {
             SpawnLight();
         }
     }
@@ -39,12 +39,13 @@ public class Edge : MonoBehaviour {
                 light.transform.position = source.transform.position;
                 light.SetActive(true);
             },
-            Update = (deltaTime, t) => {
-                t = ease(t);
-
-                if (light != null) {
-                    light.transform.position = Vector3.Lerp(source.transform.position, target.transform.position, t);
+            Update = (_, t) => {
+                if (light == null) {
+                    return false;
                 }
+
+                t = ease(t);
+                light.transform.position = Vector3.Lerp(source.transform.position, target.transform.position, t);
                 return true;
             },
             OnEnd = () => {

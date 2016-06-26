@@ -9,15 +9,13 @@ public class CameraManager : MonoBehaviour {
         Cursor.lockState = CursorLockMode.Locked;
     }
 
-    private Node GetLookedNode() {
+    private Node GetLookedNodeOrNull() {
         Node lookedNode = null;
         const float radius = 0.02f;
         RaycastHit hit;
         if (Physics.SphereCast(transform.position, radius, transform.forward, out hit)) {
             var lookedObject = hit.transform.gameObject;
-            if (lookedObject.tag == "Node") {
-                lookedNode = lookedObject.GetComponent<Node>();
-            }
+            lookedNode = lookedObject.GetComponent<Node>();
         }
         return lookedNode;
     }
@@ -26,7 +24,7 @@ public class CameraManager : MonoBehaviour {
         Node lookedNode = null, lookedNodePrev = null;
         while (true) {
             lookedNodePrev = lookedNode;
-            lookedNode = GetLookedNode();
+            lookedNode = GetLookedNodeOrNull();
 
             if (lookedNodePrev != lookedNode) {
                 if (lookedNodePrev != null) {
