@@ -4,4 +4,4 @@ Library/
 Temp/
 *.csproj
 *.sln
-OculusDataVision.userprefs
+*.userprefs
