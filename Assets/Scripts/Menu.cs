@@ -53,13 +53,15 @@ public class Menu : MonoBehaviour {
         var options = _panelTransform.Find("DropdownSwitchGraph").GetComponent<Dropdown>().options;
         var graphName = options[_panelTransform.Find("DropdownSwitchGraph").GetComponent<Dropdown>().value].text;
         GameSystem.Instance.ResetAndLoadGraph(graphName);
+
+        Reset();
     }
 
     public void SwitchTheme() {
         GameSystem.Instance.SwitchTheme();
     }
 
-    private void Start() {
+    private void Reset() {
         _panelTransform = transform.Find("Panel");
 
         _panelTransform.Find("ToggleEdgesActive").GetComponent<Toggle>().isOn = GameSystem.Instance.EdgesActive;
@@ -72,6 +74,10 @@ public class Menu : MonoBehaviour {
         _panelTransform.Find("SliderAutoRotationSpeed").GetComponent<Slider>().value = GameSystem.Instance.AutoRotationSpeed;
 
         _panelTransform.Find("SliderGraphScale").GetComponent<Slider>().value = Mathf.Log(GameSystem.Instance.Graph.Scale);
+    }
+
+    private void Start() {
+        Reset();
     }
 
     private void Update() {

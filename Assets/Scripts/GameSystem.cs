@@ -55,6 +55,11 @@ public class GameSystem : MonoBehaviour {
         Random.seed = 1337;
         Graph.PopulateFrom(string.Format("Assets/Graphs/{0}.json", _settings.graphName));
 
+        AutoRotationEnabled = _settings.autoRotationEnabled;
+        AutoRotationSpeed = _settings.autoRotationSpeed;
+        EdgesActive = _settings.edgesActive;
+        LabelsActive = _settings.labelsActive;
+
         ChangeThemeAnim(Theme);
     }
 
