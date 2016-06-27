@@ -26,7 +26,7 @@ public class Menu : MonoBehaviour {
     }
 
     public void RecenterGraph() {
-        var pinchController = GameSystem.Instance.Graph.GetComponent<GraphPinchController>();
+        var pinchController = GameSystem.Instance.Graph.GetComponent<GraphPinchController>().pinchControllerObject;
         var pinchControllerInitialPosition = pinchController.transform.position;
         var pinchControllerInitialScale = pinchController.transform.localScale;
 

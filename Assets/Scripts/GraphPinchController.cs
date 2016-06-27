@@ -2,10 +2,14 @@
 using UnityEngine;
 
 public class GraphPinchController : MonoBehaviour {
+
+    [HideInInspector]
+    public GameObject pinchControllerObject;
+
+    // to be set in editor
     public PinchDetector pinchDetectorR, pinchDetectorL;
 
     private ClosestNode _closestNodeR = new ClosestNode(), _closestNodeL = new ClosestNode();
-    private GameObject _pinchControllerObject;
     private PinchInfo _pinchInfoR, _pinchInfoL;
 
     private PinchInfo GetPinchInfo(PinchDetector pinchDetector, ClosestNode closestNode) {
@@ -17,21 +21,21 @@ public class GraphPinchController : MonoBehaviour {
     }
 
     private void Start() {
-        _pinchControllerObject = new GameObject("GraphPinchController");
-        _pinchControllerObject.transform.parent = transform.parent;
-        transform.parent = _pinchControllerObject.transform;
+        pinchControllerObject = new GameObject("GraphPinchController");
+        pinchControllerObject.transform.parent = transform.parent;
+        transform.parent = pinchControllerObject.transform;
     }
 
     private void transformDoubleAnchor() {
-        _pinchControllerObject.transform.position = (pinchDetectorR.Position + pinchDetectorL.Position) / 2f;
+        pinchControllerObject.transform.position = (pinchDetectorR.Position + pinchDetectorL.Position) / 2f;
 
         Quaternion pp = Quaternion.Lerp(pinchDetectorR.Rotation, pinchDetectorL.Rotation, .5f);
         Vector3 u = pp * Vector3.up;
-        _pinchControllerObject.transform.LookAt(pinchDetectorR.Position, u);
+        pinchControllerObject.transform.LookAt(pinchDetectorR.Position, u);
 
         const bool allowScale = true;
         if (allowScale) {
-            _pinchControllerObject.transform.localScale = Vector3.one * Vector3.Distance(pinchDetectorR.Position, pinchDetectorL.Position);
+            pinchControllerObject.transform.localScale = Vector3.one * Vector3.Distance(pinchDetectorR.Position, pinchDetectorL.Position);
         }
     }
 
@@ -60,7 +64,7 @@ public class GraphPinchController : MonoBehaviour {
         UpdatePinchDouble();
 
         if (didUpdate) {
-            transform.SetParent(_pinchControllerObject.transform, true);
+            transform.SetParent(pinchControllerObject.transform, true);
         }
     }
 
