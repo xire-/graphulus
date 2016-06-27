@@ -25,6 +25,10 @@ public class GraphPinchController : MonoBehaviour {
     private void transformDoubleAnchor() {
         _pinchControllerObject.transform.position = (pinchDetectorR.Position + pinchDetectorL.Position) / 2f;
 
+        Quaternion pp = Quaternion.Lerp(pinchDetectorR.Rotation, pinchDetectorL.Rotation, .5f);
+        Vector3 u = pp * Vector3.up;
+        _pinchControllerObject.transform.LookAt(pinchDetectorR.Position, u);
+
         const bool allowScale = true;
         if (allowScale) {
             _pinchControllerObject.transform.localScale = Vector3.one * Vector3.Distance(pinchDetectorR.Position, pinchDetectorL.Position);
