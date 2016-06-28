@@ -1,5 +1,5 @@
 # graphulus
-Experiments about graphs and virtual reality with [Unity](https://unity3d.com/), for the [Oculus Rift](https://www.oculus.com/) and the [Leap Motion Controller](https://www.leapmotion.com/).
+Experiments about graphs exploration and virtual reality with [Unity](https://unity3d.com/), for the [Oculus Rift](https://www.oculus.com/) and the [Leap Motion Controller](https://www.leapmotion.com/).
 
 Graphs are loaded from JSON files and placed in the 3D virtual space using a [force-directed](https://en.wikipedia.org/wiki/Force-directed_graph_drawing) layout. The application can be started in two different scenes:
 - Play `Scene.unity` (used during development for testing purposes) if you don't have an Oculus Rift or a Leap Motion Controller. The camera can be controlled with the `W`/`A`/`S`/`D` keys and the mouse, but the graph cannot be manipulated. Settings can be altered by the following key bindings:
