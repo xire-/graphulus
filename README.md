@@ -1,16 +1,23 @@
 # graphulus
-An application to experiment with graphs exploration and virtual reality, made using [Unity](https://unity3d.com/) for the [Oculus Rift](https://www.oculus.com/) and the [Leap Motion Controller](https://www.leapmotion.com/).
+Experiments about graphs and virtual reality with [Unity](https://unity3d.com/), for the [Oculus Rift](https://www.oculus.com/) and the [Leap Motion Controller](https://www.leapmotion.com/).
 
-Graphs are placed in the 3D virtual space using a [force-directed](https://en.wikipedia.org/wiki/Force-directed_graph_drawing) layout, and can be manipulated through hand gestures (i.e., single pinches to move nodes around and double pinches to move and scale the graph).
+Graphs are loaded from JSON files and placed in the 3D virtual space using a [force-directed](https://en.wikipedia.org/wiki/Force-directed_graph_drawing) layout. The application can be started in two different scenes:
+- Play `Scene.unity` (used during development for testing purposes) if you don't have an Oculus Rift or a Leap Motion Controller. The camera can be controlled with the `W`/`A`/`S`/`D` keys and the mouse, but the graph cannot be manipulated. Settings can be altered by the following key bindings:
+  - `R` toggles edges active
+  - `T` toggles labels active
+  - `N` toggles auto rotation
+  - `B` increases auto rotation speed
+  - `V` decreases auto rotation speed
+  - `L` toggles theme
+- Play `SceneVRLP.unity` for the VR experience. The camera is controlled by the Oculus Rift, and the graph can be manipulated by the Leap Motion Controller in two ways: use single pinches to move nodes around, and double pinch to move/scale/rotate the whole graph. Look down to activate the menu, and interact with its elements by gazing for a brief period of time. Do not forget to check `Edit > Project Settings > Player > Virtual Reality Supported` in the Unity editor.
 
-To start the application, play the scene `SceneVRLP.unity` (don't forget to tick `Virtual Reality Supported` in the Unity editor located in `Edit > Project Settings > Player`). If you don't have an Oculus or a Leap Motion device, you can play with the scene `Scene.unity`, where the graph can be controlled using mouse and keyboard.   
-Both scenes have been tested with Unity v5.3.5f1, Oculus Rift DK2 with Runtime v1.5.0 and Leap Motion Orion v3.1.3.
+This project has been developed and tested with Unity v5.3.5f1, Oculus Rift DK2 with Rift Runtime v1.5.0 and Leap Motion Orion v3.1.3.
 
 Francesco and Marco
 
 
 ## Credits
-- [Force-Directed Graph](https://bl.ocks.org/mbostock/4062045) (for a graph of encounters between the characters of Les Misérables, as compiled by [Donald Knuth](http://www-cs-faculty.stanford.edu/~uno/sgb.html))
+- [Force-Directed Graph](https://bl.ocks.org/mbostock/4062045) (for a sample graph on the characters of Les Misérables, as compiled by [Donald Knuth](http://www-cs-faculty.stanford.edu/~uno/sgb.html))
 - [d3-force](https://github.com/d3/d3-force)
 - [The Barnes-Hut Algorithm](http://arborjs.org/docs/barnes-hut)
 - [New Unity UI + OVR Look-Based Input HOWTO](https://forums.oculus.com/community/discussion/16710/new-unity-ui-ovr-look-based-input-howto) (for handling UI events with a VR device)
