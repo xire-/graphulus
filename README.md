@@ -18,6 +18,7 @@ Graphs are loaded from JSON files and placed in the 3D virtual space using a [fo
 
 This project has been developed and tested with Leap Motion Core Assets 4.4.0, and Unity 2017.4.1f1, however it should be compatible with any newer version of Unity that is out of the box compatible with the aforementioned Leap Core Assets.
 It has also been tested using the SteamVR runtime and an HTC vive, but it should work with any VR Runtime and hardware that supports native Unity integration (including via package manager)
+
 Francesco, Marco, and JCorvinus
 
 ## Credits
