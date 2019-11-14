@@ -1,5 +1,5 @@
 # graphulus
-Experiments about graphs exploration and virtual reality with [Unity](https://unity3d.com/), for the [Oculus Rift](https://www.oculus.com/) and the [Leap Motion Controller](https://www.leapmotion.com/).
+Experiments about graphs exploration and virtual reality with [Unity](https://unity3d.com/), and the [Leap Motion Controller](https://www.leapmotion.com/).
 
 Graphs are loaded from JSON files and placed in the 3D virtual space using a [force-directed](https://en.wikipedia.org/wiki/Force-directed_graph_drawing) layout. The application can be started in two different scenes:
 - Play `Scene.unity` (used during development for testing purposes) if you don't have an Oculus Rift or a Leap Motion Controller. The camera can be controlled with the `W`/`A`/`S`/`D` keys and the mouse, but the graph cannot be manipulated. Settings can be altered by the following key bindings:
@@ -11,9 +11,9 @@ Graphs are loaded from JSON files and placed in the 3D virtual space using a [fo
   - `L` toggles theme
 - Play `SceneVRLP.unity` for the VR experience. The camera is controlled by the Oculus Rift, and the graph can be manipulated by the Leap Motion Controller in two ways: use single pinches to move nodes around, and double pinch to move/scale/rotate the whole graph. Look down to activate the menu, and interact with its elements by gazing for a brief period of time. Do not forget to check `Edit > Project Settings > Player > Virtual Reality Supported` in the Unity editor.
 
-This project has been developed and tested with Unity v5.3.5f1, Oculus Rift DK2 with Rift Runtime v1.5.0 and Leap Motion Orion v3.1.3.
-
-Francesco and Marco
+This project has been developed and tested with Leap Motion Core Assets 4.4.0, and Unity 2017.4.1f1, however it should be compatible with any newer version of Unity that is out of the box compatible with the aforementioned Leap Core Assets.
+It has also been tested using the SteamVR runtime and an HTC vive, but it should work with any VR Runtime and hardware that supports native Unity integration (including via package manager)
+Francesco, Marco, and JCorvinus
 
 
 ## Credits
@@ -21,6 +21,7 @@ Francesco and Marco
 - [d3-force](https://github.com/d3/d3-force)
 - [The Barnes-Hut Algorithm](http://arborjs.org/docs/barnes-hut)
 - [New Unity UI + OVR Look-Based Input HOWTO](https://forums.oculus.com/community/discussion/16710/new-unity-ui-ovr-look-based-input-howto) (for handling UI events with a VR device)
+- [Holos](holos.io) for updating the project to work with newer versions of Unity and Leap Motion
 
 
 ## License
