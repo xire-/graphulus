@@ -1,6 +1,11 @@
 # graphulus
 Experiments about graphs exploration and virtual reality with [Unity](https://unity3d.com/), and the [Leap Motion Controller](https://www.leapmotion.com/).
 
+## Setup Instructions
+In an attempt to be more conformant with Leap Motion's licensing, the Core Assets are no longer directly included, you will need to acquire them yourself. After cloning the repository, you will need to [import the Leap Motion Core Assets](https://developer.leapmotion.com/releases/core-assets-440)
+
+## Usage
+
 Graphs are loaded from JSON files and placed in the 3D virtual space using a [force-directed](https://en.wikipedia.org/wiki/Force-directed_graph_drawing) layout. The application can be started in two different scenes:
 - Play `Scene.unity` (used during development for testing purposes) if you don't have an Oculus Rift or a Leap Motion Controller. The camera can be controlled with the `W`/`A`/`S`/`D` keys and the mouse, but the graph cannot be manipulated. Settings can be altered by the following key bindings:
   - `R` toggles edges active
@@ -14,7 +19,6 @@ Graphs are loaded from JSON files and placed in the 3D virtual space using a [fo
 This project has been developed and tested with Leap Motion Core Assets 4.4.0, and Unity 2017.4.1f1, however it should be compatible with any newer version of Unity that is out of the box compatible with the aforementioned Leap Core Assets.
 It has also been tested using the SteamVR runtime and an HTC vive, but it should work with any VR Runtime and hardware that supports native Unity integration (including via package manager)
 Francesco, Marco, and JCorvinus
-
 
 ## Credits
 - [Force-Directed Graph](https://bl.ocks.org/mbostock/4062045) (for a sample graph on the characters of Les Misérables, as compiled by [Donald Knuth](http://www-cs-faculty.stanford.edu/~uno/sgb.html))
