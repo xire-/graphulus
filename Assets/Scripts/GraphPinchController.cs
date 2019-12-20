@@ -71,9 +71,9 @@ public class GraphPinchController : MonoBehaviour {
     private void UpdateClosestNode(PinchDetector pinchDetector, ClosestNode closestNode) {
         closestNode.prev = closestNode.curr;
 
-        // get closest node to index tip
-        var handModel = pinchDetector.GetComponentInParent<IHandModel>();
-        if (handModel != null) {
+		// get closest node to index tip
+		var handModel = pinchDetector.HandModel;
+        if (handModel.IsTracked) {
             var index = handModel.GetLeapHand().Fingers[1];
             var indexTipPosition = index.TipPosition.ToVector3();
 
